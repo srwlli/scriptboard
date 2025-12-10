@@ -1,0 +1,83 @@
+{
+  "favorites": [
+    {
+      "label": "docs-mcp",
+      "path": "C:/Users/willh/.mcp-servers/docs-mcp/coderef/working"
+    },
+    {
+      "label": "gridiron",
+      "path": "C:/Users/willh/Desktop/latest-sim/gridiron-franchise/coderef"
+    },
+    {
+      "label": "scraper",
+      "path": "C:/Users/willh/Desktop/projects - current-location/next-scraper/coderef"
+    }
+  ],
+  "llm_urls": [
+    {
+      "label": "GPT",
+      "url": "https://chat.openai.com"
+    },
+    {
+      "label": "Claude",
+      "url": "https://claude.ai"
+    },
+    {
+      "label": "Gemini",
+      "url": "https://gemini.google.com"
+    },
+    {
+      "label": "Pplx",
+      "url": "https://perplexity.ai"
+    },
+    {
+      "label": "Grok",
+      "url": "https://grok.x.ai"
+    },
+    {
+      "label": "Deep",
+      "url": "https://chat.deepseek.com"
+    },
+    {
+      "label": "Mistral",
+      "url": "https://chat.mistral.ai"
+    }
+  ],
+  "workspace_profiles": [
+    {
+      "name": "default",
+      "favorites": [
+        {
+          "label": "docs-mcp",
+          "path": "C:/Users/willh/.mcp-servers/docs-mcp/coderef/working"
+        }
+      ],
+      "view_settings": {
+        "show_favorites": true,
+        "show_prompt": true,
+        "show_attachments": true,
+        "show_responses": true,
+        "show_manager": true,
+        "show_preview": true
+      }
+    }
+  ],
+  "view_defaults": {
+    "show_favorites": true,
+    "show_prompt": true,
+    "show_attachments": true,
+    "show_responses": true,
+    "show_manager": true,
+    "show_preview": true
+  },
+  "keymap": {
+    "paste_response": "Ctrl+V",
+    "load_prompt": "Ctrl+L",
+    "clear_all": "Ctrl+Shift+C",
+    "save_session": "Ctrl+S",
+    "load_session": "Ctrl+O",
+    "toggle_preview": "Ctrl+P"
+  },
+  "theme": "dark"
+}
+

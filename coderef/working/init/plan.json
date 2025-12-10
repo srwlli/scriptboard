@@ -1,0 +1,1054 @@
+{
+  "META_DOCUMENTATION": {
+    "title": "Scriptboard Application - Full Implementation Plan",
+    "purpose": "Complete migration from Tkinter desktop app to modern architecture: Python Core + FastAPI Backend + Next.js Frontend + Electron Shell",
+    "version": "1.0.0",
+    "created": "2025-01-27",
+    "workorder": {
+      "id": "WO-SCRIPTBOARD-APP-001",
+      "name": "Scriptboard Application",
+      "feature_dir": "."
+    }
+  },
+  "0_preparation": {
+    "foundation_docs": {
+      "available": [
+        "final-spec.md - Complete integrated specification with MVP and Phase-2 features",
+        "step-by-step.md - Implementation checklist and bootstrap instructions",
+        "scriptmap.md - Project structure map and component inventory",
+        "schemas.py - Pydantic models for all API contracts"
+      ],
+      "missing": []
+    },
+    "coding_standards": {
+      "available": [
+        "schemas.py - Error envelope pattern, ID naming conventions",
+        "settings.py - Configuration constants and defaults pattern"
+      ],
+      "missing": [
+        "Explicit coding standards document (will infer from existing code)"
+      ]
+    },
+    "reference_components": {
+      "primary": "scriptboard.py - Original Tkinter app (reference for business logic)",
+      "secondary": [
+        "schemas.py - Pydantic model patterns",
+        "settings.py - Configuration structure"
+      ]
+    },
+    "key_patterns_identified": [
+      "Error responses follow {error: {code, message, details}} envelope",
+      "IDs use prefixes: att_<uuid4> for attachments, resp_<uuid4> for responses",
+      "Session serialization uses schema_version for compatibility",
+      "Autosave debounced at 1s after state mutations",
+      "Binary files stored as metadata only (binary: true flag)"
+    ],
+    "gaps_and_risks": [
+      "No explicit testing standards (will follow pytest conventions)",
+      "No frontend component patterns yet (will establish during implementation)"
+    ]
+  },
+  "1_executive_summary": {
+    "purpose": "Migrate Scriptboard from Tkinter desktop app to modern architecture enabling better maintainability, cross-platform support, and extensibility. The app helps users manage LLM prompts, attachments, and responses in a unified workspace.",
+    "value_proposition": "Provides a modern, maintainable codebase with clear separation of concerns, enables future feature expansion, improves performance with optimized state management, and maintains all existing functionality while adding new capabilities like search, profiles, and batch processing.",
+    "real_world_analogy": "Like upgrading from a single-room office to a multi-floor building with organized departments - same work gets done, but with better structure, more space for growth, and clearer organization that makes future improvements easier.",
+    "use_case": "User opens app → loads prompt from file or clipboard → attaches code files → collects LLM responses → previews combined content → saves session → later reloads to continue work. All data stays local, no cloud required.",
+    "output": "Complete desktop application with: Python core engine (core.py), FastAPI backend (api.py), Next.js frontend (React components), Electron shell (main.js), configuration system, session management, autosave, search, token counting, theme system, keyboard shortcuts, and Phase-2 features (diff viewer, batch processing, Git integration, direct API mode)"
+  },
+  "2_risk_assessment": {
+    "overall_risk": "medium",
+    "complexity": "high",
+    "scope": "Large - 50+ files, affects core application architecture, multiple subsystems (backend, frontend, desktop shell)",
+    "risk_factors": {
+      "file_system": {
+        "level": "medium",
+        "details": "Reads/writes session files, handles file uploads, manages autosave. Must validate paths, handle permissions, manage file sizes (2MB attachment limit, 10MB session limit).",
+        "mitigation": "Path validation in backend, size limits enforced, error handling for permission issues, autosave rotation for large files"
+      },
+      "dependencies": {
+        "level": "medium",
+        "details": "New dependencies: FastAPI, Next.js, Electron, tiktoken. Well-established libraries but multiple ecosystems (Python, Node.js) increase setup complexity.",
+        "mitigation": "Use stable versions, document all dependencies clearly, provide setup scripts, test on multiple platforms"
+      },
+      "performance": {
+        "level": "medium",
+        "details": "Must handle 50 attachments, 10 responses, 250k characters while maintaining <150ms search, <200ms tokenization, responsive UI. Large file handling, token counting, search indexing.",
+        "mitigation": "Implement caching for token counts, pagination for search results, lazy loading for large attachments, debounced autosave, binary file metadata-only storage"
+      },
+      "security": {
+        "level": "low",
+        "details": "Local-only application, no network exposure beyond localhost. File path validation needed to prevent directory traversal. API keys for Phase-2 direct API mode stored in OS keychain.",
+        "mitigation": "Backend binds to 127.0.0.1 only, validate all file paths, sanitize user input, use OS keychain for secrets, no stack traces in error responses"
+      },
+      "breaking_changes": {
+        "level": "none",
+        "details": "This is a complete rewrite/migration, not an update to existing system. No backward compatibility needed.",
+        "mitigation": "N/A - new implementation"
+      }
+    },
+    "mitigation_strategies": [
+      "Incremental implementation: MVP first, Phase-2 features later",
+      "Comprehensive testing at each layer (unit, integration, E2E)",
+      "Performance testing with realistic data volumes",
+      "Clear error handling and user feedback",
+      "Documentation for setup and troubleshooting"
+    ]
+  },
+  "3_current_state_analysis": {
+    "affected_files": [
+      "NEW: backend/core.py - ScriptboardCore class with all business logic",
+      "NEW: backend/api.py - FastAPI application with all endpoints",
+      "MODIFIED: backend/schemas.py - Already exists, may need additions",
+      "MODIFIED: backend/settings.py - Already exists, may need additions",
+      "REFERENCE: backend/scriptboard.py - Original Tkinter app (reference only)",
+      "NEW: backend/config.json - User configuration template",
+      "NEW: backend/sessions/ - Directory for session files (created at runtime)",
+      "NEW: backend/logs/ - Directory for log files (created at runtime)",
+      "NEW: frontend/package.json - Next.js project configuration",
+      "NEW: frontend/next.config.mjs - Next.js configuration",
+      "NEW: frontend/app/layout.tsx - Root layout with theme provider",
+      "NEW: frontend/app/page.tsx - Main application page",
+      "NEW: frontend/src/components/Header.tsx - App header with search",
+      "NEW: frontend/src/components/FavoritesPanel.tsx - Favorites display",
+      "NEW: frontend/src/components/PromptPanel.tsx - Prompt management",
+      "NEW: frontend/src/components/AttachmentsPanel.tsx - Attachment management",
+      "NEW: frontend/src/components/ResponsesPanel.tsx - Response collection",
+      "NEW: frontend/src/components/SessionManagerPanel.tsx - Session operations",
+      "NEW: frontend/src/components/PreviewPanel.tsx - Unified preview",
+      "NEW: frontend/src/components/ThemeToggle.tsx - Theme switcher",
+      "NEW: frontend/src/lib/api.ts - API client wrapper",
+      "NEW: frontend/src/lib/hotkeys.ts - Keyboard shortcut handler",
+      "NEW: frontend/src/styles/globals.css - Global styles",
+      "NEW: shell/package.json - Electron project configuration",
+      "NEW: shell/main.js - Electron main process",
+      "NEW: shell/preload.js - Electron preload script",
+      "NEW: README.md - Project documentation",
+      "NEW: ARCHITECTURE.md - Architecture documentation",
+      "NEW: MIGRATION.md - Migration guide from Tkinter version"
+    ],
+    "dependencies": {
+      "existing_internal": [
+        "backend/schemas.py - Pydantic models for API contracts",
+        "backend/settings.py - Default configuration constants (DEFAULT_FAVORITES, DEFAULT_LLM_URLS, PRELOADED_PROMPTS)",
+        "backend/scriptboard.py - Reference for business logic patterns"
+      ],
+      "existing_external": [],
+      "new_external": [
+        "Python: fastapi>=0.104.0, uvicorn>=0.24.0, pydantic>=2.0.0, tiktoken>=0.5.0, gitpython>=3.1.0, python-dotenv>=1.0.0",
+        "Node.js: next>=14.0.0, react>=18.0.0, react-dom>=18.0.0, typescript>=5.0.0, electron>=28.0.0"
+      ],
+      "new_internal": [
+        "backend/core.py - ScriptboardCore class",
+        "backend/api.py - FastAPI application",
+        "frontend/src/components/* - React components",
+        "frontend/src/lib/* - Utility libraries",
+        "shell/main.js - Electron main process"
+      ]
+    },
+    "architecture_context": "Operates across multiple layers: Python core (business logic), FastAPI (API layer), Next.js (presentation), Electron (desktop integration). Follows strict separation: Core owns state, API handles I/O and validation, Frontend displays and delegates, Electron provides system integration. State flows: Frontend → API → Core → API → Frontend. All file I/O happens in API layer, never in Core. Error handling uses structured error envelope pattern. Session serialization uses schema_version for future compatibility."
+  },
+  "4_key_features": {
+    "primary_features": [
+      "Prompt Management - Load prompts from files, paste from clipboard, use preloaded prompts, clear and view current prompt",
+      "Attachment Handling - Attach files via file picker or paste from clipboard, view attachment list, clear attachments, handle binary files as metadata only",
+      "Response Collection - Paste LLM responses from clipboard, view response summaries, clear responses, track response counts and character totals",
+      "Unified Preview Panel - Display combined preview of prompt, attachments, and responses with truncation, expandable to full view",
+      "Session Management - Save sessions as JSON files, load saved sessions, autosave with 1s debounce, recover from autosave on crash"
+    ],
+    "secondary_features": [
+      "Search Functionality - Search across prompt, attachments, and responses with case-insensitive substring matching, paginated results with snippets",
+      "Token Counting - Estimate tokens for prompt, attachments, and responses using tiktoken, cached per item, recalculated on text updates",
+      "Favorites Management - Quick access to favorite folders, add/remove favorites, load prompts from favorite locations",
+      "Configuration System - User config file with favorites, LLM URLs, view settings, keyboard mappings, theme preference",
+      "Profile System - Named workspace profiles that modify UI defaults and favorites without overwriting session content"
+    ],
+    "edge_case_handling": [
+      "Large file handling - Files >2MB rejected, sessions >10MB trigger rotation, binary files stored as metadata only",
+      "Error recovery - Autosave recovery on app restart, graceful handling of corrupted session files, fallback to default config on invalid config",
+      "Concurrent operations - Debounced autosave prevents write conflicts, search pagination handles large result sets",
+      "Invalid input - Validation of file paths, size limits, JSON schema validation for sessions and config"
+    ],
+    "configuration_options": [
+      "Theme preference - Light/dark theme with persistence in localStorage",
+      "Keyboard shortcuts - Remappable keyboard shortcuts for common actions (Phase-2: full keymap editor UI)"
+    ]
+  },
+  "5_task_id_system": {
+    "workorder": {
+      "id": "WO-SCRIPTBOARD-APP-001",
+      "name": "Scriptboard Application",
+      "feature_dir": "."
+    },
+    "tasks": [
+      {
+        "id": "SETUP-001",
+        "workorder_id": "WO-SCRIPTBOARD-APP-001",
+        "description": "Create project folder structure: backend/, frontend/, shell/ directories with subdirectories (sessions/, logs/)",
+        "category": "setup"
+      },
+      {
+        "id": "SETUP-002",
+        "workorder_id": "WO-SCRIPTBOARD-APP-001",
+        "description": "Move existing files: Move schemas.py, scriptboard.py, settings.py into backend/ directory",
+        "category": "setup"
+      },
+      {
+        "id": "SETUP-003",
+        "workorder_id": "WO-SCRIPTBOARD-APP-001",
+        "description": "Set up Python virtual environment and install backend dependencies (fastapi, uvicorn, pydantic, tiktoken, gitpython, python-dotenv)",
+        "category": "setup"
+      },
+      {
+        "id": "SETUP-004",
+        "workorder_id": "WO-SCRIPTBOARD-APP-001",
+        "description": "Initialize Next.js frontend project with TypeScript and App Router",
+        "category": "setup"
+      },
+      {
+        "id": "SETUP-005",
+        "workorder_id": "WO-SCRIPTBOARD-APP-001",
+        "description": "Initialize Electron shell project in shell/ directory",
+        "category": "setup"
+      },
+      {
+        "id": "CORE-001",
+        "workorder_id": "WO-SCRIPTBOARD-APP-001",
+        "description": "Create backend/core.py with data classes: Attachment, ResponseItem, BatchJob dataclasses",
+        "category": "core"
+      },
+      {
+        "id": "CORE-002",
+        "workorder_id": "WO-SCRIPTBOARD-APP-001",
+        "description": "Implement ScriptboardCore.__init__ with state fields (prompt, attachments, responses, favorites, llm_urls, current_profile, batch_jobs)",
+        "category": "core"
+      },
+      {
+        "id": "CORE-003",
+        "workorder_id": "WO-SCRIPTBOARD-APP-001",
+        "description": "Implement prompt operations: set_prompt(), clear_prompt(), use_preloaded_prompt(), get_prompt_status()",
+        "category": "core"
+      },
+      {
+        "id": "CORE-004",
+        "workorder_id": "WO-SCRIPTBOARD-APP-001",
+        "description": "Implement attachment operations: add_attachment_from_text(), add_attachment_from_path(), clear_attachments(), list_attachments()",
+        "category": "core"
+      },
+      {
+        "id": "CORE-005",
+        "workorder_id": "WO-SCRIPTBOARD-APP-001",
+        "description": "Implement response operations: add_response(), clear_responses(), responses_summary()",
+        "category": "core"
+      },
+      {
+        "id": "CORE-006",
+        "workorder_id": "WO-SCRIPTBOARD-APP-001",
+        "description": "Implement preview methods: build_preview() (truncated), build_combined_preview() (full)",
+        "category": "core"
+      },
+      {
+        "id": "CORE-007",
+        "workorder_id": "WO-SCRIPTBOARD-APP-001",
+        "description": "Implement session serialization: to_dict(), load_from_dict(), get_session_summary()",
+        "category": "core"
+      },
+      {
+        "id": "CORE-008",
+        "workorder_id": "WO-SCRIPTBOARD-APP-001",
+        "description": "Implement token counting: estimate_tokens() using tiktoken or provider-specific tokenizer",
+        "category": "core"
+      },
+      {
+        "id": "CORE-009",
+        "workorder_id": "WO-SCRIPTBOARD-APP-001",
+        "description": "Implement search functionality: search(query, limit, offset) with case-insensitive substring matching",
+        "category": "core"
+      },
+      {
+        "id": "CORE-010",
+        "workorder_id": "WO-SCRIPTBOARD-APP-001",
+        "description": "Implement batch queue operations: enqueue_batch(), get_batch_jobs() (Phase-2 data structures)",
+        "category": "core"
+      },
+      {
+        "id": "CONFIG-001",
+        "workorder_id": "WO-SCRIPTBOARD-APP-001",
+        "description": "Create config.json template with favorites, llm_urls, workspace_profiles, view_defaults, keymap, theme",
+        "category": "config"
+      },
+      {
+        "id": "CONFIG-002",
+        "workorder_id": "WO-SCRIPTBOARD-APP-001",
+        "description": "Implement config loader in backend/api.py: Load from ~/.scriptboard/config.json with validation and fallback to defaults",
+        "category": "config"
+      },
+      {
+        "id": "CONFIG-003",
+        "workorder_id": "WO-SCRIPTBOARD-APP-001",
+        "description": "Implement session save/load helpers: save_session(), load_session(), write_autosave(), read_autosave()",
+        "category": "config"
+      },
+      {
+        "id": "CONFIG-004",
+        "workorder_id": "WO-SCRIPTBOARD-APP-001",
+        "description": "Implement profile system: load_profile() that updates favorites/view settings without overwriting session text",
+        "category": "config"
+      },
+      {
+        "id": "API-001",
+        "workorder_id": "WO-SCRIPTBOARD-APP-001",
+        "description": "Create FastAPI app in backend/api.py with CORS middleware and global ScriptboardCore instance",
+        "category": "api"
+      },
+      {
+        "id": "API-002",
+        "workorder_id": "WO-SCRIPTBOARD-APP-001",
+        "description": "Implement health and session endpoints: GET /health, GET /session",
+        "category": "api"
+      },
+      {
+        "id": "API-003",
+        "workorder_id": "WO-SCRIPTBOARD-APP-001",
+        "description": "Implement prompt endpoints: POST /prompt, DELETE /prompt, POST /prompt/preloaded",
+        "category": "api"
+      },
+      {
+        "id": "API-004",
+        "workorder_id": "WO-SCRIPTBOARD-APP-001",
+        "description": "Implement attachment endpoints: POST /attachments/text, GET /attachments, DELETE /attachments",
+        "category": "api"
+      },
+      {
+        "id": "API-005",
+        "workorder_id": "WO-SCRIPTBOARD-APP-001",
+        "description": "Implement response endpoints: POST /responses, GET /responses/summary, DELETE /responses",
+        "category": "api"
+      },
+      {
+        "id": "API-006",
+        "workorder_id": "WO-SCRIPTBOARD-APP-001",
+        "description": "Implement preview and export endpoints: GET /preview, GET /preview/full, GET /export/json",
+        "category": "api"
+      },
+      {
+        "id": "API-007",
+        "workorder_id": "WO-SCRIPTBOARD-APP-001",
+        "description": "Implement search endpoint: GET /search with query parameters (q, limit, offset)",
+        "category": "api"
+      },
+      {
+        "id": "API-008",
+        "workorder_id": "WO-SCRIPTBOARD-APP-001",
+        "description": "Implement tokens endpoint: GET /tokens returning token estimates",
+        "category": "api"
+      },
+      {
+        "id": "API-009",
+        "workorder_id": "WO-SCRIPTBOARD-APP-001",
+        "description": "Implement session and autosave endpoints: POST /sessions/save, POST /sessions/load, GET /autosave/status, POST /autosave/recover",
+        "category": "api"
+      },
+      {
+        "id": "API-010",
+        "workorder_id": "WO-SCRIPTBOARD-APP-001",
+        "description": "Implement profiles and config endpoints: GET /profiles, POST /profiles/load, GET /config",
+        "category": "api"
+      },
+      {
+        "id": "API-011",
+        "workorder_id": "WO-SCRIPTBOARD-APP-001",
+        "description": "Add standard error handler to wrap all errors in {error: {code, message, details}} envelope",
+        "category": "api"
+      },
+      {
+        "id": "API-012",
+        "workorder_id": "WO-SCRIPTBOARD-APP-001",
+        "description": "Implement autosave debounce mechanism (1s debounce after state mutations)",
+        "category": "api"
+      },
+      {
+        "id": "UI-001",
+        "workorder_id": "WO-SCRIPTBOARD-APP-001",
+        "description": "Set up Next.js project with TypeScript, configure base styling (Tailwind or CSS modules)",
+        "category": "ui"
+      },
+      {
+        "id": "UI-002",
+        "workorder_id": "WO-SCRIPTBOARD-APP-001",
+        "description": "Implement global theme system: ThemeToggle component, theme persistence in localStorage, data-theme attribute",
+        "category": "ui"
+      },
+      {
+        "id": "UI-003",
+        "workorder_id": "WO-SCRIPTBOARD-APP-001",
+        "description": "Create API client helper (src/lib/api.ts): Wrap all HTTP calls with base URL from NEXT_PUBLIC_BACKEND_URL",
+        "category": "ui"
+      },
+      {
+        "id": "UI-004",
+        "workorder_id": "WO-SCRIPTBOARD-APP-001",
+        "description": "Implement Header component: App title, theme toggle, search bar",
+        "category": "ui"
+      },
+      {
+        "id": "UI-005",
+        "workorder_id": "WO-SCRIPTBOARD-APP-001",
+        "description": "Implement FavoritesPanel component: Display favorites list, handle favorite selection",
+        "category": "ui"
+      },
+      {
+        "id": "UI-006",
+        "workorder_id": "WO-SCRIPTBOARD-APP-001",
+        "description": "Implement PromptPanel component: Load, Paste, View, Clear buttons with status label",
+        "category": "ui"
+      },
+      {
+        "id": "UI-007",
+        "workorder_id": "WO-SCRIPTBOARD-APP-001",
+        "description": "Implement AttachmentsPanel component: Load, Paste, View, Clear buttons with attachment list display",
+        "category": "ui"
+      },
+      {
+        "id": "UI-008",
+        "workorder_id": "WO-SCRIPTBOARD-APP-001",
+        "description": "Implement ResponsesPanel component: Open LLMs, Paste, View, Clear buttons with response count display",
+        "category": "ui"
+      },
+      {
+        "id": "UI-009",
+        "workorder_id": "WO-SCRIPTBOARD-APP-001",
+        "description": "Implement SessionManagerPanel component: Copy all JSON, Save Session, Load Session, Clear All buttons",
+        "category": "ui"
+      },
+      {
+        "id": "UI-010",
+        "workorder_id": "WO-SCRIPTBOARD-APP-001",
+        "description": "Implement PreviewPanel component: Inline preview with expand/collapse, uses /preview and /preview/full endpoints",
+        "category": "ui"
+      },
+      {
+        "id": "UI-011",
+        "workorder_id": "WO-SCRIPTBOARD-APP-001",
+        "description": "Create main page layout: 3-column grid layout matching Tkinter app design (desktop) with vertical stacking for mobile",
+        "category": "ui"
+      },
+      {
+        "id": "UI-012",
+        "workorder_id": "WO-SCRIPTBOARD-APP-001",
+        "description": "Implement keyboard shortcuts system: useHotkeys hook, load keymap from config, handle keydown events",
+        "category": "ui"
+      },
+      {
+        "id": "UI-013",
+        "workorder_id": "WO-SCRIPTBOARD-APP-001",
+        "description": "Implement search UI: Global search bar calling /search endpoint, display results grouped by type",
+        "category": "ui"
+      },
+      {
+        "id": "ELECTRON-001",
+        "workorder_id": "WO-SCRIPTBOARD-APP-001",
+        "description": "Initialize Electron project: npm init, install electron and dependencies",
+        "category": "electron"
+      },
+      {
+        "id": "ELECTRON-002",
+        "workorder_id": "WO-SCRIPTBOARD-APP-001",
+        "description": "Implement main.js: Spawn backend process (dev: uvicorn, prod: exe), poll /health endpoint, load Next UI",
+        "category": "electron"
+      },
+      {
+        "id": "ELECTRON-003",
+        "workorder_id": "WO-SCRIPTBOARD-APP-001",
+        "description": "Implement backend crash handling: Show UI error dialog, offer restart option",
+        "category": "electron"
+      },
+      {
+        "id": "ELECTRON-004",
+        "workorder_id": "WO-SCRIPTBOARD-APP-001",
+        "description": "Implement preload.js: Expose safe IPC APIs via contextBridge for folder selection",
+        "category": "electron"
+      },
+      {
+        "id": "ELECTRON-005",
+        "workorder_id": "WO-SCRIPTBOARD-APP-001",
+        "description": "Implement folder dialogs: IPC handler for selectFolder, validate paths, send to backend /attachments/folder",
+        "category": "electron"
+      },
+      {
+        "id": "TEST-001",
+        "workorder_id": "WO-SCRIPTBOARD-APP-001",
+        "description": "Write backend unit tests: Test ScriptboardCore methods, test API endpoints with pytest",
+        "category": "test"
+      },
+      {
+        "id": "TEST-002",
+        "workorder_id": "WO-SCRIPTBOARD-APP-001",
+        "description": "Write frontend component tests: Test React components with React Testing Library",
+        "category": "test"
+      },
+      {
+        "id": "TEST-003",
+        "workorder_id": "WO-SCRIPTBOARD-APP-001",
+        "description": "Write E2E tests: Test full workflow (load → attach → paste → export → save → reload) with Playwright or Cypress",
+        "category": "test"
+      },
+      {
+        "id": "TEST-004",
+        "workorder_id": "WO-SCRIPTBOARD-APP-001",
+        "description": "Performance testing: Test with 50 attachments, 10 responses, 250k characters, measure search/preview/token endpoints",
+        "category": "test"
+      },
+      {
+        "id": "DOC-001",
+        "workorder_id": "WO-SCRIPTBOARD-APP-001",
+        "description": "Create README.md: Installation instructions, running backend/frontend, packaging with Electron",
+        "category": "doc"
+      },
+      {
+        "id": "DOC-002",
+        "workorder_id": "WO-SCRIPTBOARD-APP-001",
+        "description": "Create ARCHITECTURE.md: Document architecture, state ownership, layer responsibilities",
+        "category": "doc"
+      },
+      {
+        "id": "DOC-003",
+        "workorder_id": "WO-SCRIPTBOARD-APP-001",
+        "description": "Create MIGRATION.md: Guide for migrating from Tkinter Scriptboard to new app",
+        "category": "doc"
+      },
+      {
+        "id": "PHASE2-001",
+        "workorder_id": "WO-SCRIPTBOARD-APP-001",
+        "description": "Phase-2: Implement Response Diff Viewer component (compare two responses side-by-side)",
+        "category": "phase2"
+      },
+      {
+        "id": "PHASE2-002",
+        "workorder_id": "WO-SCRIPTBOARD-APP-001",
+        "description": "Phase-2: Implement Batch Processing Queue UI and API endpoints",
+        "category": "phase2"
+      },
+      {
+        "id": "PHASE2-003",
+        "workorder_id": "WO-SCRIPTBOARD-APP-001",
+        "description": "Phase-2: Implement Direct LLM API Mode (OpenAI/Claude integration with API keys from keychain)",
+        "category": "phase2"
+      },
+      {
+        "id": "PHASE2-004",
+        "workorder_id": "WO-SCRIPTBOARD-APP-001",
+        "description": "Phase-2: Implement Attachment Folder Import (recursive folder import via Electron IPC)",
+        "category": "phase2"
+      },
+      {
+        "id": "PHASE2-005",
+        "workorder_id": "WO-SCRIPTBOARD-APP-001",
+        "description": "Phase-2: Implement Git Integration (status check, commit sessions with validation)",
+        "category": "phase2"
+      },
+      {
+        "id": "PHASE2-006",
+        "workorder_id": "WO-SCRIPTBOARD-APP-001",
+        "description": "Phase-2: Implement Export to Markdown/PDF endpoints and UI",
+        "category": "phase2"
+      },
+      {
+        "id": "PHASE2-007",
+        "workorder_id": "WO-SCRIPTBOARD-APP-001",
+        "description": "Phase-2: Implement Logging Console Panel component",
+        "category": "phase2"
+      },
+      {
+        "id": "PHASE2-008",
+        "workorder_id": "WO-SCRIPTBOARD-APP-001",
+        "description": "Phase-2: Implement Workspace Profiles UI (profile dropdown, load profile functionality)",
+        "category": "phase2"
+      },
+      {
+        "id": "PHASE2-009",
+        "workorder_id": "WO-SCRIPTBOARD-APP-001",
+        "description": "Phase-2: Implement Keyboard Remapping UI (KeymapEditor component for editing bindings)",
+        "category": "phase2"
+      }
+    ]
+  },
+  "6_implementation_phases": {
+    "phase_1_foundation": {
+      "title": "Project Setup and Core Foundation",
+      "purpose": "Establish project structure, install dependencies, create core business logic engine",
+      "complexity": "medium",
+      "effort_level": 3,
+      "effort_percentage": "20-25%",
+      "tasks": [
+        "SETUP-001: Create project folder structure",
+        "SETUP-002: Move existing files to backend/",
+        "SETUP-003: Set up Python virtual environment and dependencies",
+        "SETUP-004: Initialize Next.js frontend project",
+        "SETUP-005: Initialize Electron shell project",
+        "CORE-001: Create data classes (Attachment, ResponseItem, BatchJob)",
+        "CORE-002: Implement ScriptboardCore.__init__",
+        "CORE-003: Implement prompt operations",
+        "CORE-004: Implement attachment operations",
+        "CORE-005: Implement response operations",
+        "CORE-006: Implement preview methods",
+        "CORE-007: Implement session serialization",
+        "CORE-008: Implement token counting",
+        "CORE-009: Implement search functionality",
+        "CORE-010: Implement batch queue operations"
+      ],
+      "completion_criteria": "All project structure created, dependencies installed, ScriptboardCore class fully implemented with all business logic methods, code compiles and imports successfully"
+    },
+    "phase_2_configuration_and_api": {
+      "title": "Configuration System and API Layer",
+      "purpose": "Implement configuration management, session persistence, and FastAPI endpoints",
+      "complexity": "high",
+      "effort_level": 4,
+      "effort_percentage": "30-35%",
+      "dependencies": ["phase_1_foundation"],
+      "tasks": [
+        "CONFIG-001: Create config.json template",
+        "CONFIG-002: Implement config loader with validation",
+        "CONFIG-003: Implement session save/load helpers",
+        "CONFIG-004: Implement profile system",
+        "API-001: Create FastAPI app with CORS",
+        "API-002: Implement health and session endpoints",
+        "API-003: Implement prompt endpoints",
+        "API-004: Implement attachment endpoints",
+        "API-005: Implement response endpoints",
+        "API-006: Implement preview and export endpoints",
+        "API-007: Implement search endpoint",
+        "API-008: Implement tokens endpoint",
+        "API-009: Implement session and autosave endpoints",
+        "API-010: Implement profiles and config endpoints",
+        "API-011: Add standard error handler",
+        "API-012: Implement autosave debounce mechanism"
+      ],
+      "completion_criteria": "All API endpoints implemented and tested via FastAPI docs, configuration system working, session save/load functional, autosave working with debounce"
+    },
+    "phase_3_frontend_implementation": {
+      "title": "Frontend UI Components",
+      "purpose": "Build Next.js frontend with all UI components and user interactions",
+      "complexity": "high",
+      "effort_level": 4,
+      "effort_percentage": "25-30%",
+      "dependencies": ["phase_2_configuration_and_api"],
+      "tasks": [
+        "UI-001: Set up Next.js project with TypeScript",
+        "UI-002: Implement global theme system",
+        "UI-003: Create API client helper",
+        "UI-004: Implement Header component",
+        "UI-005: Implement FavoritesPanel component",
+        "UI-006: Implement PromptPanel component",
+        "UI-007: Implement AttachmentsPanel component",
+        "UI-008: Implement ResponsesPanel component",
+        "UI-009: Implement SessionManagerPanel component",
+        "UI-010: Implement PreviewPanel component",
+        "UI-011: Create main page layout",
+        "UI-012: Implement keyboard shortcuts system",
+        "UI-013: Implement search UI"
+      ],
+      "completion_criteria": "All UI components implemented and functional, theme system working, keyboard shortcuts functional, search UI working, main layout matches Tkinter app design"
+    },
+    "phase_4_electron_integration": {
+      "title": "Electron Desktop Shell",
+      "purpose": "Integrate Electron wrapper for desktop app functionality",
+      "complexity": "medium",
+      "effort_level": 3,
+      "effort_percentage": "10-15%",
+      "dependencies": ["phase_3_frontend_implementation"],
+      "tasks": [
+        "ELECTRON-001: Initialize Electron project",
+        "ELECTRON-002: Implement main.js with backend spawning",
+        "ELECTRON-003: Implement backend crash handling",
+        "ELECTRON-004: Implement preload.js",
+        "ELECTRON-005: Implement folder dialogs"
+      ],
+      "completion_criteria": "Electron app launches successfully, backend starts automatically, UI loads, folder selection works, crash handling functional"
+    },
+    "phase_5_testing_and_documentation": {
+      "title": "Testing and Documentation",
+      "purpose": "Comprehensive testing at all levels and complete documentation",
+      "complexity": "medium",
+      "effort_level": 3,
+      "effort_percentage": "10-15%",
+      "dependencies": ["phase_4_electron_integration"],
+      "tasks": [
+        "TEST-001: Write backend unit tests",
+        "TEST-002: Write frontend component tests",
+        "TEST-003: Write E2E tests",
+        "TEST-004: Performance testing",
+        "DOC-001: Create README.md",
+        "DOC-002: Create ARCHITECTURE.md",
+        "DOC-003: Create MIGRATION.md"
+      ],
+      "completion_criteria": "All tests passing, test coverage >80% for core logic, performance targets met, all documentation complete"
+    },
+    "phase_6_phase2_features": {
+      "title": "Phase-2 Advanced Features",
+      "purpose": "Implement advanced features: diff viewer, batch processing, Git integration, direct API mode",
+      "complexity": "very_high",
+      "effort_level": 5,
+      "effort_percentage": "15-20%",
+      "dependencies": ["phase_5_testing_and_documentation"],
+      "tasks": [
+        "PHASE2-001: Implement Response Diff Viewer",
+        "PHASE2-002: Implement Batch Processing Queue",
+        "PHASE2-003: Implement Direct LLM API Mode",
+        "PHASE2-004: Implement Attachment Folder Import",
+        "PHASE2-005: Implement Git Integration",
+        "PHASE2-006: Implement Export to Markdown/PDF",
+        "PHASE2-007: Implement Logging Console Panel",
+        "PHASE2-008: Implement Workspace Profiles UI",
+        "PHASE2-009: Implement Keyboard Remapping UI"
+      ],
+      "completion_criteria": "All Phase-2 features implemented and tested, Git integration working, direct API mode functional, export features working",
+      "review_gate": true
+    }
+  },
+  "7_testing_strategy": {
+    "unit_tests": {
+      "scope": "Individual methods in ScriptboardCore class and API endpoint handlers",
+      "goal": "Verify each business logic method works correctly in isolation",
+      "tools": "pytest for Python, Jest for JavaScript/TypeScript",
+      "coverage_target": ">80% for core.py, >70% for api.py",
+      "examples": [
+        "test_set_prompt() - Verify prompt is set and source tracked",
+        "test_add_attachment_from_text() - Verify attachment added with correct ID format",
+        "test_search() - Verify case-insensitive substring matching",
+        "test_estimate_tokens() - Verify token counting with tiktoken",
+        "test_to_dict() - Verify session serialization includes all fields",
+        "test_load_from_dict() - Verify session deserialization handles missing fields"
+      ]
+    },
+    "integration_tests": {
+      "scope": "API endpoints with ScriptboardCore integration",
+      "goal": "Verify API endpoints correctly interact with core and return proper responses",
+      "tools": "pytest with FastAPI TestClient, httpx for async testing",
+      "examples": [
+        "test_prompt_endpoint_flow() - POST /prompt → verify in GET /session",
+        "test_attachment_flow() - POST /attachments/text → GET /attachments → verify list",
+        "test_session_save_load() - POST /sessions/save → POST /sessions/load → verify data integrity",
+        "test_autosave_recovery() - Write autosave → restart → POST /autosave/recover → verify state",
+        "test_search_endpoint() - Add content → GET /search → verify results format",
+        "test_error_handling() - Invalid input → verify error envelope format"
+      ]
+    },
+    "end_to_end_tests": {
+      "scope": "Complete user workflows through frontend",
+      "goal": "Verify system works from user perspective end-to-end",
+      "tools": "Playwright or Cypress",
+      "examples": [
+        "test_full_workflow() - Load prompt → attach file → paste response → preview → save → reload → verify all data present",
+        "test_search_ui() - Enter search query → verify results displayed → click result → verify navigation",
+        "test_theme_toggle() - Toggle theme → verify UI updates → reload → verify persistence",
+        "test_keyboard_shortcuts() - Press Ctrl+V → verify response pasted → verify UI updates"
+      ]
+    },
+    "edge_case_testing": {
+      "scenarios": [
+        {
+          "scenario": "Empty input handling",
+          "setup": "Call set_prompt('') or add_attachment_from_text('')",
+          "expected_behavior": "Empty strings accepted, state updated but content is empty",
+          "verification": "Verify prompt/attachment exists but content is empty string",
+          "error_handling": "No error"
+        },
+        {
+          "scenario": "File size limit exceeded",
+          "setup": "Attempt to attach file >2MB",
+          "expected_behavior": "Request rejected with IO_ERROR code",
+          "verification": "Verify error response with code IO_ERROR, message indicates size limit",
+          "error_handling": "Error returned, file not attached"
+        },
+        {
+          "scenario": "Invalid session JSON",
+          "setup": "Attempt to load session file with invalid JSON",
+          "expected_behavior": "Error returned with CONFIG_ERROR code",
+          "verification": "Verify error envelope, session not loaded, state unchanged",
+          "error_handling": "Error returned, fallback to empty state"
+        },
+        {
+          "scenario": "Search with no matches",
+          "setup": "Search for query that matches nothing",
+          "expected_behavior": "Returns empty results array, total=0",
+          "verification": "Verify response structure, no errors",
+          "error_handling": "No error, empty results"
+        },
+        {
+          "scenario": "Concurrent autosave writes",
+          "setup": "Rapid state changes triggering multiple autosave attempts",
+          "expected_behavior": "Debounce prevents write conflicts, only last state saved",
+          "verification": "Verify single autosave file, no corruption",
+          "error_handling": "No errors, debounce working"
+        },
+        {
+          "scenario": "Binary file detection",
+          "setup": "Attempt to attach binary file (image, executable)",
+          "expected_behavior": "File stored as metadata only, binary: true flag set",
+          "verification": "Verify attachment list shows binary flag, content not loaded",
+          "error_handling": "No error, metadata stored"
+        },
+        {
+          "scenario": "Token counting with large content",
+          "setup": "Add 10k character prompt, calculate tokens",
+          "expected_behavior": "Tokens calculated in <200ms, cached for subsequent calls",
+          "verification": "Verify response time, verify cache hit on second call",
+          "error_handling": "No error, performance acceptable"
+        },
+        {
+          "scenario": "Backend crash during Electron session",
+          "setup": "Kill backend process while Electron app running",
+          "expected_behavior": "Electron detects crash, shows error dialog, offers restart",
+          "verification": "Verify error UI appears, restart button works",
+          "error_handling": "Graceful error handling, user can recover"
+        },
+        {
+          "scenario": "Invalid file path in folder import",
+          "setup": "Electron provides path outside allowed roots",
+          "expected_behavior": "Backend validates and rejects with SECURITY_ERROR",
+          "verification": "Verify error code, path not processed",
+          "error_handling": "Security error returned"
+        },
+        {
+          "scenario": "Session file corruption",
+          "setup": "Load session file with missing required fields",
+          "expected_behavior": "Graceful handling, missing fields use defaults, error logged",
+          "verification": "Verify session loads with defaults, no crash",
+          "error_handling": "Partial load, defaults applied"
+        }
+      ]
+    }
+  },
+  "8_success_criteria": {
+    "functional_requirements": [
+      {
+        "requirement": "Prompt Management",
+        "metric": "All prompt operations functional",
+        "target": "POST /prompt sets prompt, GET /session shows has_prompt=true, DELETE /prompt clears prompt, POST /prompt/preloaded loads from settings",
+        "validation": "Run integration tests test_prompt_endpoint_flow(), verify via FastAPI docs"
+      },
+      {
+        "requirement": "Attachment Handling",
+        "metric": "File and clipboard attachments work",
+        "target": "POST /attachments/text adds attachment, GET /attachments returns list, files >2MB rejected, binary files marked correctly",
+        "validation": "Run integration tests test_attachment_flow(), test file size limit, test binary detection"
+      },
+      {
+        "requirement": "Response Collection",
+        "metric": "Response operations functional",
+        "target": "POST /responses adds response, GET /responses/summary shows correct counts, DELETE /responses clears all",
+        "validation": "Run integration tests, verify response counts match"
+      },
+      {
+        "requirement": "Session Save/Load",
+        "metric": "Sessions persist correctly",
+        "target": "POST /sessions/save creates JSON file, POST /sessions/load restores state, all data preserved including IDs",
+        "validation": "Run test_session_save_load(), verify file exists, verify data integrity"
+      },
+      {
+        "requirement": "Autosave and Recovery",
+        "metric": "Autosave works with debounce",
+        "target": "State changes trigger autosave after 1s debounce, POST /autosave/recover restores state, autosave file <2MB or rotated",
+        "validation": "Run test_autosave_recovery(), verify debounce timing, verify file size"
+      },
+      {
+        "requirement": "Search Functionality",
+        "metric": "Search returns correct results",
+        "target": "GET /search finds matches in prompt/attachments/responses, case-insensitive, returns snippets, pagination works",
+        "validation": "Run test_search_endpoint(), verify results format, test pagination"
+      },
+      {
+        "requirement": "Token Counting",
+        "metric": "Token estimates accurate",
+        "target": "GET /tokens returns counts for prompt/attachments/responses, uses tiktoken, cached per item",
+        "validation": "Run unit tests test_estimate_tokens(), verify caching, verify accuracy"
+      },
+      {
+        "requirement": "Theme System",
+        "metric": "Theme toggle works and persists",
+        "target": "Theme toggle switches light/dark, persists in localStorage, applies on reload",
+        "validation": "Run E2E test test_theme_toggle(), verify localStorage, verify CSS variables"
+      }
+    ],
+    "quality_requirements": [
+      {
+        "requirement": "Code style compliance",
+        "metric": "Linter passes with zero warnings",
+        "target": "pylint/flake8 for Python returns exit code 0, ESLint for TypeScript returns exit code 0",
+        "validation": "Run linters on all modified files"
+      },
+      {
+        "requirement": "Test coverage",
+        "metric": "Percentage of lines covered by tests",
+        "target": ">80% line coverage for core.py, >70% for api.py, >60% for frontend components",
+        "validation": "Run pytest --cov, jest --coverage, verify coverage reports"
+      },
+      {
+        "requirement": "Type safety",
+        "metric": "Type checker passes",
+        "target": "mypy for Python returns zero errors, TypeScript compiler returns zero errors",
+        "validation": "Run mypy backend/, tsc --noEmit frontend/"
+      },
+      {
+        "requirement": "Documentation completeness",
+        "metric": "All public APIs documented",
+        "target": "Every public function/method has docstring, all API endpoints have OpenAPI docs",
+        "validation": "Run documentation coverage tool, verify FastAPI /docs shows all endpoints"
+      },
+      {
+        "requirement": "Error handling",
+        "metric": "All errors use structured envelope",
+        "target": "100% of API errors return {error: {code, message, details}} format, no stack traces to frontend",
+        "validation": "Code review, test error scenarios, verify error format"
+      }
+    ],
+    "performance_requirements": [
+      {
+        "requirement": "App cold start",
+        "metric": "Time from launch to UI ready",
+        "target": "<1.0 seconds for Electron app to show UI",
+        "validation": "Measure time from Electron launch to UI render, use performance profiler"
+      },
+      {
+        "requirement": "Search response time",
+        "metric": "P95 latency for search endpoint",
+        "target": "<150ms for search across 50 attachments",
+        "validation": "Run load test with 50 attachments, measure search endpoint latency"
+      },
+      {
+        "requirement": "Tokenization performance",
+        "metric": "Time to calculate tokens",
+        "target": "<200ms for 10k characters",
+        "validation": "Run test with 10k character input, measure estimate_tokens() execution time"
+      },
+      {
+        "requirement": "UI responsiveness",
+        "metric": "UI remains responsive under load",
+        "target": "UI stays responsive with 50 attachments, 10 responses, 250k total characters, no freezing",
+        "validation": "Load test data, interact with UI, verify no blocking, measure frame rate"
+      }
+    ],
+    "security_requirements": [
+      {
+        "requirement": "Backend binding security",
+        "metric": "Backend only accessible from localhost",
+        "target": "Backend binds to 127.0.0.1 only, not 0.0.0.0",
+        "validation": "Verify uvicorn binding configuration, test network access from external IP"
+      },
+      {
+        "requirement": "Path validation",
+        "metric": "File paths validated for security",
+        "target": "All file paths validated, directory traversal prevented, paths restricted to allowed roots",
+        "validation": "Test with malicious paths, verify rejection, code review path validation logic"
+      },
+      {
+        "requirement": "Error information disclosure",
+        "metric": "No sensitive information in errors",
+        "target": "Error responses never include stack traces, file paths, or internal details",
+        "validation": "Test error scenarios, verify error envelope format, code review error handlers"
+      },
+      {
+        "requirement": "API key security (Phase-2)",
+        "metric": "API keys stored securely",
+        "target": "API keys stored in OS keychain only, never in config files or code",
+        "validation": "Code review, verify keychain usage, test config file does not contain keys"
+      }
+    ]
+  },
+  "9_implementation_checklist": {
+    "pre_implementation": [
+      "☐ Review complete plan for gaps or ambiguities",
+      "☐ Get stakeholder approval (if required)",
+      "☐ Commit finalized plan to main branch with message 'pre-scriptboard-app execution commit' and push",
+      "☐ Set up development environment"
+    ],
+    "phase_1_foundation": [
+      "☑ SETUP-001: Create project folder structure",
+      "☑ SETUP-002: Move existing files to backend/",
+      "☑ SETUP-003: Set up Python virtual environment and dependencies",
+      "☑ SETUP-004: Initialize Next.js frontend project",
+      "☑ SETUP-005: Initialize Electron shell project",
+      "☑ CORE-001: Create data classes (Attachment, ResponseItem, BatchJob)",
+      "☑ CORE-002: Implement ScriptboardCore.__init__",
+      "☑ CORE-003: Implement prompt operations",
+      "☑ CORE-004: Implement attachment operations",
+      "☑ CORE-005: Implement response operations",
+      "☑ CORE-006: Implement preview methods",
+      "☑ CORE-007: Implement session serialization",
+      "☑ CORE-008: Implement token counting",
+      "☑ CORE-009: Implement search functionality",
+      "☑ CORE-010: Implement batch queue operations"
+    ],
+    "phase_2_configuration_and_api": [
+      "☑ CONFIG-001: Create config.json template",
+      "☑ CONFIG-002: Implement config loader with validation",
+      "☑ CONFIG-003: Implement session save/load helpers",
+      "☑ CONFIG-004: Implement profile system",
+      "☑ API-001: Create FastAPI app with CORS",
+      "☑ API-002: Implement health and session endpoints",
+      "☑ API-003: Implement prompt endpoints",
+      "☑ API-004: Implement attachment endpoints",
+      "☑ API-005: Implement response endpoints",
+      "☑ API-006: Implement preview and export endpoints",
+      "☑ API-007: Implement search endpoint",
+      "☑ API-008: Implement tokens endpoint",
+      "☑ API-009: Implement session and autosave endpoints",
+      "☑ API-010: Implement profiles and config endpoints",
+      "☑ API-011: Add standard error handler",
+      "☑ API-012: Implement autosave debounce mechanism"
+    ],
+    "phase_3_frontend_implementation": [
+      "☑ UI-001: Set up Next.js project with TypeScript",
+      "☑ UI-002: Implement global theme system",
+      "☑ UI-003: Create API client helper",
+      "☑ UI-004: Implement Header component",
+      "☑ UI-005: Implement FavoritesPanel component",
+      "☑ UI-006: Implement PromptPanel component",
+      "☑ UI-007: Implement AttachmentsPanel component",
+      "☑ UI-008: Implement ResponsesPanel component",
+      "☑ UI-009: Implement SessionManagerPanel component",
+      "☑ UI-010: Implement PreviewPanel component",
+      "☑ UI-011: Create main page layout",
+      "☑ UI-012: Implement keyboard shortcuts system",
+      "☑ UI-013: Implement search UI"
+    ],
+    "phase_4_electron_integration": [
+      "☑ ELECTRON-001: Initialize Electron project",
+      "☑ ELECTRON-002: Implement main.js with backend spawning",
+      "☑ ELECTRON-003: Implement backend crash handling",
+      "☑ ELECTRON-004: Implement preload.js",
+      "☑ ELECTRON-005: Implement folder dialogs"
+    ],
+    "phase_5_testing_and_documentation": [
+      "☑ TEST-001: Write backend unit tests",
+      "☑ TEST-002: Write frontend component tests",
+      "☑ TEST-003: Write E2E tests",
+      "☑ TEST-004: Performance testing",
+      "☑ DOC-001: Create README.md",
+      "☑ DOC-002: Create ARCHITECTURE.md",
+      "☑ DOC-003: Create MIGRATION.md"
+    ],
+    "phase_6_phase2_features": [
+      "☑ PHASE2-001: Implement Response Diff Viewer",
+      "☑ PHASE2-002: Implement Batch Processing Queue",
+      "☑ PHASE2-003: Implement Direct LLM API Mode (structure created, requires keychain integration for full implementation)",
+      "☑ PHASE2-004: Implement Attachment Folder Import",
+      "☑ PHASE2-005: Implement Git Integration",
+      "☑ PHASE2-006: Implement Export to Markdown/PDF",
+      "☑ PHASE2-007: Implement Logging Console Panel",
+      "☑ PHASE2-008: Implement Workspace Profiles UI",
+      "☑ PHASE2-009: Implement Keyboard Remapping UI"
+    ],
+    "finalization": [
+      "☑ All tests passing (backend unit tests, frontend component tests, E2E tests, performance tests)",
+      "☐ Code review completed and approved",
+      "☑ Documentation updated (README.md, ARCHITECTURE.md, MIGRATION.md)",
+      "☐ Changelog entry created",
+      "☐ Commit completed implementation to main branch with message 'post-scriptboard-app execution commit' and push",
+      "☐ Deploy to staging environment (if applicable)",
+      "☐ Smoke tests on staging",
+      "☐ Deploy to production (if applicable)"
+    ]
+  }
+}
+

@@ -1,0 +1,27 @@
+// Manual mock for @/lib/api
+// This file should be at __mocks__/@/lib/api.ts to match the module path
+export const api = {
+  health: jest.fn(),
+  getSession: jest.fn(),
+  setPrompt: jest.fn(),
+  clearPrompt: jest.fn(),
+  usePreloadedPrompt: jest.fn(),
+  addAttachmentText: jest.fn(),
+  listAttachments: jest.fn(),
+  clearAttachments: jest.fn(),
+  addResponse: jest.fn(),
+  getResponsesSummary: jest.fn(),
+  clearResponses: jest.fn(),
+  getPreview: jest.fn(),
+  getPreviewFull: jest.fn(),
+  exportJson: jest.fn(),
+  search: jest.fn(),
+  getTokens: jest.fn(),
+  saveSession: jest.fn(),
+  loadSession: jest.fn(),
+  getAutosaveStatus: jest.fn(),
+  recoverAutosave: jest.fn(),
+  listProfiles: jest.fn(),
+  loadProfile: jest.fn(),
+  getConfig: jest.fn(),
+}
