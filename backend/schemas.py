@@ -346,3 +346,17 @@ class ConfigResponse(BaseModel):
     )
     view_defaults: Optional[ViewSettings] = None
     # No secrets here (keys live in env / keychain)
+
+
+# ---------------------------------------------------------------------------
+# Preloaded Prompts
+# ---------------------------------------------------------------------------
+
+class PreloadedPromptItem(BaseModel):
+    key: str = Field(..., description="Unique key for the prompt (e.g., '1', '2')")
+    label: str = Field(..., description="Display label for the prompt (e.g., 'Code Review')")
+    preview: str = Field(..., description="First 100 characters of the prompt text for preview")
+
+
+class PreloadedPromptsResponse(BaseModel):
+    prompts: List[PreloadedPromptItem] = Field(..., description="List of available preloaded prompts")

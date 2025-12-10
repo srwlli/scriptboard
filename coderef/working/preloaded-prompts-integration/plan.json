@@ -1,0 +1,397 @@
+{
+  "META_DOCUMENTATION": {
+    "feature_name": "preloaded-prompts-integration",
+    "schema_version": "1.0.0",
+    "version": "1.0.0",
+    "status": "complete",
+    "generated_by": "AI Assistant",
+    "has_context": true,
+    "has_analysis": true,
+    "workorder_id": "WO-PRELOADED-PROMPTS-INTEGRATION-001"
+  },
+  "UNIVERSAL_PLANNING_STRUCTURE": {
+    "0_preparation": {
+      "foundation_docs": {
+        "available": ["README.md", "ARCHITECTURE.md"],
+        "missing": ["API.md", "COMPONENTS.md", "SCHEMA.md"]
+      },
+      "reference_components": {
+        "primary": "frontend/src/components/ClassicLayout/PromptSection.tsx",
+        "secondary": [
+          "frontend/src/components/ui/SectionButtonRow.tsx",
+          "backend/api.py",
+          "backend/core.py"
+        ]
+      },
+      "key_files": {
+        "backend": [
+          "backend/settings.py",
+          "backend/api.py",
+          "backend/core.py",
+          "backend/schemas.py"
+        ],
+        "frontend": [
+          "frontend/src/components/ClassicLayout/PromptSection.tsx",
+          "frontend/src/lib/api.ts"
+        ],
+        "original": [
+          "C:\\Users\\willh\\Desktop\\clipboard_compannion\\settings.py",
+          "scriptboard.py"
+        ]
+      },
+      "dependencies": {
+        "backend": ["fastapi", "pydantic"],
+        "frontend": ["react", "lucide-react"]
+      }
+    },
+    "1_executive_summary": {
+      "feature_name": "Preloaded Prompts Integration",
+      "description": "Integrate preloaded prompts from settings.py into the new Next.js/Electron build. Add API endpoint to list available prompts, add UI component to access prompts (similar to original \"Prompts\" menu), and ensure prompts from original settings.py are available in the new system.",
+      "goal": "Enable users to access preloaded prompts (Code Review, Synthesize, Research, Consolidate, etc.) from the new web-based UI, matching the functionality of the original Tkinter \"Prompts\" menu.",
+      "scope": {
+        "in_scope": [
+          "Add GET /prompts endpoint to list available preloaded prompts",
+          "Add UI dropdown/menu component to PromptSection",
+          "Sync backend settings.py PRELOADED_PROMPTS with original",
+          "Update config system if needed",
+          "Test prompt loading functionality",
+          "Ensure prompt source tracking works correctly"
+        ],
+        "out_of_scope": [
+          "Editing preloaded prompts from UI",
+          "Adding new prompts from UI",
+          "Prompt templates system"
+        ]
+      },
+      "estimated_complexity": "Low-Medium",
+      "estimated_time": "4-6 hours"
+    },
+    "2_risk_assessment": {
+      "complexity_score": 3,
+      "risks": [
+        {
+          "risk": "Backend settings.py may have different prompts than original",
+          "severity": "Low",
+          "mitigation": "Compare and merge prompts from both files, prioritize original settings.py"
+        },
+        {
+          "risk": "UI component may not match original menu UX",
+          "severity": "Low",
+          "mitigation": "Reference original scriptboard.py menu implementation, use dropdown/select component"
+        },
+        {
+          "risk": "Breaking existing prompt loading functionality",
+          "severity": "Medium",
+          "mitigation": "Ensure backward compatibility, add tests for existing functionality"
+        }
+      ],
+      "dependencies": {
+        "external": [],
+        "internal": ["backend/api.py", "backend/core.py", "frontend/src/lib/api.ts"]
+      }
+    },
+    "3_current_state_analysis": {
+      "existing_functionality": {
+        "backend": {
+          "core.py": "Has use_preloaded_prompt(key) method that loads prompts from settings.PRELOADED_PROMPTS",
+          "api.py": "Has POST /prompt/preloaded endpoint that accepts key and loads prompt",
+          "settings.py": "Contains PRELOADED_PROMPTS dictionary with 6 prompts (Code Review, Synthesize, Research, Architect, Audit, Consolidate)"
+        },
+        "frontend": {
+          "api.ts": "Has usePreloadedPrompt(key) method that calls POST /prompt/preloaded",
+          "PromptSection.tsx": "Has Load, Paste, View, Clear buttons but no UI for preloaded prompts"
+        },
+        "original": {
+          "settings.py": "Contains PRELOADED_PROMPTS with 4 prompts (Code Review, Synthesize, Research, Consolidate)",
+          "scriptboard.py": "Has \"Prompts\" menu in menubar that lists all preloaded prompts"
+        }
+      },
+      "gaps": [
+        "No GET endpoint to list available preloaded prompts",
+        "No UI component to access preloaded prompts in PromptSection",
+        "Backend settings.py has 6 prompts, original has 4 - need to reconcile",
+        "No way to see available prompts without knowing keys"
+      ],
+      "files_to_modify": [
+        {
+          "path": "backend/api.py",
+          "purpose": "Add GET /prompts endpoint to return list of available prompts"
+        },
+        {
+          "path": "backend/schemas.py",
+          "purpose": "Add PreloadedPromptItem and PreloadedPromptsResponse schemas"
+        },
+        {
+          "path": "backend/settings.py",
+          "purpose": "Ensure PRELOADED_PROMPTS matches original settings.py (merge if needed)"
+        },
+        {
+          "path": "frontend/src/lib/api.ts",
+          "purpose": "Add getPreloadedPrompts() method"
+        },
+        {
+          "path": "frontend/src/components/ClassicLayout/PromptSection.tsx",
+          "purpose": "Add dropdown/menu UI to access preloaded prompts"
+        }
+      ],
+      "files_to_create": [
+        {
+          "path": "frontend/src/components/ui/PromptSelect.tsx",
+          "purpose": "Reusable dropdown component for selecting preloaded prompts (optional)"
+        }
+      ]
+    },
+    "4_key_features": {
+      "features": [
+        {
+          "id": "F1",
+          "name": "List Preloaded Prompts API",
+          "description": "Add GET /prompts endpoint that returns list of available preloaded prompts with keys, labels, and preview text",
+          "priority": "High",
+          "dependencies": []
+        },
+        {
+          "id": "F2",
+          "name": "Prompt Selection UI",
+          "description": "Add dropdown/select component to PromptSection that displays available preloaded prompts and allows selection",
+          "priority": "High",
+          "dependencies": ["F1"]
+        },
+        {
+          "id": "F3",
+          "name": "Settings Synchronization",
+          "description": "Ensure backend settings.py PRELOADED_PROMPTS matches or includes all prompts from original settings.py",
+          "priority": "Medium",
+          "dependencies": []
+        },
+        {
+          "id": "F4",
+          "name": "Prompt Source Tracking",
+          "description": "Ensure prompt source shows as \"preloaded:X\" format when loaded from preloaded prompts",
+          "priority": "Medium",
+          "dependencies": []
+        }
+      ]
+    },
+    "5_task_id_system": {
+      "workorder": {
+        "id": "WO-PRELOADED-PROMPTS-INTEGRATION-001",
+        "name": "Preloaded Prompts Integration",
+        "feature_dir": "coderef/working/preloaded-prompts-integration"
+      },
+      "tasks": [
+        {
+          "id": "API-001",
+          "workorder_id": "WO-PRELOADED-PROMPTS-INTEGRATION-001",
+          "feature_id": "F1",
+          "description": "Add PreloadedPromptItem and PreloadedPromptsResponse schemas to schemas.py",
+          "files": ["backend/schemas.py"],
+          "acceptance_criteria": [
+            "PreloadedPromptItem has key, label, and preview fields",
+            "PreloadedPromptsResponse has prompts array"
+          ]
+        },
+        {
+          "id": "API-002",
+          "workorder_id": "WO-PRELOADED-PROMPTS-INTEGRATION-001",
+          "feature_id": "F1",
+          "description": "Add GET /prompts endpoint to api.py that returns list of preloaded prompts",
+          "files": ["backend/api.py"],
+          "acceptance_criteria": [
+            "Endpoint returns all prompts from settings.PRELOADED_PROMPTS",
+            "Each prompt includes key, label, and preview (first 100 chars)",
+            "Endpoint is properly documented"
+          ]
+        },
+        {
+          "id": "SYNC-001",
+          "workorder_id": "WO-PRELOADED-PROMPTS-INTEGRATION-001",
+          "feature_id": "F3",
+          "description": "Compare and merge PRELOADED_PROMPTS from original settings.py into backend/settings.py",
+          "files": ["backend/settings.py"],
+          "acceptance_criteria": [
+            "All prompts from original settings.py are present",
+            "Additional prompts in backend settings.py are preserved",
+            "Prompt keys are consistent"
+          ]
+        },
+        {
+          "id": "FRONTEND-001",
+          "workorder_id": "WO-PRELOADED-PROMPTS-INTEGRATION-001",
+          "feature_id": "F1",
+          "description": "Add getPreloadedPrompts() method to frontend api.ts",
+          "files": ["frontend/src/lib/api.ts"],
+          "acceptance_criteria": [
+            "Method calls GET /prompts endpoint",
+            "Returns typed array of PreloadedPromptItem",
+            "Handles errors appropriately"
+          ]
+        },
+        {
+          "id": "UI-001",
+          "workorder_id": "WO-PRELOADED-PROMPTS-INTEGRATION-001",
+          "feature_id": "F2",
+          "description": "Add dropdown/select component to PromptSection for preloaded prompts",
+          "files": ["frontend/src/components/ClassicLayout/PromptSection.tsx"],
+          "acceptance_criteria": [
+            "Dropdown displays list of available prompts with labels",
+            "Selecting a prompt loads it via usePreloadedPrompt()",
+            "UI matches existing PromptSection styling",
+            "Works in both Electron and browser"
+          ]
+        },
+        {
+          "id": "TEST-001",
+          "workorder_id": "WO-PRELOADED-PROMPTS-INTEGRATION-001",
+          "feature_id": "F4",
+          "description": "Test prompt loading from preloaded prompts and verify source tracking",
+          "files": ["frontend/__tests__/PromptSection.test.tsx", "backend/tests/test_api.py"],
+          "acceptance_criteria": [
+            "Unit tests for GET /prompts endpoint",
+            "Unit tests for PromptSection prompt selection",
+            "Integration test for loading preloaded prompt",
+            "Verify prompt_source shows \"preloaded:X\" format"
+          ]
+        }
+      ]
+    },
+    "6_implementation_phases": {
+      "phases": [
+        {
+          "phase": 1,
+          "name": "Backend API Setup",
+          "description": "Add API endpoint to list preloaded prompts and sync settings",
+          "tasks": ["API-001", "API-002", "SYNC-001"],
+          "deliverables": [
+            "GET /prompts endpoint implemented",
+            "Schemas added for prompt responses",
+            "Settings synchronized"
+          ],
+          "estimated_time": "1-2 hours"
+        },
+        {
+          "phase": 2,
+          "name": "Frontend Integration",
+          "description": "Add frontend API method and UI component for prompt selection",
+          "tasks": ["FRONTEND-001", "UI-001"],
+          "deliverables": [
+            "getPreloadedPrompts() method in api.ts",
+            "Prompt selection dropdown in PromptSection"
+          ],
+          "estimated_time": "2-3 hours"
+        },
+        {
+          "phase": 3,
+          "name": "Testing & Validation",
+          "description": "Write tests and verify functionality",
+          "tasks": ["TEST-001"],
+          "deliverables": [
+            "Unit tests for API endpoint",
+            "Unit tests for UI component",
+            "Integration tests",
+            "Manual testing in Electron and browser"
+          ],
+          "estimated_time": "1 hour"
+        }
+      ]
+    },
+    "7_testing_strategy": {
+      "unit_tests": {
+        "backend": [
+          {
+            "file": "backend/tests/test_api.py",
+            "tests": [
+              "test_get_prompts_endpoint_returns_all_prompts",
+              "test_get_prompts_endpoint_includes_keys_and_labels",
+              "test_use_preloaded_prompt_with_valid_key",
+              "test_use_preloaded_prompt_with_invalid_key"
+            ]
+          }
+        ],
+        "frontend": [
+          {
+            "file": "frontend/__tests__/PromptSection.test.tsx",
+            "tests": [
+              "test_prompt_dropdown_renders",
+              "test_prompt_dropdown_loads_prompts",
+              "test_selecting_prompt_loads_it",
+              "test_prompt_source_shows_preloaded_format"
+            ]
+          }
+        ]
+      },
+      "integration_tests": [
+        {
+          "file": "frontend/e2e/preloaded-prompts.spec.ts",
+          "tests": [
+            "test_user_can_select_and_load_preloaded_prompt",
+            "test_prompt_source_updates_correctly"
+          ]
+        }
+      ],
+      "manual_testing": [
+        "Test prompt selection in Electron environment",
+        "Test prompt selection in browser environment",
+        "Verify prompt source shows \"preloaded:X\" format",
+        "Verify all prompts from settings.py are available"
+      ]
+    },
+    "8_success_criteria": {
+      "functional": [
+        "GET /prompts endpoint returns all available preloaded prompts",
+        "PromptSection displays dropdown with all available prompts",
+        "Selecting a prompt loads it and sets prompt_source to \"preloaded:X\"",
+        "All prompts from original settings.py are accessible"
+      ],
+      "non_functional": [
+        "API endpoint responds in < 100ms",
+        "UI component matches existing PromptSection styling",
+        "Works in both Electron and browser environments",
+        "No breaking changes to existing prompt loading functionality"
+      ],
+      "acceptance": [
+        "User can see list of available preloaded prompts",
+        "User can select and load a preloaded prompt with one click",
+        "Prompt source correctly shows \"preloaded:X\" format",
+        "All original prompts are available in new system"
+      ]
+    },
+    "9_implementation_checklist": {
+      "phase_1_backend": [
+        "[ ] Add PreloadedPromptItem schema to schemas.py",
+        "[ ] Add PreloadedPromptsResponse schema to schemas.py",
+        "[ ] Add GET /prompts endpoint to api.py",
+        "[ ] Compare PRELOADED_PROMPTS in original and backend settings.py",
+        "[ ] Merge/sync PRELOADED_PROMPTS in backend/settings.py",
+        "[ ] Test GET /prompts endpoint returns correct data"
+      ],
+      "phase_2_frontend": [
+        "[ ] Add getPreloadedPrompts() method to api.ts",
+        "[ ] Add state for preloaded prompts in PromptSection",
+        "[ ] Add useEffect to load prompts on mount",
+        "[ ] Add dropdown/select component to PromptSection UI",
+        "[ ] Implement handleSelectPrompt function",
+        "[ ] Style dropdown to match existing UI",
+        "[ ] Test in browser environment",
+        "[ ] Test in Electron environment"
+      ],
+      "phase_3_testing": [
+        "[ ] Write unit tests for GET /prompts endpoint",
+        "[ ] Write unit tests for PromptSection prompt selection",
+        "[ ] Write integration test for prompt loading flow",
+        "[ ] Verify prompt_source format is correct",
+        "[ ] Run all tests and fix failures",
+        "[ ] Manual testing in Electron",
+        "[ ] Manual testing in browser"
+      ],
+      "post_implementation": [
+        "[ ] Code review",
+        "[ ] Verify no console errors",
+        "[ ] Verify no TypeScript errors",
+        "[ ] Update documentation if needed",
+        "[ ] Commit changes"
+      ]
+    }
+  }
+}
+

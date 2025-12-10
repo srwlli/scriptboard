@@ -1,0 +1,140 @@
+[
+  {
+    "timestamp": "2025-12-10T12:04:18.290347",
+    "workorder_id": "WO-PRELOADED-PROMPTS-INTEGRATION-001",
+    "feature_name": "preloaded-prompts-integration",
+    "task_count": 26,
+    "tasks": [
+      {
+        "content": "PHASE-1--001: [ ] Add PreloadedPromptItem schema to schemas.py",
+        "activeForm": "PHASE-1--001: [ing ] Add PreloadedPromptItem schema to schemas.py",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-1--002: [ ] Add PreloadedPromptsResponse schema to schemas.py",
+        "activeForm": "PHASE-1--002: [ing ] Add PreloadedPromptsResponse schema to schemas.py",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-1--003: [ ] Add GET /prompts endpoint to api.py",
+        "activeForm": "PHASE-1--003: [ing ] Add GET /prompts endpoint to api.py",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-1--004: [ ] Compare PRELOADED_PROMPTS in original and backend settings.py",
+        "activeForm": "PHASE-1--004: [ing ] Compare PRELOADED_PROMPTS in original and backend settings.py",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-1--005: [ ] Merge/sync PRELOADED_PROMPTS in backend/settings.py",
+        "activeForm": "PHASE-1--005: [ing ] Merge/sync PRELOADED_PROMPTS in backend/settings.py",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-1--006: [ ] Test GET /prompts endpoint returns correct data",
+        "activeForm": "PHASE-1--006: [ing ] Test GET /prompts endpoint returns correct data",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-2--001: [ ] Add getPreloadedPrompts() method to api.ts",
+        "activeForm": "PHASE-2--001: [ing ] Add getPreloadedPrompts() method to api.ts",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-2--002: [ ] Add state for preloaded prompts in PromptSection",
+        "activeForm": "PHASE-2--002: [ing ] Add state for preloaded prompts in PromptSection",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-2--003: [ ] Add useEffect to load prompts on mount",
+        "activeForm": "PHASE-2--003: [ing ] Add useEffect to load prompts on mount",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-2--004: [ ] Add dropdown/select component to PromptSection UI",
+        "activeForm": "PHASE-2--004: [ing ] Add dropdown/select component to PromptSection UI",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-2--005: [ ] Implement handleSelectPrompt function",
+        "activeForm": "PHASE-2--005: [ing ] Implement handleSelectPrompt function",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-2--006: [ ] Style dropdown to match existing UI",
+        "activeForm": "PHASE-2--006: [ing ] Style dropdown to match existing UI",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-2--007: [ ] Test in browser environment",
+        "activeForm": "PHASE-2--007: [ing ] Test in browser environment",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-2--008: [ ] Test in Electron environment",
+        "activeForm": "PHASE-2--008: [ing ] Test in Electron environment",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-3--001: [ ] Write unit tests for GET /prompts endpoint",
+        "activeForm": "PHASE-3--001: [ing ] Write unit tests for GET /prompts endpoint",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-3--002: [ ] Write unit tests for PromptSection prompt selection",
+        "activeForm": "PHASE-3--002: [ing ] Write unit tests for PromptSection prompt selection",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-3--003: [ ] Write integration test for prompt loading flow",
+        "activeForm": "PHASE-3--003: [ing ] Write integration test for prompt loading flow",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-3--004: [ ] Verify prompt_source format is correct",
+        "activeForm": "PHASE-3--004: [ing ] Verify prompt_source format is correct",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-3--005: [ ] Run all tests and fix failures",
+        "activeForm": "PHASE-3--005: [ing ] Run all tests and fix failures",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-3--006: [ ] Manual testing in Electron",
+        "activeForm": "PHASE-3--006: [ing ] Manual testing in Electron",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-3--007: [ ] Manual testing in browser",
+        "activeForm": "PHASE-3--007: [ing ] Manual testing in browser",
+        "status": "pending"
+      },
+      {
+        "content": "POST-IMP-001: [ ] Code review",
+        "activeForm": "POST-IMP-001: [ing ] Code review",
+        "status": "pending"
+      },
+      {
+        "content": "POST-IMP-002: [ ] Verify no console errors",
+        "activeForm": "POST-IMP-002: [ing ] Verify no console errors",
+        "status": "pending"
+      },
+      {
+        "content": "POST-IMP-003: [ ] Verify no TypeScript errors",
+        "activeForm": "POST-IMP-003: [ing ] Verify no TypeScript errors",
+        "status": "pending"
+      },
+      {
+        "content": "POST-IMP-004: [ ] Update documentation if needed",
+        "activeForm": "POST-IMP-004: [ing ] Update documentation if needed",
+        "status": "pending"
+      },
+      {
+        "content": "POST-IMP-005: [ ] Commit changes",
+        "activeForm": "POST-IMP-005: [ing ] Commit changes",
+        "status": "pending"
+      }
+    ]
+  }
+]

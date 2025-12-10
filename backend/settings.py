@@ -49,25 +49,7 @@ PRELOADED_PROMPTS = {
         "3. Include citations or references where applicable.\n"
         "4. formatting must be clean and ready for documentation."
     )),
-    "4": ("Architect", (
-        "SYSTEM ARCHITECTURE TASK\n"
-        "Analyze the provided code/requirements from an architectural perspective.\n"
-        "Output format: Standard Markdown (.md).\n\n"
-        "required Sections:\n"
-        "1. **Design Patterns**: List patterns identified or recommended.\n"
-        "2. **Component Map**: Outline data flow and relationships.\n"
-        "3. **Improvements**: Bulleted list of scalability/modularity suggestions.\n"
-        "4. **Diagram**: Provide a Mermaid.js graph inside a ```mermaid code block."
-    )),
-    "5": ("Audit", (
-        "SECURITY & ROBUSTNESS AUDIT\n"
-        "Perform a strict audit of the attached code.\n"
-        "Output format: Standard Markdown (.md).\n\n"
-        "1. Create a **Findings Table** with columns: Issue Type, Description, Severity (High/Med/Low), Mitigation.\n"
-        "2. Follow with a **Detailed Analysis** section expanding on critical issues.\n"
-        "3. Conclude with a **Refactored Snippet** (in a code block) demonstrating the fix for the highest risk item."
-    )),
-    "6": ("Consolidate", (
+    "4": ("Consolidate", (
         "CONSOLIDATION TASK\n"
         "Review the provided LLM responses regarding improvements.\n"
         "Consolidate these into a master list and table.\n"

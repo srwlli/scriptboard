@@ -73,6 +73,10 @@ class ApiClient {
     return this.request("/prompt", { method: "DELETE" });
   }
 
+  async getPreloadedPrompts() {
+    return this.request<{ prompts: Array<{ key: string; label: string; preview: string }> }>("/prompts");
+  }
+
   async usePreloadedPrompt(key: string) {
     return this.request("/prompt/preloaded", {
       method: "POST",

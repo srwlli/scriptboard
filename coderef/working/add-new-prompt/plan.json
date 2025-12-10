@@ -1,0 +1,461 @@
+{
+  "META_DOCUMENTATION": {
+    "feature_name": "add-new-prompt",
+    "schema_version": "1.0.0",
+    "version": "1.0.0",
+    "status": "complete",
+    "generated_by": "AI Assistant",
+    "has_context": true,
+    "has_analysis": true,
+    "workorder_id": "WO-ADD-NEW-PROMPT-001"
+  },
+  "UNIVERSAL_PLANNING_STRUCTURE": {
+    "0_preparation": {
+      "foundation_docs": {
+        "available": ["README.md", "ARCHITECTURE.md"],
+        "missing": ["API.md", "COMPONENTS.md", "SCHEMA.md"]
+      },
+      "reference_components": {
+        "primary": "frontend/src/components/ClassicLayout/PromptSection.tsx",
+        "secondary": [
+          "frontend/src/components/ClassicLayout/ManagementSection.tsx",
+          "frontend/src/components/ClassicLayout/PromptSection.tsx",
+          "backend/api.py",
+          "backend/core.py"
+        ]
+      },
+      "key_files": {
+        "backend": [
+          "backend/api.py",
+          "backend/schemas.py",
+          "backend/settings.py"
+        ],
+        "frontend": [
+          "frontend/src/components/ClassicLayout/PromptSection.tsx",
+          "frontend/src/lib/api.ts"
+        ]
+      },
+      "dependencies": {
+        "backend": ["fastapi", "pydantic"],
+        "frontend": ["react", "lucide-react"]
+      }
+    },
+    "1_executive_summary": {
+      "feature_name": "Add New Prompt",
+      "description": "Wire up the \"Add\" button in PromptSection to allow users to create new preloaded prompts. Implement a user-friendly entry form/modal with validation, and save new prompts to the backend settings or config system.",
+      "goal": "Enable users to easily add custom preloaded prompts through a simple UI, with validation to ensure prompt quality and prevent duplicates.",
+      "scope": {
+        "in_scope": [
+          "Create modal/dialog component for adding new prompts",
+          "Add form fields for prompt key, label, and text",
+          "Implement validation (non-empty fields, key uniqueness, reasonable length limits)",
+          "Add backend API endpoint to save new prompts",
+          "Update config.json to persist new prompts",
+          "Refresh prompt list after adding",
+          "Handle errors gracefully with user feedback",
+          "Ensure new prompts persist across app restarts"
+        ],
+        "out_of_scope": [
+          "Editing existing prompts from UI",
+          "Deleting prompts from UI",
+          "Importing prompts from files",
+          "Prompt templates or variables"
+        ]
+      },
+      "estimated_complexity": "Medium",
+      "estimated_time": "6-8 hours"
+    },
+    "2_risk_assessment": {
+      "complexity_score": 5,
+      "risks": [
+        {
+          "risk": "Key collision with existing prompts",
+          "severity": "Medium",
+          "mitigation": "Validate key uniqueness against both default settings.py and user config, auto-suggest next available key"
+        },
+        {
+          "risk": "Config file corruption during save",
+          "severity": "Medium",
+          "mitigation": "Use atomic file writes (write to temp file, then rename), validate JSON before saving, backup config before write"
+        },
+        {
+          "risk": "User enters invalid characters in key",
+          "severity": "Low",
+          "mitigation": "Validate key format (alphanumeric, hyphens, underscores only), sanitize input"
+        },
+        {
+          "risk": "Very long prompt text causing performance issues",
+          "severity": "Low",
+          "mitigation": "Set reasonable character limit (e.g., 10,000 chars), validate on frontend and backend"
+        }
+      ],
+      "dependencies": {
+        "external": [],
+        "internal": ["backend/api.py", "backend/schemas.py", "frontend/src/lib/api.ts"]
+      }
+    },
+    "3_current_state_analysis": {
+      "existing_functionality": {
+        "backend": {
+          "api.py": "Has GET /prompts endpoint, POST /prompt/preloaded endpoint, load_config() and save_config() functions",
+          "schemas.py": "Has PreloadedPromptItem and PreloadedPromptsResponse schemas",
+          "settings.py": "Contains PRELOADED_PROMPTS dictionary with default prompts"
+        },
+        "frontend": {
+          "PromptSection.tsx": "Has Add button with placeholder onClick handler, displays preloaded prompts as icons",
+          "api.ts": "Has getPreloadedPrompts() and usePreloadedPrompt() methods",
+          "Modal pattern": "Existing modals use backdrop + centered div pattern (see ManagementSection, PromptSection)"
+        }
+      },
+      "gaps": [
+        "No API endpoint to add new prompts",
+        "No schema for adding prompts (AddPromptPayload)",
+        "No modal/form component for prompt entry",
+        "No validation logic for prompt keys/labels/text",
+        "Config system doesn't store custom prompts separately from defaults",
+        "No way to merge user prompts with default prompts"
+      ],
+      "files_to_modify": [
+        {
+          "path": "backend/schemas.py",
+          "purpose": "Add AddPromptPayload schema for new prompt creation"
+        },
+        {
+          "path": "backend/api.py",
+          "purpose": "Add POST /prompts endpoint to save new prompts, update GET /prompts to merge defaults with user prompts"
+        },
+        {
+          "path": "frontend/src/lib/api.ts",
+          "purpose": "Add addPreloadedPrompt() method"
+        },
+        {
+          "path": "frontend/src/components/ClassicLayout/PromptSection.tsx",
+          "purpose": "Add modal state, form component, validation, and wire up Add button"
+        }
+      ],
+      "files_to_create": [
+        {
+          "path": "frontend/src/components/ClassicLayout/AddPromptModal.tsx",
+          "purpose": "Reusable modal component for adding new prompts with form and validation"
+        }
+      ]
+    },
+    "4_key_features": {
+      "features": [
+        {
+          "id": "F1",
+          "name": "Add Prompt Modal",
+          "description": "Create modal dialog with form fields for key, label, and prompt text",
+          "priority": "High",
+          "dependencies": []
+        },
+        {
+          "id": "F2",
+          "name": "Form Validation",
+          "description": "Validate non-empty fields, key uniqueness, character limits, and key format",
+          "priority": "High",
+          "dependencies": ["F1"]
+        },
+        {
+          "id": "F3",
+          "name": "Backend API Endpoint",
+          "description": "Add POST /prompts endpoint to save new prompts to user config",
+          "priority": "High",
+          "dependencies": []
+        },
+        {
+          "id": "F4",
+          "name": "Config Persistence",
+          "description": "Save custom prompts to config.json, merge with defaults when loading",
+          "priority": "High",
+          "dependencies": ["F3"]
+        },
+        {
+          "id": "F5",
+          "name": "Prompt List Refresh",
+          "description": "Refresh prompt list after adding new prompt, update UI",
+          "priority": "Medium",
+          "dependencies": ["F3", "F4"]
+        }
+      ]
+    },
+    "5_task_id_system": {
+      "workorder": {
+        "id": "WO-ADD-NEW-PROMPT-001",
+        "name": "Add New Prompt",
+        "feature_dir": "coderef/working/add-new-prompt"
+      },
+      "tasks": [
+        {
+          "id": "SCHEMA-001",
+          "workorder_id": "WO-ADD-NEW-PROMPT-001",
+          "feature_id": "F3",
+          "description": "Add AddPromptPayload schema to schemas.py with key, label, and text fields",
+          "files": ["backend/schemas.py"],
+          "acceptance_criteria": [
+            "Schema has key (str, required), label (str, required), text (str, required)",
+            "Key has max length validation (e.g., 50 chars)",
+            "Label has max length validation (e.g., 100 chars)",
+            "Text has max length validation (e.g., 10000 chars)"
+          ]
+        },
+        {
+          "id": "BACKEND-001",
+          "workorder_id": "WO-ADD-NEW-PROMPT-001",
+          "feature_id": "F3",
+          "description": "Add POST /prompts endpoint to api.py that validates and saves new prompts",
+          "files": ["backend/api.py"],
+          "acceptance_criteria": [
+            "Endpoint accepts AddPromptPayload",
+            "Validates key uniqueness (check both defaults and user config)",
+            "Validates key format (alphanumeric, hyphens, underscores)",
+            "Saves to config.json under 'custom_prompts' key",
+            "Returns success/error response"
+          ]
+        },
+        {
+          "id": "BACKEND-002",
+          "workorder_id": "WO-ADD-NEW-PROMPT-001",
+          "feature_id": "F4",
+          "description": "Update GET /prompts endpoint to merge default prompts with custom prompts from config",
+          "files": ["backend/api.py"],
+          "acceptance_criteria": [
+            "Loads default prompts from settings.py",
+            "Loads custom prompts from config.json",
+            "Merges both lists (custom prompts override defaults if key matches)",
+            "Returns combined list"
+          ]
+        },
+        {
+          "id": "BACKEND-003",
+          "workorder_id": "WO-ADD-NEW-PROMPT-001",
+          "feature_id": "F4",
+          "description": "Update load_config() to handle custom_prompts field",
+          "files": ["backend/api.py"],
+          "acceptance_criteria": [
+            "load_config() initializes custom_prompts as empty dict if missing",
+            "save_config() preserves custom_prompts when saving"
+          ]
+        },
+        {
+          "id": "FRONTEND-001",
+          "workorder_id": "WO-ADD-NEW-PROMPT-001",
+          "feature_id": "F1",
+          "description": "Create AddPromptModal component with form fields",
+          "files": ["frontend/src/components/ClassicLayout/AddPromptModal.tsx"],
+          "acceptance_criteria": [
+            "Modal has backdrop and centered content",
+            "Form has input fields for key, label, and text (textarea)",
+            "Has Cancel and Save buttons",
+            "Closes on backdrop click and ESC key",
+            "Matches existing modal styling"
+          ]
+        },
+        {
+          "id": "FRONTEND-002",
+          "workorder_id": "WO-ADD-NEW-PROMPT-001",
+          "feature_id": "F2",
+          "description": "Add validation logic to AddPromptModal",
+          "files": ["frontend/src/components/ClassicLayout/AddPromptModal.tsx"],
+          "acceptance_criteria": [
+            "Validates non-empty fields",
+            "Validates key format (alphanumeric, hyphens, underscores)",
+            "Validates character limits",
+            "Shows error messages for invalid inputs",
+            "Disables Save button when form is invalid"
+          ]
+        },
+        {
+          "id": "FRONTEND-003",
+          "workorder_id": "WO-ADD-NEW-PROMPT-001",
+          "feature_id": "F1",
+          "description": "Wire up Add button in PromptSection to open modal",
+          "files": ["frontend/src/components/ClassicLayout/PromptSection.tsx"],
+          "acceptance_criteria": [
+            "Add button opens AddPromptModal",
+            "Modal state is managed in PromptSection",
+            "Modal closes after successful save"
+          ]
+        },
+        {
+          "id": "FRONTEND-004",
+          "workorder_id": "WO-ADD-NEW-PROMPT-001",
+          "feature_id": "F5",
+          "description": "Add addPreloadedPrompt() method to api.ts and handle save",
+          "files": ["frontend/src/lib/api.ts", "frontend/src/components/ClassicLayout/AddPromptModal.tsx"],
+          "acceptance_criteria": [
+            "addPreloadedPrompt() calls POST /prompts",
+            "Handles success/error responses",
+            "Refreshes prompt list after successful save",
+            "Shows error message on failure"
+          ]
+        },
+        {
+          "id": "FRONTEND-005",
+          "workorder_id": "WO-ADD-NEW-PROMPT-001",
+          "feature_id": "F5",
+          "description": "Update PromptSection to refresh prompts after adding",
+          "files": ["frontend/src/components/ClassicLayout/PromptSection.tsx"],
+          "acceptance_criteria": [
+            "Calls loadPreloadedPrompts() after successful save",
+            "New prompt appears in icon list immediately",
+            "Selected state is cleared after refresh"
+          ]
+        }
+      ]
+    },
+    "6_implementation_phases": {
+      "phases": [
+        {
+          "phase": 1,
+          "name": "Backend API & Config",
+          "description": "Add API endpoint and config persistence for custom prompts",
+          "tasks": ["SCHEMA-001", "BACKEND-001", "BACKEND-002", "BACKEND-003"],
+          "deliverables": [
+            "AddPromptPayload schema",
+            "POST /prompts endpoint",
+            "Updated GET /prompts to merge defaults with custom",
+            "Config system supports custom_prompts"
+          ],
+          "estimated_time": "2-3 hours"
+        },
+        {
+          "phase": 2,
+          "name": "Frontend Modal & Form",
+          "description": "Create modal component with form and validation",
+          "tasks": ["FRONTEND-001", "FRONTEND-002"],
+          "deliverables": [
+            "AddPromptModal component",
+            "Form with key, label, text fields",
+            "Validation logic",
+            "Error handling"
+          ],
+          "estimated_time": "2-3 hours"
+        },
+        {
+          "phase": 3,
+          "name": "Integration & Testing",
+          "description": "Wire up Add button, integrate with API, and test",
+          "tasks": ["FRONTEND-003", "FRONTEND-004", "FRONTEND-005"],
+          "deliverables": [
+            "Add button opens modal",
+            "Save functionality works",
+            "Prompt list refreshes after save",
+            "New prompts persist across restarts"
+          ],
+          "estimated_time": "2 hours"
+        }
+      ]
+    },
+    "7_testing_strategy": {
+      "unit_tests": {
+        "backend": [
+          {
+            "file": "backend/tests/test_api.py",
+            "tests": [
+              "test_add_prompt_endpoint_validates_key_uniqueness",
+              "test_add_prompt_endpoint_validates_key_format",
+              "test_add_prompt_endpoint_saves_to_config",
+              "test_get_prompts_merges_defaults_with_custom",
+              "test_add_prompt_rejects_duplicate_keys"
+            ]
+          }
+        ],
+        "frontend": [
+          {
+            "file": "frontend/__tests__/AddPromptModal.test.tsx",
+            "tests": [
+              "test_modal_renders_form_fields",
+              "test_validation_rejects_empty_fields",
+              "test_validation_rejects_invalid_key_format",
+              "test_validation_enforces_character_limits",
+              "test_save_button_disabled_when_invalid"
+            ]
+          },
+          {
+            "file": "frontend/__tests__/PromptSection.test.tsx",
+            "tests": [
+              "test_add_button_opens_modal",
+              "test_prompt_list_refreshes_after_save"
+            ]
+          }
+        ]
+      },
+      "integration_tests": [
+        {
+          "file": "frontend/e2e/add-prompt.spec.ts",
+          "tests": [
+            "test_user_can_add_new_prompt",
+            "test_new_prompt_appears_in_list",
+            "test_new_prompt_persists_after_reload"
+          ]
+        }
+      ],
+      "manual_testing": [
+        "Test adding prompt with valid data",
+        "Test validation errors display correctly",
+        "Test key uniqueness validation",
+        "Test prompt persists after app restart",
+        "Test custom prompts appear alongside defaults"
+      ]
+    },
+    "8_success_criteria": {
+      "functional": [
+        "User can click Add button to open modal",
+        "User can enter key, label, and text in form",
+        "Validation prevents invalid inputs",
+        "New prompt is saved to config.json",
+        "New prompt appears in prompt list immediately",
+        "New prompt persists across app restarts",
+        "Custom prompts merge with default prompts"
+      ],
+      "non_functional": [
+        "Form validation provides clear error messages",
+        "API endpoint responds in < 200ms",
+        "Config file is saved atomically (no corruption risk)",
+        "Works in both Electron and browser environments"
+      ],
+      "acceptance": [
+        "User can successfully add a new prompt through the UI",
+        "New prompt is immediately available for use",
+        "Prompt persists after closing and reopening app",
+        "Validation prevents duplicate keys and invalid formats"
+      ]
+    },
+    "9_implementation_checklist": {
+      "phase_1_backend": [
+        "[ ] Add AddPromptPayload schema to schemas.py",
+        "[ ] Add POST /prompts endpoint to api.py",
+        "[ ] Implement key uniqueness validation",
+        "[ ] Implement key format validation",
+        "[ ] Update config system to handle custom_prompts",
+        "[ ] Update GET /prompts to merge defaults with custom",
+        "[ ] Test API endpoint with valid/invalid data"
+      ],
+      "phase_2_frontend": [
+        "[ ] Create AddPromptModal.tsx component",
+        "[ ] Add form fields (key, label, text)",
+        "[ ] Implement validation logic",
+        "[ ] Add error message display",
+        "[ ] Style modal to match existing modals",
+        "[ ] Test form validation"
+      ],
+      "phase_3_integration": [
+        "[ ] Wire up Add button to open modal",
+        "[ ] Add addPreloadedPrompt() to api.ts",
+        "[ ] Handle save success/error",
+        "[ ] Refresh prompt list after save",
+        "[ ] Test full flow end-to-end",
+        "[ ] Test persistence across restarts"
+      ],
+      "post_implementation": [
+        "[ ] Code review",
+        "[ ] Verify no console errors",
+        "[ ] Verify no TypeScript errors",
+        "[ ] Update documentation if needed",
+        "[ ] Commit changes"
+      ]
+    }
+  }
+}
+

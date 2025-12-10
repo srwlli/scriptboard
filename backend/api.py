@@ -482,6 +482,25 @@ async def clear_prompt():
     return {"status": "ok"}
 
 
+@app.get("/prompts")
+async def get_preloaded_prompts():
+    """Get list of all available preloaded prompts."""
+    from settings import PRELOADED_PROMPTS
+    from schemas import PreloadedPromptItem, PreloadedPromptsResponse
+    
+    prompts = []
+    for key, (label, prompt_text) in PRELOADED_PROMPTS.items():
+        # Get first 100 characters as preview
+        preview = prompt_text[:100] + "..." if len(prompt_text) > 100 else prompt_text
+        prompts.append(PreloadedPromptItem(
+            key=key,
+            label=label,
+            preview=preview
+        ))
+    
+    return PreloadedPromptsResponse(prompts=prompts)
+
+
 @app.post("/prompt/preloaded")
 async def use_preloaded_prompt(payload: PromptPreloadedPayload):
     """Load a preloaded prompt by key."""

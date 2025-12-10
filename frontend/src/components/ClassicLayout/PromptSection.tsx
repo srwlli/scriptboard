@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { Plus, FileCode, Merge, Search, Package } from "lucide-react";
 import { api } from "@/lib/api";
 import { SectionButtonRow, StatusLabel, SectionDivider, type ButtonConfig } from "@/components/ui";
 import { useSessionRefresh } from "@/hooks/useSessionRefresh";
@@ -11,30 +12,72 @@ import { useSessionRefresh } from "@/hooks/useSessionRefresh";
  * Buttons: Load, Paste, View, Clear
  * Status: Shows prompt source or "No prompt"
  */
+interface PreloadedPrompt {
+  key: string;
+  label: string;
+  preview: string;
+}
+
+// Map prompt labels to Lucide icons
+const getPromptIcon = (label: string) => {
+  const iconMap: Record<string, typeof FileCode> = {
+    "Code Review": FileCode,
+    "Synthesize": Merge,
+    "Research": Search,
+    "Consolidate": Package,
+  };
+  return iconMap[label] || FileCode; // Default to FileCode if not found
+};
+
 export function PromptSection() {
   const [promptSource, setPromptSource] = useState<string | null>(null);
   const [promptPasteCount, setPromptPasteCount] = useState(0);
   const [isElectron, setIsElectron] = useState(false);
   const [showViewModal, setShowViewModal] = useState(false);
   const [viewContent, setViewContent] = useState("");
+  const [preloadedPrompts, setPreloadedPrompts] = useState<PreloadedPrompt[]>([]);
+  const [selectedPromptKey, setSelectedPromptKey] = useState<string>("");
 
   useEffect(() => {
     loadSessionStatus();
+    loadPreloadedPrompts();
     if (typeof window !== "undefined" && (window as any).electronAPI) {
       setIsElectron(true);
     }
   }, []);
 
+  const loadPreloadedPrompts = async () => {
+    try {
+      const response = await api.getPreloadedPrompts();
+      setPreloadedPrompts(response.prompts);
+    } catch (error) {
+      if (process.env.NODE_ENV === 'development') {
+        console.error("Failed to load preloaded prompts:", error);
+      }
+    }
+  };
+
   // Listen for session refresh events
   useSessionRefresh(() => {
     loadSessionStatus();
     setPromptPasteCount(0);
+    // Reset selected prompt if cleared
+    if (!promptSource || !promptSource.startsWith("preloaded:")) {
+      setSelectedPromptKey("");
+    }
   });
 
   const loadSessionStatus = async () => {
     try {
       const session = await api.getSession();
       setPromptSource(session.prompt_source || null);
+      // Update selected prompt key if source is preloaded
+      if (session.prompt_source && session.prompt_source.startsWith("preloaded:")) {
+        const key = session.prompt_source.split(":")[1];
+        setSelectedPromptKey(key);
+      } else if (!session.prompt_source) {
+        setSelectedPromptKey("");
+      }
     } catch (error) {
       if (process.env.NODE_ENV === 'development') {
         console.error("Failed to load session status:", error);
@@ -136,6 +179,7 @@ export function PromptSection() {
       await api.clearPrompt();
       setPromptSource(null);
       setPromptPasteCount(0);
+      setSelectedPromptKey("");
       await loadSessionStatus();
       
       // Trigger refresh for other sections
@@ -147,12 +191,28 @@ export function PromptSection() {
     }
   };
 
+  const handleSelectPrompt = async (key: string) => {
+    try {
+      await api.usePreloadedPrompt(key);
+      setSelectedPromptKey(key);
+      setPromptPasteCount(0);
+      await loadSessionStatus();
+    } catch (error) {
+      console.error("Failed to load preloaded prompt:", error);
+      alert("Failed to load preloaded prompt");
+    }
+  };
+
   const getStatusText = (): string => {
-    if (!promptSource && promptPasteCount === 0) {
+    if (!promptSource && promptPasteCount === 0 && !selectedPromptKey) {
       return "No prompt";
     }
     if (promptSource) {
       return `[${promptSource}]`;
+    }
+    if (selectedPromptKey) {
+      const prompt = preloadedPrompts.find((p) => p.key === selectedPromptKey);
+      return prompt ? `[Preloaded: ${prompt.label}]` : "[Preloaded]";
     }
     if (promptPasteCount > 0) {
       return promptPasteCount === 1
@@ -173,6 +233,44 @@ export function PromptSection() {
     <>
       <div className="px-5 py-2 bg-background">
         <div className="space-y-2">
+          {/* Preloaded Prompts Icons - Compact inline layout with tooltips */}
+          {preloadedPrompts.length > 0 && (
+            <div className="mb-2">
+              <div className="flex flex-wrap gap-1 items-center justify-center">
+                {/* Add New Prompt Icon - First position */}
+                <button
+                  onClick={() => {
+                    // TODO: Wire up add new prompt functionality
+                    console.log("Add new prompt clicked - not yet implemented");
+                  }}
+                  className="p-1.5 rounded font-medium cursor-pointer transition-colors border border-dashed border-border bg-secondary text-muted-foreground hover:bg-accent hover:border-accent-foreground/20 hover:text-foreground flex items-center justify-center"
+                  title="Add a new preloaded prompt"
+                  aria-label="Add new preloaded prompt"
+                >
+                  <Plus size={14} />
+                </button>
+                {preloadedPrompts.map((prompt) => {
+                  const isSelected = selectedPromptKey === prompt.key;
+                  const IconComponent = getPromptIcon(prompt.label);
+                  return (
+                    <button
+                      key={prompt.key}
+                      onClick={() => handleSelectPrompt(prompt.key)}
+                      className={`p-1.5 rounded font-medium cursor-pointer transition-colors border flex items-center justify-center ${
+                        isSelected
+                          ? "bg-primary text-primary-foreground border-primary hover:bg-primary/90"
+                          : "bg-secondary text-foreground border-border hover:bg-accent hover:border-accent-foreground/20"
+                      }`}
+                      title={`${prompt.label}\n\n${prompt.preview}`}
+                      aria-label={`Load preloaded prompt: ${prompt.label}`}
+                    >
+                      <IconComponent size={14} />
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
           <SectionButtonRow buttons={buttons} />
           <StatusLabel text={getStatusText()} />
         </div>

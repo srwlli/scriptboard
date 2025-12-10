@@ -1,0 +1,26 @@
+{
+  "feature_name": "preloaded-prompts-integration",
+  "description": "Integrate preloaded prompts from settings.py into the new Next.js/Electron build. Add API endpoint to list available prompts, add UI component to access prompts (similar to original \"Prompts\" menu), and ensure prompts from original settings.py are available in the new system.",
+  "goal": "Enable users to access preloaded prompts (Code Review, Synthesize, Research, Consolidate, etc.) from the new web-based UI, matching the functionality of the original Tkinter \"Prompts\" menu.",
+  "requirements": [
+    "Add GET /prompts endpoint to return list of available preloaded prompts with keys and labels",
+    "Add UI component (dropdown/menu) to PromptSection to access preloaded prompts",
+    "Ensure backend settings.py PRELOADED_PROMPTS matches original settings.py",
+    "Update config system to include preloaded prompts in config.json if needed",
+    "Test prompt loading from preloaded prompts works correctly",
+    "Ensure prompt source shows as \"preloaded:X\" format"
+  ],
+  "out_of_scope": [],
+  "constraints": [
+    "Must maintain backward compatibility with existing prompt loading methods",
+    "Should match original UI/UX where possible",
+    "Must work in both Electron and browser environments"
+  ],
+  "decisions": {},
+  "success_criteria": {},
+  "_metadata": {
+    "workorder_id": "WO-PRELOADED-PROMPTS-INTEGRATION-001",
+    "workorder_assigned_at": "2025-12-10T16:55:15.838676+00:00",
+    "workorder_assigned_by": "gather_context"
+  }
+}
