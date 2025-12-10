@@ -1,0 +1,235 @@
+[
+  {
+    "timestamp": "2025-12-10T01:56:02.037853",
+    "workorder_id": "WO-NEW-PAGE-001",
+    "feature_name": "new-page",
+    "task_count": 45,
+    "tasks": [
+      {
+        "content": "PRE-IMPL-001: Review scriptboard.py for complete function and UI mapping",
+        "activeForm": "PRE-IMPL-001: Reviewing scriptboard.py for complete function and UI mapping",
+        "status": "pending"
+      },
+      {
+        "content": "PRE-IMPL-002: Review existing components for reuse patterns",
+        "activeForm": "PRE-IMPL-002: Reviewing existing components for reuse patterns",
+        "status": "pending"
+      },
+      {
+        "content": "PRE-IMPL-003: Plan component structure and exports",
+        "activeForm": "PRE-IMPL-003: Planing component structure and exports",
+        "status": "pending"
+      },
+      {
+        "content": "PRE-IMPL-004: Document function mapping from original to React/API",
+        "activeForm": "PRE-IMPL-004: Documenting function mapping from original to React/API",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-1--001: Create frontend/src/components/ui/ directory",
+        "activeForm": "PHASE-1--001: Creating frontend/src/components/ui/ directory",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-1--002: Create SectionButtonRow component with button config array",
+        "activeForm": "PHASE-1--002: Creating SectionButtonRow component with button config array",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-1--003: Create StatusLabel component with text and styling props",
+        "activeForm": "PHASE-1--003: Creating StatusLabel component with text and styling props",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-1--004: Create SectionDivider component",
+        "activeForm": "PHASE-1--004: Creating SectionDivider component",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-1--005: Create FooterBar component with all controls",
+        "activeForm": "PHASE-1--005: Creating FooterBar component with all controls",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-1--006: Export all components from ui/index.ts",
+        "activeForm": "PHASE-1--006: Exporting all components from ui/index.ts",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-1--007: Test components can be imported elsewhere",
+        "activeForm": "PHASE-1--007: Testing components can be imported elsewhere",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-2--001: Create frontend/src/components/ClassicLayout/ directory",
+        "activeForm": "PHASE-2--001: Creating frontend/src/components/ClassicLayout/ directory",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-2--002: Create FavoritesSection component (reuse FavoritesPanel or create new)",
+        "activeForm": "PHASE-2--002: Creating FavoritesSection component (reuse FavoritesPanel or create new)",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-2--003: Create PromptSection component with all buttons and functions",
+        "activeForm": "PHASE-2--003: Creating PromptSection component with all buttons and functions",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-2--004: Create AttachmentsSection component with all buttons and functions",
+        "activeForm": "PHASE-2--004: Creating AttachmentsSection component with all buttons and functions",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-2--005: Create ResponsesSection component with all buttons and functions",
+        "activeForm": "PHASE-2--005: Creating ResponsesSection component with all buttons and functions",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-2--006: Create ManagementSection component with all buttons and functions",
+        "activeForm": "PHASE-2--006: Creating ManagementSection component with all buttons and functions",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-2--007: Map all functions to API calls or browser/Electron APIs",
+        "activeForm": "PHASE-2--007: Maping all functions to API calls or browser/Electron APIs",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-2--008: Test each section renders correctly",
+        "activeForm": "PHASE-2--008: Testing each section renders correctly",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-3--001: Create useClassicLayout hook for state management",
+        "activeForm": "PHASE-3--001: Creating useClassicLayout hook for state management",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-3--002: Create ToggleablePreview component",
+        "activeForm": "PHASE-3--002: Creating ToggleablePreview component",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-3--003: Create frontend/app/new-page/page.tsx",
+        "activeForm": "PHASE-3--003: Creating frontend/app/new-page/page.tsx",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-3--004: Integrate all sections in vertical stack layout",
+        "activeForm": "PHASE-3--004: Integrateing all sections in vertical stack layout",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-3--005: Add FooterBar at bottom",
+        "activeForm": "PHASE-3--005: Adding FooterBar at bottom",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-3--006: Add Header with navigation",
+        "activeForm": "PHASE-3--006: Adding Header with navigation",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-3--007: Test page renders correctly",
+        "activeForm": "PHASE-3--007: Testing page renders correctly",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-3--008: Add navigation link to Header component",
+        "activeForm": "PHASE-3--008: Adding navigation link to Header component",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-3--009: Test navigation works",
+        "activeForm": "PHASE-3--009: Testing navigation works",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-4--001: Write unit tests for SectionButtonRow",
+        "activeForm": "PHASE-4--001: Writing unit tests for SectionButtonRow",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-4--002: Write unit tests for StatusLabel",
+        "activeForm": "PHASE-4--002: Writing unit tests for StatusLabel",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-4--003: Write unit tests for FooterBar",
+        "activeForm": "PHASE-4--003: Writing unit tests for FooterBar",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-4--004: Write integration tests for each section",
+        "activeForm": "PHASE-4--004: Writing integration tests for each section",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-4--005: Write integration test for classic layout page",
+        "activeForm": "PHASE-4--005: Writing integration test for classic layout page",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-4--006: Write E2E test for navigation",
+        "activeForm": "PHASE-4--006: Writing E2E test for navigation",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-4--007: Write E2E test for button functions",
+        "activeForm": "PHASE-4--007: Writing E2E test for button functions",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-4--008: Run all tests and fix failures",
+        "activeForm": "PHASE-4--008: Running all tests and fix failures",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-4--009: Verify test coverage meets target",
+        "activeForm": "PHASE-4--009: Verifying test coverage meets target",
+        "status": "pending"
+      },
+      {
+        "content": "POST-IMP-001: Code review",
+        "activeForm": "POST-IMP-001: Codeing review",
+        "status": "pending"
+      },
+      {
+        "content": "POST-IMP-002: Verify all components are exportable",
+        "activeForm": "POST-IMP-002: Verifying all components are exportable",
+        "status": "pending"
+      },
+      {
+        "content": "POST-IMP-003: Update component documentation",
+        "activeForm": "POST-IMP-003: Updating component documentation",
+        "status": "pending"
+      },
+      {
+        "content": "POST-IMP-004: Verify no console errors",
+        "activeForm": "POST-IMP-004: Verifying no console errors",
+        "status": "pending"
+      },
+      {
+        "content": "POST-IMP-005: Test in Electron shell",
+        "activeForm": "POST-IMP-005: Testing in Electron shell",
+        "status": "pending"
+      },
+      {
+        "content": "POST-IMP-006: Test all functions work correctly",
+        "activeForm": "POST-IMP-006: Testing all functions work correctly",
+        "status": "pending"
+      },
+      {
+        "content": "POST-IMP-007: Verify page matches original layout",
+        "activeForm": "POST-IMP-007: Verifying page matches original layout",
+        "status": "pending"
+      },
+      {
+        "content": "POST-IMP-008: Commit changes",
+        "activeForm": "POST-IMP-008: Commiting changes",
+        "status": "pending"
+      }
+    ]
+  }
+]

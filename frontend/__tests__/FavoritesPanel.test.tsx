@@ -3,7 +3,11 @@ import { FavoritesPanel } from '@/components/FavoritesPanel'
 import { api } from '@/lib/api'
 
 // Mock the API client
-jest.mock('@/lib/api')
+jest.mock('@/lib/api', () => ({
+  api: {
+    getConfig: jest.fn(),
+  },
+}))
 
 const mockApi = api as jest.Mocked<typeof api>
 

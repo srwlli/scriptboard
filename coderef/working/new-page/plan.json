@@ -1,0 +1,795 @@
+{
+  "META_DOCUMENTATION": {
+    "feature_name": "new-page",
+    "schema_version": "1.0.0",
+    "version": "1.0.0",
+    "status": "complete",
+    "generated_by": "AI Assistant",
+    "has_context": true,
+    "has_analysis": true,
+    "workorder": {
+      "id": "WO-NEW-PAGE-001",
+      "name": "New Page - Original UI/UX Replication",
+      "feature_dir": "coderef/working/new-page"
+    }
+  },
+  "UNIVERSAL_PLANNING_STRUCTURE": {
+    "0_preparation": {
+      "foundation_docs": {
+        "available": [
+          "README.md - Project overview and setup instructions",
+          "ARCHITECTURE.md - Layered architecture documentation",
+          "LAYOUT_COMPARISON.md - Original vs new layout comparison",
+          "scriptboard.py - Original Tkinter implementation (reference)"
+        ],
+        "missing": [
+          "API.md - API endpoint documentation",
+          "COMPONENTS.md - Component library documentation"
+        ]
+      },
+      "coding_standards": {
+        "available": [
+          "Error handling patterns from existing components",
+          "TypeScript type definitions",
+          "Tailwind CSS styling patterns",
+          "Component structure patterns from existing panels"
+        ],
+        "missing": [
+          "Explicit coding standards document"
+        ]
+      },
+      "reference_components": {
+        "primary": "scriptboard.py - Original Tkinter UI structure and function mappings",
+        "secondary": [
+          "frontend/src/components/FavoritesPanel.tsx - Favorites component",
+          "frontend/src/components/PromptPanel.tsx - Prompt component",
+          "frontend/src/components/AttachmentsPanel.tsx - Attachments component",
+          "frontend/src/components/ResponsesPanel.tsx - Responses component",
+          "frontend/src/components/SessionManagerPanel.tsx - Management component",
+          "frontend/src/components/PreviewPanel.tsx - Preview component"
+        ]
+      },
+      "key_patterns_identified": [
+        "Original scriptboard.py uses vertical stack layout with sections: Favorites → Prompt → Attachments → Responses → Management → Preview (toggleable) → Footer",
+        "Each section has: Button row (centered) + Status label (below buttons)",
+        "Buttons follow pattern: Primary button (left) + Secondary buttons (right)",
+        "Status labels show current state (e.g., 'No prompt', 'Responses: 0 | Characters: 0')",
+        "Footer has: Status message (left) + Size label (toggleable) + Char count + Lock Size checkbox + On Top checkbox (right)",
+        "Preview panel is toggleable and shows combined preview",
+        "All sections are toggleable via menu (View menu)"
+      ],
+      "gaps_and_risks": [
+        "Need to create reusable button row component",
+        "Need to create reusable status label component",
+        "Need to create reusable section divider component",
+        "Need to create Footer/Status bar component",
+        "Need to map all original functions to React handlers"
+      ]
+    },
+    "1_executive_summary": {
+      "feature_description": "Create a new page (/new-page) that exactly replicates the original scriptboard.py UI/UX with vertical stack layout, matching all sections, buttons, functions, and footer controls. All components must be reusable and importable elsewhere.",
+      "business_goal": "Provide users with the original Tkinter application's exact layout and user experience as an alternative view, maintaining feature parity and familiar workflow",
+      "technical_goal": "Implement a new Next.js route that replicates scriptboard.py's vertical stack layout using reusable React components, mapping all original functions to API calls, and ensuring all components are exportable for reuse",
+      "scope": {
+        "in_scope": [
+          "Create new page at /new-page route with vertical stack layout",
+          "Map all sections from scriptboard.py: Favorites, Prompt, Attachments, Responses, Management, Preview (toggleable), Footer",
+          "Create reusable components: SectionButtonRow, StatusLabel, SectionDivider, FooterBar",
+          "Map all original functions to React handlers (load_prompt → API call, etc.)",
+          "Implement all buttons with same functionality: Load, Paste, View, Clear, LLMs, Copy All, Save As, Clear All",
+          "Implement toggleable Preview panel matching original behavior",
+          "Implement Footer with Status, Size (toggleable), Char count, Lock Size, On Top controls",
+          "Add navigation link in Header",
+          "Ensure all components are exportable and reusable"
+        ],
+        "out_of_scope": [
+          "Menu bar implementation (View menu for toggling sections - can be added later)",
+          "Drag-and-drop file support (can be added later)",
+          "Backend API changes (reuse existing endpoints)",
+          "Modifying existing page.tsx (main page remains unchanged)"
+        ]
+      },
+      "success_metrics": [
+        "New page accessible at /new-page route",
+        "All sections visible in correct vertical order matching original",
+        "All buttons functional and mapped to correct API calls",
+        "Preview panel toggleable like original",
+        "Footer/Status bar functional with all controls",
+        "All components are reusable and exportable",
+        "Page matches original scriptboard.py layout visually and functionally",
+        "Navigation link works from Header"
+      ]
+    },
+    "2_risk_assessment": {
+      "complexity": {
+        "level": "medium",
+        "rationale": "Requires creating reusable components, mapping all original functions, and ensuring exact UI/UX match. Main complexity is component reusability and function mapping."
+      },
+      "technical_risks": [
+        {
+          "risk": "Component reusability may require refactoring existing components",
+          "severity": "medium",
+          "probability": "medium",
+          "mitigation": "Create new reusable components that can wrap or extend existing components, maintain backward compatibility"
+        },
+        {
+          "risk": "Function mapping may miss edge cases from original",
+          "severity": "low",
+          "probability": "medium",
+          "mitigation": "Thoroughly review scriptboard.py for all functions, create comprehensive mapping document"
+        },
+        {
+          "risk": "Footer controls (Lock Size, On Top) may not translate well to web",
+          "severity": "low",
+          "probability": "low",
+          "mitigation": "Implement web-appropriate alternatives: Lock Size controls container max-width via CSS, On Top uses CSS position: sticky"
+        }
+      ],
+      "breaking_changes": {
+        "level": "none",
+        "details": "Adding a new page is additive and should not affect existing functionality",
+        "mitigation": "N/A - new feature only"
+      }
+    },
+    "3_current_state_analysis": {
+      "affected_files": [
+        {
+          "path": "scriptboard.py",
+          "action": "reference",
+          "reason": "Complete function and UI mapping reference"
+        },
+        {
+          "path": "frontend/src/components/FavoritesPanel.tsx",
+          "action": "reference",
+          "reason": "Reuse or adapt for Favorites section"
+        },
+        {
+          "path": "frontend/src/components/PromptPanel.tsx",
+          "action": "reference",
+          "reason": "Reuse or adapt for Prompt section"
+        },
+        {
+          "path": "frontend/src/components/AttachmentsPanel.tsx",
+          "action": "reference",
+          "reason": "Reuse or adapt for Attachments section"
+        },
+        {
+          "path": "frontend/src/components/ResponsesPanel.tsx",
+          "action": "reference",
+          "reason": "Reuse or adapt for Responses section"
+        },
+        {
+          "path": "frontend/src/components/SessionManagerPanel.tsx",
+          "action": "reference",
+          "reason": "Reuse or adapt for Management section"
+        },
+        {
+          "path": "frontend/src/components/PreviewPanel.tsx",
+          "action": "reference",
+          "reason": "Reuse for toggleable Preview panel"
+        },
+        {
+          "path": "frontend/src/components/Header.tsx",
+          "action": "modify",
+          "reason": "Add navigation link to new page"
+        }
+      ],
+      "files_to_create": [
+        {
+          "path": "frontend/app/new-page/page.tsx",
+          "purpose": "Main page component with vertical stack layout matching original scriptboard.py"
+        },
+        {
+          "path": "frontend/src/components/ui/SectionButtonRow.tsx",
+          "purpose": "Reusable button row component for all sections (Load, Paste, View, Clear, etc.)"
+        },
+        {
+          "path": "frontend/src/components/ui/StatusLabel.tsx",
+          "purpose": "Reusable status label component showing section state (e.g., 'No prompt', 'Responses: 0')"
+        },
+        {
+          "path": "frontend/src/components/ui/SectionDivider.tsx",
+          "purpose": "Reusable divider component between sections"
+        },
+        {
+          "path": "frontend/src/components/ui/FooterBar.tsx",
+          "purpose": "Footer/Status bar component with Status, Size, Char count, Lock Size, On Top controls"
+        },
+        {
+          "path": "frontend/src/components/ClassicLayout/FavoritesSection.tsx",
+          "purpose": "Favorites section component matching original layout (horizontal buttons, Add+ button)"
+        },
+        {
+          "path": "frontend/src/components/ClassicLayout/PromptSection.tsx",
+          "purpose": "Prompt section component with Load, Paste, View, Clear buttons + status label"
+        },
+        {
+          "path": "frontend/src/components/ClassicLayout/AttachmentsSection.tsx",
+          "purpose": "Attachments section component with Load, Paste, View, Clear buttons + status label"
+        },
+        {
+          "path": "frontend/src/components/ClassicLayout/ResponsesSection.tsx",
+          "purpose": "Responses section component with LLMs, Paste, View, Clear buttons + status label"
+        },
+        {
+          "path": "frontend/src/components/ClassicLayout/ManagementSection.tsx",
+          "purpose": "Management section component with Copy All, Save As, View, Clear All buttons + status label"
+        },
+        {
+          "path": "frontend/src/components/ClassicLayout/ToggleablePreview.tsx",
+          "purpose": "Toggleable preview panel component matching original behavior"
+        },
+        {
+          "path": "frontend/src/hooks/useClassicLayout.ts",
+          "purpose": "Custom hook for managing classic layout state (preview visibility, footer controls, etc.)"
+        },
+        {
+          "path": "frontend/__tests__/SectionButtonRow.test.tsx",
+          "purpose": "Unit tests for SectionButtonRow component"
+        },
+        {
+          "path": "frontend/__tests__/StatusLabel.test.tsx",
+          "purpose": "Unit tests for StatusLabel component"
+        },
+        {
+          "path": "frontend/__tests__/FooterBar.test.tsx",
+          "purpose": "Unit tests for FooterBar component"
+        },
+        {
+          "path": "frontend/__tests__/ClassicLayout.test.tsx",
+          "purpose": "Integration tests for classic layout page"
+        }
+      ],
+      "function_mapping": {
+        "favorites": {
+          "add_favorite": "API: POST /config/favorites (or update config)",
+          "open_favorite": "Electron: openFolder IPC or API: GET /favorites/{id}",
+          "remove_favorite": "API: DELETE /config/favorites/{id}"
+        },
+        "prompt": {
+          "load_prompt": "Electron: openFileDialog IPC → API: POST /prompt/load",
+          "set_prompt": "Clipboard API → API: POST /prompt",
+          "view_prompt": "Modal/Window: Display prompt content",
+          "clear_prompt": "API: DELETE /prompt"
+        },
+        "attachments": {
+          "attach_file": "Electron: openFileDialog IPC → API: POST /attachments",
+          "paste_code": "Clipboard API → API: POST /attachments/text",
+          "view_attachments": "Modal/Window: Display attachment list",
+          "clear_attachments": "API: DELETE /attachments"
+        },
+        "responses": {
+          "open_all_llms": "Window.open() for each LLM URL from config",
+          "paste": "Clipboard API → API: POST /responses",
+          "view_responses": "Modal/Window: Display response list",
+          "clear": "API: DELETE /responses"
+        },
+        "management": {
+          "copy_all": "API: GET /export/json → Clipboard API",
+          "save_clipboard_to_dir": "Electron: openFolderDialog IPC → Write file",
+          "view_combined_preview": "Modal/Window: Display combined preview",
+          "clear": "API: DELETE /prompt, DELETE /attachments, DELETE /responses"
+        },
+        "preview": {
+          "toggle_view": "React state: setPreviewVisible(!previewVisible)"
+        },
+        "footer": {
+          "show_status": "React state: setStatusMessage(message)",
+          "_on_lock_size_toggle": "React state: setLockSize(!lockSize) → Apply CSS max-width",
+          "_on_topmost_toggle": "React state: setOnTop(!onTop) → Apply CSS position: sticky"
+        }
+      },
+      "dependencies": [
+        "next - App Router framework",
+        "react - Component library",
+        "tailwindcss - Styling",
+        "Existing API client (src/lib/api.ts)",
+        "Existing components (for reuse/adaptation)",
+        "Electron IPC APIs (for file dialogs, folder operations)"
+      ]
+    },
+    "4_key_features": {
+      "features": [
+        {
+          "name": "Reusable UI Components",
+          "description": "Create reusable components (SectionButtonRow, StatusLabel, SectionDivider, FooterBar) that can be imported and used elsewhere in the application",
+          "priority": "high",
+          "acceptance_criteria": [
+            "SectionButtonRow component accepts button config array and renders buttons",
+            "StatusLabel component accepts text and styling props",
+            "SectionDivider component renders consistent dividers",
+            "FooterBar component includes all footer controls",
+            "All components are exported from ui/ directory",
+            "Components can be imported and used in other pages"
+          ]
+        },
+        {
+          "name": "Classic Layout Sections",
+          "description": "Create section components matching original scriptboard.py layout: Favorites, Prompt, Attachments, Responses, Management",
+          "priority": "high",
+          "acceptance_criteria": [
+            "FavoritesSection matches original (horizontal buttons, Add+ button)",
+            "PromptSection has Load, Paste, View, Clear buttons + status",
+            "AttachmentsSection has Load, Paste, View, Clear buttons + status",
+            "ResponsesSection has LLMs, Paste, View, Clear buttons + status",
+            "ManagementSection has Copy All, Save As, View, Clear All buttons + status",
+            "All sections use reusable SectionButtonRow and StatusLabel components"
+          ]
+        },
+        {
+          "name": "Function Mapping",
+          "description": "Map all original scriptboard.py functions to React handlers and API calls",
+          "priority": "high",
+          "acceptance_criteria": [
+            "All prompt functions mapped (load_prompt, set_prompt, view_prompt, clear_prompt)",
+            "All attachment functions mapped (attach_file, paste_code, view_attachments, clear_attachments)",
+            "All response functions mapped (open_all_llms, paste, view_responses, clear)",
+            "All management functions mapped (copy_all, save_clipboard_to_dir, view_combined_preview, clear)",
+            "All footer functions mapped (show_status, lock_size, on_top)",
+            "Functions call correct API endpoints or use appropriate browser/Electron APIs"
+          ]
+        },
+        {
+          "name": "Toggleable Preview Panel",
+          "description": "Implement toggleable preview panel matching original scriptboard.py behavior",
+          "priority": "high",
+          "acceptance_criteria": [
+            "Preview panel can be shown/hidden via toggle",
+            "Preview shows combined content (prompt + attachments + responses)",
+            "Preview uses existing PreviewPanel component",
+            "Toggle state persists during session"
+          ]
+        },
+        {
+          "name": "Footer/Status Bar",
+          "description": "Implement footer with Status message, Size label (toggleable), Char count, Lock Size checkbox, On Top checkbox",
+          "priority": "high",
+          "acceptance_criteria": [
+            "Footer displays status messages",
+            "Size label shows window size (toggleable via View menu or state)",
+            "Char count shows total characters",
+            "Lock Size checkbox locks container max-width",
+            "On Top checkbox applies CSS position: sticky",
+            "All controls functional"
+          ]
+        },
+        {
+          "name": "Vertical Stack Layout",
+          "description": "Implement vertical stack layout matching original scriptboard.py",
+          "priority": "high",
+          "acceptance_criteria": [
+            "Sections stack vertically in order: Favorites → Prompt → Attachments → Responses → Management → Preview (toggleable) → Footer",
+            "Layout matches original spacing and padding",
+            "Sections are separated by dividers",
+            "Layout is responsive (stacks on mobile)"
+          ]
+        },
+        {
+          "name": "Navigation Integration",
+          "description": "Add navigation link in Header to access new page",
+          "priority": "medium",
+          "acceptance_criteria": [
+            "Navigation link visible in Header",
+            "Clicking link navigates to /new-page",
+            "Active state indication when on new page"
+          ]
+        }
+      ]
+    },
+    "5_task_id_system": {
+      "workorder": {
+        "id": "WO-NEW-PAGE-001",
+        "name": "New Page - Original UI/UX Replication",
+        "feature_dir": "coderef/working/new-page"
+      },
+      "tasks": [
+        {
+          "id": "COMP-001",
+          "workorder_id": "WO-NEW-PAGE-001",
+          "description": "Create reusable SectionButtonRow component with button config array support",
+          "feature": "Reusable UI Components",
+          "dependencies": [],
+          "estimated_time": "45 minutes"
+        },
+        {
+          "id": "COMP-002",
+          "workorder_id": "WO-NEW-PAGE-001",
+          "description": "Create reusable StatusLabel component with text and styling props",
+          "feature": "Reusable UI Components",
+          "dependencies": [],
+          "estimated_time": "30 minutes"
+        },
+        {
+          "id": "COMP-003",
+          "workorder_id": "WO-NEW-PAGE-001",
+          "description": "Create reusable SectionDivider component",
+          "feature": "Reusable UI Components",
+          "dependencies": [],
+          "estimated_time": "15 minutes"
+        },
+        {
+          "id": "COMP-004",
+          "workorder_id": "WO-NEW-PAGE-001",
+          "description": "Create reusable FooterBar component with Status, Size, Char count, Lock Size, On Top controls",
+          "feature": "Reusable UI Components",
+          "dependencies": [],
+          "estimated_time": "60 minutes"
+        },
+        {
+          "id": "SECTION-001",
+          "workorder_id": "WO-NEW-PAGE-001",
+          "description": "Create FavoritesSection component matching original (horizontal buttons, Add+ button, right-click to remove)",
+          "feature": "Classic Layout Sections",
+          "dependencies": ["COMP-001", "COMP-002"],
+          "estimated_time": "45 minutes"
+        },
+        {
+          "id": "SECTION-002",
+          "workorder_id": "WO-NEW-PAGE-001",
+          "description": "Create PromptSection component with Load, Paste, View, Clear buttons + status label, map all prompt functions",
+          "feature": "Classic Layout Sections",
+          "dependencies": ["COMP-001", "COMP-002", "COMP-003"],
+          "estimated_time": "60 minutes"
+        },
+        {
+          "id": "SECTION-003",
+          "workorder_id": "WO-NEW-PAGE-001",
+          "description": "Create AttachmentsSection component with Load, Paste, View, Clear buttons + status label, map all attachment functions",
+          "feature": "Classic Layout Sections",
+          "dependencies": ["COMP-001", "COMP-002", "COMP-003"],
+          "estimated_time": "60 minutes"
+        },
+        {
+          "id": "SECTION-004",
+          "workorder_id": "WO-NEW-PAGE-001",
+          "description": "Create ResponsesSection component with LLMs, Paste, View, Clear buttons + status label, map all response functions",
+          "feature": "Classic Layout Sections",
+          "dependencies": ["COMP-001", "COMP-002", "COMP-003"],
+          "estimated_time": "60 minutes"
+        },
+        {
+          "id": "SECTION-005",
+          "workorder_id": "WO-NEW-PAGE-001",
+          "description": "Create ManagementSection component with Copy All, Save As, View, Clear All buttons + status label, map all management functions",
+          "feature": "Classic Layout Sections",
+          "dependencies": ["COMP-001", "COMP-002", "COMP-003"],
+          "estimated_time": "60 minutes"
+        },
+        {
+          "id": "PREVIEW-001",
+          "workorder_id": "WO-NEW-PAGE-001",
+          "description": "Create ToggleablePreview component using existing PreviewPanel, implement toggle functionality",
+          "feature": "Toggleable Preview Panel",
+          "dependencies": ["COMP-001"],
+          "estimated_time": "30 minutes"
+        },
+        {
+          "id": "HOOK-001",
+          "workorder_id": "WO-NEW-PAGE-001",
+          "description": "Create useClassicLayout hook for managing preview visibility, footer state, and layout controls",
+          "feature": "Vertical Stack Layout",
+          "dependencies": [],
+          "estimated_time": "30 minutes"
+        },
+        {
+          "id": "PAGE-001",
+          "workorder_id": "WO-NEW-PAGE-001",
+          "description": "Create new page component at frontend/app/new-page/page.tsx with vertical stack layout, integrate all sections",
+          "feature": "Vertical Stack Layout",
+          "dependencies": ["SECTION-001", "SECTION-002", "SECTION-003", "SECTION-004", "SECTION-005", "PREVIEW-001", "COMP-004", "HOOK-001"],
+          "estimated_time": "45 minutes"
+        },
+        {
+          "id": "NAV-001",
+          "workorder_id": "WO-NEW-PAGE-001",
+          "description": "Add navigation link to Header component for /new-page route",
+          "feature": "Navigation Integration",
+          "dependencies": ["PAGE-001"],
+          "estimated_time": "20 minutes"
+        },
+        {
+          "id": "TEST-001",
+          "workorder_id": "WO-NEW-PAGE-001",
+          "description": "Write unit tests for SectionButtonRow, StatusLabel, FooterBar components",
+          "feature": "Testing",
+          "dependencies": ["COMP-001", "COMP-002", "COMP-004"],
+          "estimated_time": "45 minutes"
+        },
+        {
+          "id": "TEST-002",
+          "workorder_id": "WO-NEW-PAGE-001",
+          "description": "Write integration tests for classic layout page and all sections",
+          "feature": "Testing",
+          "dependencies": ["PAGE-001"],
+          "estimated_time": "60 minutes"
+        },
+        {
+          "id": "E2E-001",
+          "workorder_id": "WO-NEW-PAGE-001",
+          "description": "Write E2E test for navigation to new page and all button functions",
+          "feature": "Testing",
+          "dependencies": ["NAV-001", "PAGE-001"],
+          "estimated_time": "45 minutes"
+        }
+      ]
+    },
+    "6_implementation_phases": {
+      "phases": [
+        {
+          "phase": 1,
+          "name": "Reusable Components",
+          "description": "Create all reusable UI components (SectionButtonRow, StatusLabel, SectionDivider, FooterBar) that can be imported elsewhere",
+          "tasks": ["COMP-001", "COMP-002", "COMP-003", "COMP-004"],
+          "deliverables": [
+            "SectionButtonRow component created and exported",
+            "StatusLabel component created and exported",
+            "SectionDivider component created and exported",
+            "FooterBar component created and exported",
+            "All components are reusable and importable"
+          ],
+          "estimated_time": "2.5 hours"
+        },
+        {
+          "phase": 2,
+          "name": "Classic Layout Sections",
+          "description": "Create all section components matching original scriptboard.py layout and map all functions",
+          "tasks": ["SECTION-001", "SECTION-002", "SECTION-003", "SECTION-004", "SECTION-005"],
+          "deliverables": [
+            "FavoritesSection component created",
+            "PromptSection component created with all functions mapped",
+            "AttachmentsSection component created with all functions mapped",
+            "ResponsesSection component created with all functions mapped",
+            "ManagementSection component created with all functions mapped",
+            "All sections use reusable components"
+          ],
+          "estimated_time": "4.5 hours"
+        },
+        {
+          "phase": 3,
+          "name": "Page Integration",
+          "description": "Create toggleable preview, layout hook, and integrate all sections into new page",
+          "tasks": ["PREVIEW-001", "HOOK-001", "PAGE-001", "NAV-001"],
+          "deliverables": [
+            "ToggleablePreview component created",
+            "useClassicLayout hook created",
+            "New page component created with vertical stack layout",
+            "Navigation link added to Header",
+            "All sections integrated and functional"
+          ],
+          "estimated_time": "2.5 hours"
+        },
+        {
+          "phase": 4,
+          "name": "Testing",
+          "description": "Write comprehensive tests for all components and page",
+          "tasks": ["TEST-001", "TEST-002", "E2E-001"],
+          "deliverables": [
+            "Unit tests for reusable components",
+            "Integration tests for classic layout",
+            "E2E tests for navigation and functionality",
+            "All tests passing"
+          ],
+          "estimated_time": "2.5 hours"
+        }
+      ]
+    },
+    "7_testing_strategy": {
+      "unit_tests": {
+        "scope": [
+          "Test SectionButtonRow renders buttons correctly from config",
+          "Test StatusLabel displays text and applies styling",
+          "Test SectionDivider renders correctly",
+          "Test FooterBar renders all controls and handles interactions",
+          "Test each section component renders correctly",
+          "Test useClassicLayout hook manages state correctly"
+        ],
+        "tools": ["Jest", "React Testing Library"],
+        "coverage_target": ">80% for all new components"
+      },
+      "integration_tests": {
+        "scope": [
+          "Test all sections work together on new page",
+          "Test function mappings call correct API endpoints",
+          "Test preview toggle functionality",
+          "Test footer controls affect layout",
+          "Test navigation flow"
+        ],
+        "tools": ["Jest", "React Testing Library"]
+      },
+      "e2e_tests": {
+        "scope": [
+          "Test user can navigate to new page via Header link",
+          "Test all buttons are clickable and functional",
+          "Test preview toggle works",
+          "Test footer controls work",
+          "Test page matches original layout visually"
+        ],
+        "tools": ["Playwright"],
+        "scenarios": [
+          "User navigates to /new-page",
+          "User clicks Load button in Prompt section",
+          "User clicks Paste button in Attachments section",
+          "User clicks LLMs button in Responses section",
+          "User toggles preview panel",
+          "User interacts with footer controls"
+        ]
+      },
+      "edge_case_testing": {
+        "scenarios": [
+          {
+            "scenario": "Empty clipboard when pasting",
+            "setup": "User clicks Paste button with empty clipboard",
+            "expected_behavior": "Show error message or status: 'Clipboard empty'",
+            "verification": "Verify error handling, no crash",
+            "error_handling": "Graceful error message displayed"
+          },
+          {
+            "scenario": "File dialog cancelled",
+            "setup": "User clicks Load button but cancels file dialog",
+            "expected_behavior": "No error, state unchanged",
+            "verification": "Verify no API call made, no state change",
+            "error_handling": "No error, operation cancelled silently"
+          },
+          {
+            "scenario": "Large file attachment",
+            "setup": "User attempts to attach file >2MB",
+            "expected_behavior": "File rejected with error message",
+            "verification": "Verify error response, file not attached",
+            "error_handling": "Error message: 'File too large to attach'"
+          },
+          {
+            "scenario": "API error during operation",
+            "setup": "Backend unavailable when clicking button",
+            "expected_behavior": "Show error message, no crash",
+            "verification": "Verify error handling, UI remains responsive",
+            "error_handling": "Error message displayed, user can retry"
+          },
+          {
+            "scenario": "Preview toggle with no content",
+            "setup": "User toggles preview when prompt/attachments/responses are empty",
+            "expected_behavior": "Preview shows empty state or 'No content' message",
+            "verification": "Verify preview renders correctly with empty state",
+            "error_handling": "No error, empty state displayed"
+          },
+          {
+            "scenario": "Multiple rapid button clicks",
+            "setup": "User clicks same button multiple times rapidly",
+            "expected_behavior": "Operation executes once or shows loading state",
+            "verification": "Verify debouncing or loading state prevents duplicate operations",
+            "error_handling": "No duplicate API calls, no race conditions"
+          },
+          {
+            "scenario": "Electron APIs unavailable in browser",
+            "setup": "User accesses page in browser (not Electron)",
+            "expected_behavior": "File dialogs use browser file input, folder operations disabled or use alternative",
+            "verification": "Verify graceful fallback, no errors",
+            "error_handling": "Feature detection, fallback to browser APIs"
+          },
+          {
+            "scenario": "Window resize with Lock Size enabled",
+            "setup": "User enables Lock Size, then resizes browser window",
+            "expected_behavior": "Container max-width maintained, content scrolls if needed",
+            "verification": "Verify CSS max-width applied correctly",
+            "error_handling": "No layout breakage"
+          },
+          {
+            "scenario": "Theme switch during operation",
+            "setup": "User switches theme while button operation in progress",
+            "expected_behavior": "Theme switches, operation completes, UI updates correctly",
+            "verification": "Verify no visual glitches, operation completes",
+            "error_handling": "No state conflicts"
+          },
+          {
+            "scenario": "Navigation away during operation",
+            "setup": "User clicks button, then navigates away before completion",
+            "expected_behavior": "Operation cancels or completes in background, no errors",
+            "verification": "Verify no memory leaks, no console errors",
+            "error_handling": "Cleanup on unmount, no warnings"
+          }
+        ]
+      },
+      "manual_testing": [
+        "Verify page loads without errors",
+        "Verify all sections visible in correct order",
+        "Verify all buttons functional",
+        "Verify preview toggle works",
+        "Verify footer controls work",
+        "Verify theme switching works",
+        "Verify responsive design on mobile/tablet",
+        "Verify navigation works in Electron shell"
+      ]
+    },
+    "8_success_criteria": {
+      "functional": [
+        "New page accessible at /new-page route",
+        "All sections visible in correct vertical order matching original",
+        "All buttons functional and mapped to correct functions",
+        "Preview panel toggleable like original",
+        "Footer/Status bar functional with all controls",
+        "Navigation link works from Header",
+        "All components are reusable and exportable"
+      ],
+      "non_functional": [
+        "Page matches original scriptboard.py layout visually",
+        "All components follow existing design patterns",
+        "No console errors or warnings",
+        "Responsive design works correctly",
+        "Performance is acceptable (no noticeable lag)",
+        "Components can be imported and used elsewhere"
+      ],
+      "acceptance": [
+        "All unit tests passing",
+        "Integration tests passing",
+        "E2E tests passing",
+        "Code review approved",
+        "No breaking changes to existing functionality",
+        "All components documented and exportable"
+      ],
+      "measurable_metrics": {
+        "component_reusability": "All 4 reusable components (SectionButtonRow, StatusLabel, SectionDivider, FooterBar) can be imported in other files",
+        "function_coverage": "100% of original scriptboard.py functions mapped to React handlers",
+        "section_coverage": "All 5 sections (Favorites, Prompt, Attachments, Responses, Management) implemented",
+        "test_coverage": ">80% code coverage for all new components"
+      }
+    },
+    "9_implementation_checklist": {
+      "pre_implementation": [
+        "Review scriptboard.py for complete function and UI mapping",
+        "Review existing components for reuse patterns",
+        "Plan component structure and exports",
+        "Document function mapping from original to React/API"
+      ],
+      "phase_1_reusable_components": [
+        "Create frontend/src/components/ui/ directory",
+        "Create SectionButtonRow component with button config array",
+        "Create StatusLabel component with text and styling props",
+        "Create SectionDivider component",
+        "Create FooterBar component with all controls",
+        "Export all components from ui/index.ts",
+        "Test components can be imported elsewhere"
+      ],
+      "phase_2_classic_layout_sections": [
+        "Create frontend/src/components/ClassicLayout/ directory",
+        "Create FavoritesSection component (reuse FavoritesPanel or create new)",
+        "Create PromptSection component with all buttons and functions",
+        "Create AttachmentsSection component with all buttons and functions",
+        "Create ResponsesSection component with all buttons and functions",
+        "Create ManagementSection component with all buttons and functions",
+        "Map all functions to API calls or browser/Electron APIs",
+        "Test each section renders correctly"
+      ],
+      "phase_3_page_integration": [
+        "Create useClassicLayout hook for state management",
+        "Create ToggleablePreview component",
+        "Create frontend/app/new-page/page.tsx",
+        "Integrate all sections in vertical stack layout",
+        "Add FooterBar at bottom",
+        "Add Header with navigation",
+        "Test page renders correctly",
+        "Add navigation link to Header component",
+        "Test navigation works"
+      ],
+      "phase_4_testing": [
+        "Write unit tests for SectionButtonRow",
+        "Write unit tests for StatusLabel",
+        "Write unit tests for FooterBar",
+        "Write integration tests for each section",
+        "Write integration test for classic layout page",
+        "Write E2E test for navigation",
+        "Write E2E test for button functions",
+        "Run all tests and fix failures",
+        "Verify test coverage meets target"
+      ],
+      "post_implementation": [
+        "Code review",
+        "Verify all components are exportable",
+        "Update component documentation",
+        "Verify no console errors",
+        "Test in Electron shell",
+        "Test all functions work correctly",
+        "Verify page matches original layout",
+        "Commit changes"
+      ]
+    }
+  }
+}

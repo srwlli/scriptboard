@@ -2,6 +2,8 @@
 
 Modern workspace for managing LLM prompts, attachments, and responses. Migrated from Tkinter to a modern architecture with Python Core, FastAPI Backend, Next.js Frontend, and Electron Shell.
 
+> 📝 See [CHANGELOG.md](CHANGELOG.md) for version history and release notes.
+
 ## Features
 
 - **Prompt Management**: Load prompts from files, paste from clipboard, use preloaded prompts
@@ -58,7 +60,15 @@ npm install
 
 ## Running
 
-### Development Mode
+### Quick Start (Desktop App)
+
+**Easiest way - use the desktop shortcut:**
+- Double-click the `Scriptboard` shortcut on your desktop
+- Or run: `shell\start-scriptboard.bat`
+
+This automatically starts the backend, frontend, and opens the Electron window.
+
+### Development Mode (Manual)
 
 1. **Start Backend**:
    ```bash
@@ -79,9 +89,30 @@ npm install
    npm run dev
    ```
 
-### Production Mode
+### Desktop App Installation
 
-Package with Electron for distribution (TODO: add packaging scripts).
+To install Scriptboard as a desktop app, see [INSTALL.md](INSTALL.md) for detailed instructions.
+
+**Quick development mode:**
+```bash
+cd shell
+npm install
+npm run dev
+```
+
+**Build installer:**
+```bash
+# Build frontend first
+cd frontend
+npm run build
+
+# Then package
+cd ../shell
+npm install  # Installs electron-builder
+npm run package:win  # or package:mac, package:linux
+```
+
+The installer will be created in `shell/dist/`.
 
 ## Configuration
 

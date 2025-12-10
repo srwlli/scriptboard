@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { ThemeToggle } from "./ThemeToggle";
 import { api } from "@/lib/api";
 import { SearchResults } from "./SearchResults";
@@ -10,6 +12,7 @@ export function Header() {
   const [isSearching, setIsSearching] = useState(false);
   const [searchResults, setSearchResults] = useState<any>(null);
   const [showResults, setShowResults] = useState(false);
+  const pathname = usePathname();
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -42,7 +45,31 @@ export function Header() {
     <>
       <header className="border-b border-border bg-background sticky top-0 z-50">
         <div className="container mx-auto px-4 py-3 flex items-center justify-between gap-4">
-          <h1 className="text-xl font-bold text-foreground">Scriptboard</h1>
+          <div className="flex items-center gap-4">
+            <h1 className="text-xl font-bold text-foreground">Scriptboard</h1>
+            <nav className="flex items-center gap-2">
+              <Link
+                href="/"
+                className={`px-3 py-1.5 text-sm rounded-md transition-colors ${
+                  pathname === "/"
+                    ? "bg-primary text-primary-foreground"
+                    : "text-muted-foreground hover:text-foreground hover:bg-accent"
+                }`}
+              >
+                Modern
+              </Link>
+              <Link
+                href="/new-page"
+                className={`px-3 py-1.5 text-sm rounded-md transition-colors ${
+                  pathname === "/new-page"
+                    ? "bg-primary text-primary-foreground"
+                    : "text-muted-foreground hover:text-foreground hover:bg-accent"
+                }`}
+              >
+                Classic
+              </Link>
+            </nav>
+          </div>
 
           <form onSubmit={handleSearch} className="flex-1 max-w-md relative">
             <div className="relative">

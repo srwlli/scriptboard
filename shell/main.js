@@ -36,9 +36,27 @@ function spawnBackend() {
       stdio: "inherit",
     });
   } else {
-    // Production: spawn executable (TODO: implement when packaging)
-    console.log("Production mode: backend executable not yet implemented");
-    return;
+    // Production: try to use system Python or bundled executable
+    // First, try bundled executable (if packaged with PyInstaller)
+    const bundledBackend = path.join(process.resourcesPath, "backend", "scriptboard-backend.exe");
+    if (fs.existsSync(bundledBackend)) {
+      console.log("Using bundled backend executable");
+      backendProcess = spawn(bundledBackend, [], {
+        cwd: path.dirname(bundledBackend),
+        stdio: "inherit",
+      });
+    } else {
+      // Fallback: use system Python (requires Python to be installed)
+      const backendPath = path.join(process.resourcesPath, "backend");
+      const pythonCmd = process.platform === "win32" ? "python.exe" : "python3";
+      
+      console.log("Using system Python for backend");
+      backendProcess = spawn(pythonCmd, ["-m", "uvicorn", "api:app", "--host", "127.0.0.1", "--port", BACKEND_PORT.toString()], {
+        cwd: backendPath,
+        stdio: "inherit",
+        env: { ...process.env, PYTHONUNBUFFERED: "1" },
+      });
+    }
   }
 
   backendProcess.on("error", (error) => {
@@ -148,7 +166,40 @@ function createWindow() {
   // Poll backend health, then load UI
   pollBackendHealth((healthy) => {
     if (healthy) {
-      mainWindow.loadURL(FRONTEND_URL);
+      if (isDev) {
+        // Development: load from Next.js dev server
+        mainWindow.loadURL(FRONTEND_URL);
+      } else {
+        // Production: load from built Next.js app
+        const frontendPath = path.join(process.resourcesPath, "frontend", ".next");
+        const indexPath = path.join(frontendPath, "server", "pages", "index.html");
+        
+        // Try to load built Next.js app, fallback to dev server if not found
+        if (fs.existsSync(indexPath)) {
+          mainWindow.loadFile(indexPath);
+        } else {
+          // Fallback: try to use Next.js standalone server
+          const standalonePath = path.join(frontendPath, "standalone");
+          if (fs.existsSync(standalonePath)) {
+            const serverPath = path.join(standalonePath, "server.js");
+            if (fs.existsSync(serverPath)) {
+              // Spawn Next.js standalone server
+              const nodeCmd = process.platform === "win32" ? "node.exe" : "node";
+              spawn(nodeCmd, [serverPath], {
+                cwd: standalonePath,
+                env: { ...process.env, PORT: "3000" },
+              });
+              setTimeout(() => {
+                mainWindow.loadURL("http://localhost:3000");
+              }, 2000);
+            } else {
+              mainWindow.loadURL(FRONTEND_URL);
+            }
+          } else {
+            mainWindow.loadURL(FRONTEND_URL);
+          }
+        }
+      }
     } else {
       showBackendError("Backend not responding", "Failed to connect to backend after 15 seconds");
     }
@@ -230,6 +281,60 @@ ipcMain.handle("open-folder", async (event, folderPath) => {
     // Open in system file explorer (Windows Explorer, macOS Finder, Linux file manager)
     shell.openPath(folderPath);
     return { success: true };
+  } catch (error) {
+    return { error: error.message };
+  }
+});
+
+ipcMain.handle("open-file-dialog", async (event, options = {}) => {
+  if (!mainWindow) return { canceled: true };
+
+  const dialogOptions = {
+    title: options.title || "Select File",
+    properties: ["openFile"],
+    filters: options.filters || [{ name: "All Files", extensions: ["*"] }],
+  };
+
+  // Convert filters format from frontend to Electron format
+  if (options.filters) {
+    dialogOptions.filters = options.filters.map((filter) => ({
+      name: filter.name,
+      extensions: Array.isArray(filter.extensions) ? filter.extensions : [filter.extensions],
+    }));
+  }
+
+  const result = await dialog.showOpenDialog(mainWindow, dialogOptions);
+
+  if (result.canceled || result.filePaths.length === 0) {
+    return { canceled: true };
+  }
+
+  return {
+    canceled: false,
+    filePath: result.filePaths[0],
+  };
+});
+
+ipcMain.handle("read-file", async (event, filePath) => {
+  try {
+    if (!filePath) {
+      return { error: "No file path provided" };
+    }
+
+    // Validate file exists
+    const stats = fs.statSync(filePath);
+    if (!stats.isFile()) {
+      return { error: "Path is not a file" };
+    }
+
+    // Size guard: 2MB limit
+    if (stats.size > 2_000_000) {
+      return { error: "File too large (max 2MB)" };
+    }
+
+    // Read file as UTF-8 text
+    const content = fs.readFileSync(filePath, "utf-8");
+    return { content, filename: path.basename(filePath) };
   } catch (error) {
     return { error: error.message };
   }
