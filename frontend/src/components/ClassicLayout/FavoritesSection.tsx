@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { Plus, Folder, Star } from "lucide-react";
 import { api } from "@/lib/api";
 import { SectionButtonRow, type ButtonConfig } from "@/components/ui";
 
@@ -79,29 +80,36 @@ export function FavoritesSection() {
   };
 
   return (
-    <div className="px-5 py-4 bg-[#010409]">
+    <div className="px-5 py-4 bg-background">
       <div className="flex justify-center gap-1">
-        {/* Add+ button */}
+        {/* Add+ button - Icon only */}
         <button
           onClick={handleAddFavorite}
-          className="px-3 py-1.5 text-sm rounded-md font-medium cursor-pointer transition-colors w-16 bg-[#1a7f37] text-white hover:bg-[#238636] active:bg-[#238636]"
+          className="p-2 rounded-md font-medium cursor-pointer transition-colors bg-primary text-primary-foreground hover:bg-primary/90 active:bg-primary/90 flex items-center justify-center"
+          title="Add new favorite folder"
+          aria-label="Add new favorite folder"
         >
-          Add+
+          <Plus size={18} />
         </button>
-        {/* Favorite buttons */}
+        {/* Favorite buttons - Icon only with tooltips */}
         {favorites.map((fav, idx) => (
           <button
             key={idx}
             onClick={() => handleOpenFavorite(fav.path)}
             onContextMenu={(e) => handleRemoveFavorite(idx, e)}
-            className={`px-3 py-1.5 text-sm rounded-md font-medium cursor-pointer transition-colors w-16 ${
+            className={`p-2 rounded-md font-medium cursor-pointer transition-colors flex items-center justify-center border ${
               fav.path
-                ? "bg-[#161b22] text-[#58a6ff] hover:bg-[#21262d] active:bg-[#21262d] border border-[#21262d]"
-                : "bg-[#161b22] text-[#6e7681] hover:bg-[#21262d] active:bg-[#21262d] border border-[#21262d]"
+                ? "bg-secondary text-primary hover:bg-accent active:bg-accent border-border"
+                : "bg-secondary text-muted-foreground hover:bg-accent active:bg-accent border-border"
             }`}
-            title={fav.path ? `Right-click to remove: ${fav.path}` : "No path set"}
+            title={fav.path ? `${fav.label || "Favorite"}\nPath: ${fav.path}\n\nClick to open folder\nRight-click to remove` : `${fav.label || "Favorite"}\nNo path set`}
+            aria-label={fav.path ? `Open favorite: ${fav.label || "Favorite"}` : `Favorite: ${fav.label || "Unnamed"} (no path)`}
           >
-            {fav.label || "★"}
+            {fav.path ? (
+              <Folder size={18} />
+            ) : (
+              <Star size={18} />
+            )}
           </button>
         ))}
       </div>

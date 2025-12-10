@@ -1,0 +1,28 @@
+{
+  "feature_name": "drawer-navigation-header",
+  "description": "Create a new header component with drawer navigation that slides in from the left. Include navigation items for Home, New Page, and Settings. Create a Settings page with dark mode toggle.",
+  "goal": "Replace the current header with a modern drawer-based navigation system that provides better UX and organization of navigation items and settings.",
+  "requirements": [
+    "Drawer navigation slides in from left",
+    "Navigation items: Home (/), New Page (/new-page), Settings (/settings)",
+    "Settings page contains dark mode toggle",
+    "Drawer trigger button in top left of header",
+    "Drawer can be opened/closed with animation",
+    "Header remains visible when drawer is open",
+    "Responsive design works on mobile and desktop"
+  ],
+  "out_of_scope": [],
+  "constraints": [
+    "Must maintain existing routing structure",
+    "Dark mode toggle must be moved from current Header to Settings page",
+    "Drawer should not interfere with existing page layouts",
+    "Must work in both Electron and browser environments"
+  ],
+  "decisions": {},
+  "success_criteria": {},
+  "_metadata": {
+    "workorder_id": "WO-DRAWER-NAVIGATION-HEADER-001",
+    "workorder_assigned_at": "2025-12-10T08:20:34.256753+00:00",
+    "workorder_assigned_by": "gather_context"
+  }
+}

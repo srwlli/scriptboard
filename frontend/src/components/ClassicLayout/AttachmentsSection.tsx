@@ -170,7 +170,7 @@ export function AttachmentsSection() {
 
   return (
     <>
-      <div className="px-5 py-2 bg-[#010409]">
+      <div className="px-5 py-2 bg-background">
         <div className="space-y-2">
           <SectionButtonRow buttons={buttons} />
           <StatusLabel text={getStatusText()} />
@@ -185,19 +185,19 @@ export function AttachmentsSection() {
           onClick={() => setShowViewModal(false)}
         >
           <div
-            className="bg-[#0d1117] border border-[#21262d] rounded-md p-4 max-w-2xl max-h-[80vh] overflow-auto"
+            className="bg-background border border-border rounded-md p-4 max-w-2xl max-h-[80vh] overflow-auto"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex justify-between items-center mb-3">
-              <h3 className="text-lg font-semibold text-[#c9d1d9]">Attached Files</h3>
+              <h3 className="text-lg font-semibold text-foreground">Attached Files</h3>
               <button
                 onClick={() => setShowViewModal(false)}
-                className="text-[#8b949e] hover:text-[#c9d1d9]"
+                className="text-muted-foreground hover:text-foreground"
               >
                 ✕
               </button>
             </div>
-            <pre className="text-sm text-[#c9d1d9] whitespace-pre-wrap break-words font-mono">
+            <pre className="text-sm text-foreground whitespace-pre-wrap break-words font-mono">
               {viewContent}
             </pre>
           </div>

@@ -23,7 +23,8 @@ if exist "backend\venv\Scripts\activate.bat" (
 REM Start the Electron app
 cd shell
 echo Starting Scriptboard...
-npm run dev
+REM Use start /B to run in background (minimized console)
+start /B npm run dev
 
 REM Keep window open if there's an error
 if errorlevel 1 (

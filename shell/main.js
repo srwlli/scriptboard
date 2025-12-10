@@ -26,14 +26,47 @@ function spawnBackend() {
   if (isDev) {
     // Development: spawn uvicorn
     const backendPath = path.join(__dirname, "..", "backend");
-    const venvPython = path.join(backendPath, "..", "venv", "Scripts", "python.exe");
+    const venvPython = path.join(backendPath, "venv", "Scripts", "python.exe");
     const apiPath = path.join(backendPath, "api.py");
 
     console.log("Spawning backend (dev mode):", venvPython, apiPath);
 
     backendProcess = spawn(venvPython, ["-m", "uvicorn", "api:app", "--host", "127.0.0.1", "--port", BACKEND_PORT.toString()], {
       cwd: backendPath,
-      stdio: "inherit",
+      stdio: ["ignore", "pipe", "pipe"], // Capture stdout and stderr
+    });
+
+    // Log backend output for debugging
+    backendProcess.stdout.on("data", (data) => {
+      console.log(`[Backend] ${data.toString()}`);
+    });
+
+    backendProcess.stderr.on("data", (data) => {
+      const output = data.toString();
+      console.error(`[Backend Error] ${output}`);
+      
+      // Filter out INFO messages - only show actual errors
+      const lines = output.split('\n').filter(line => {
+        const trimmed = line.trim();
+        return trimmed && 
+               !trimmed.startsWith('INFO:') && 
+               !trimmed.startsWith('WARNING:') &&
+               (trimmed.startsWith('ERROR:') || trimmed.includes('error') || trimmed.includes('Error') || trimmed.includes('Errno'));
+      });
+      
+      if (lines.length > 0) {
+        const errorMsg = lines.join('\n').trim();
+        if (errorMsg) {
+          // Check for common errors
+          let displayMsg = errorMsg;
+          if (errorMsg.includes("Address already in use") || errorMsg.includes("Errno 10048") || (errorMsg.includes("port") && (errorMsg.includes("8000") || errorMsg.includes("5000")))) {
+            const portMatch = errorMsg.match(/\('127\.0\.0\.1',\s*(\d+)\)/);
+            const port = portMatch ? portMatch[1] : "8000";
+            displayMsg = `Port ${port} is already in use. Please close the application using that port or restart your computer.\n\nOriginal error: ${errorMsg}`;
+          }
+          showBackendError("Backend error", displayMsg);
+        }
+      }
     });
   } else {
     // Production: try to use system Python or bundled executable
@@ -69,7 +102,9 @@ function spawnBackend() {
     backendProcess = null;
 
     if (code !== 0 && code !== null) {
-      showBackendError("Backend crashed", `Exit code: ${code}`);
+      // Don't show generic error if we already showed a specific error from stderr
+      // The stderr handler will have shown the actual error message
+      console.error(`Backend exited with code ${code}`);
     }
   });
 }
@@ -151,8 +186,10 @@ if (backendProcess) {
 
 function createWindow() {
   mainWindow = new BrowserWindow({
-    width: 1400,
-    height: 900,
+    width: 400,
+    height: 550,
+    minWidth: 350,
+    minHeight: 550,
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
@@ -335,6 +372,77 @@ ipcMain.handle("read-file", async (event, filePath) => {
     // Read file as UTF-8 text
     const content = fs.readFileSync(filePath, "utf-8");
     return { content, filename: path.basename(filePath) };
+  } catch (error) {
+    return { error: error.message };
+  }
+});
+
+ipcMain.handle("set-window-resizable", async (event, resizable) => {
+  if (!mainWindow) return { error: "No window" };
+  try {
+    mainWindow.setResizable(resizable);
+    return { success: true };
+  } catch (error) {
+    return { error: error.message };
+  }
+});
+
+ipcMain.handle("set-window-size", async (event, width, height) => {
+  if (!mainWindow) return { error: "No window" };
+  try {
+    mainWindow.setSize(width, height);
+    mainWindow.setMinimumSize(width, height);
+    mainWindow.setMaximumSize(width, height);
+    return { success: true };
+  } catch (error) {
+    return { error: error.message };
+  }
+});
+
+ipcMain.handle("get-window-size", async () => {
+  if (!mainWindow) return { error: "No window" };
+  try {
+    const bounds = mainWindow.getBounds();
+    return { width: bounds.width, height: bounds.height };
+  } catch (error) {
+    return { error: error.message };
+  }
+});
+
+ipcMain.handle("reset-window-size-constraints", async () => {
+  if (!mainWindow) return { error: "No window" };
+  try {
+    // Get current window size
+    const bounds = mainWindow.getBounds();
+    const currentWidth = bounds.width;
+    const currentHeight = bounds.height;
+    
+    // Strategy: Reset constraints in stages to ensure Electron properly releases the lock
+    // Step 1: Enable resizing first (this might help unlock internal state)
+    mainWindow.setResizable(true);
+    
+    // Step 2: Set very permissive constraints to break any lock
+    mainWindow.setMinimumSize(1, 1);
+    mainWindow.setMaximumSize(20000, 20000);
+    
+    // Step 3: Wait a tick to ensure Electron processes the constraint change
+    await new Promise(resolve => setImmediate(resolve));
+    
+    // Step 4: Set final constraints (original scriptboard.py values)
+    mainWindow.setMinimumSize(350, 550);
+    mainWindow.setMaximumSize(10000, 10000);
+    
+    return { success: true };
+  } catch (error) {
+    return { error: error.message };
+  }
+});
+
+ipcMain.handle("set-always-on-top", async (event, flag) => {
+  if (!mainWindow) return { error: "No window" };
+  try {
+    mainWindow.setAlwaysOnTop(flag);
+    return { success: true };
   } catch (error) {
     return { error: error.message };
   }

@@ -2,8 +2,8 @@ import { test, expect } from '@playwright/test'
 
 test.describe('Classic Layout Button Functions', () => {
   test.beforeEach(async ({ page }) => {
-    // Navigate to the Classic page
-    await page.goto('http://localhost:3000/new-page')
+    // Navigate to the Classic page (now the default home page)
+    await page.goto('http://localhost:3000')
     
     // Wait for page to load
     await expect(page.locator('button:has-text("Add+")')).toBeVisible()

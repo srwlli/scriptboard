@@ -18,7 +18,7 @@ interface SectionDividerProps {
 export function SectionDivider({ className = "" }: SectionDividerProps) {
   return (
     <div
-      className={`h-px bg-[#21262d] my-2 mx-5 ${className}`}
+      className={`h-px bg-border my-2 mx-5 ${className}`}
       role="separator"
       aria-orientation="horizontal"
     />

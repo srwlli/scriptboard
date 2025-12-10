@@ -42,8 +42,8 @@ export function SectionButtonRow({ buttons, className = "" }: SectionButtonRowPr
         const baseClasses = "px-3 py-1.5 text-sm rounded-md font-medium cursor-pointer transition-colors disabled:opacity-50 disabled:cursor-not-allowed";
         
         const variantClasses = isPrimary
-          ? "bg-[#1a7f37] text-white hover:bg-[#238636] active:bg-[#238636]"
-          : "bg-[#161b22] text-[#c9d1d9] hover:bg-[#21262d] active:bg-[#21262d] border border-[#21262d]";
+          ? "bg-primary text-primary-foreground hover:bg-primary/90 active:bg-primary/90"
+          : "bg-secondary text-foreground hover:bg-accent active:bg-accent border border-border";
         
         // Fixed width matching original (8 characters ≈ 64px)
         const widthClass = "w-16";

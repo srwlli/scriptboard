@@ -12,5 +12,10 @@ contextBridge.exposeInMainWorld("electronAPI", {
   openFolder: (path) => ipcRenderer.invoke("open-folder", path),
   openFileDialog: (options) => ipcRenderer.invoke("open-file-dialog", options),
   readFile: (filePath) => ipcRenderer.invoke("read-file", filePath),
+  setWindowResizable: (resizable) => ipcRenderer.invoke("set-window-resizable", resizable),
+  setWindowSize: (width, height) => ipcRenderer.invoke("set-window-size", width, height),
+  getWindowSize: () => ipcRenderer.invoke("get-window-size"),
+  resetWindowSizeConstraints: () => ipcRenderer.invoke("reset-window-size-constraints"),
+  setAlwaysOnTop: (flag) => ipcRenderer.invoke("set-always-on-top", flag),
 });
 

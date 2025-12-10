@@ -62,10 +62,10 @@ export function FooterBar({
 
   return (
     <footer
-      className={`border-t border-[#21262d] bg-[#010409] px-3 py-2 flex items-center justify-between ${className}`}
+      className={`border-t border-border bg-background px-3 py-2 flex items-center justify-between ${className}`}
     >
       {/* Left side: Status, Size, Char count */}
-      <div className="flex items-center gap-2 text-sm text-[#8b949e]">
+      <div className="flex items-center gap-2 text-sm text-muted-foreground">
         {statusMessage && (
           <span className="px-2">{statusMessage}</span>
         )}
@@ -79,7 +79,7 @@ export function FooterBar({
 
       {/* Right side: Lock Size, On Top checkboxes */}
       <div className="flex items-center gap-2">
-        <label className="flex items-center gap-1.5 text-sm text-[#8b949e] cursor-pointer">
+        <label className="flex items-center gap-1.5 text-sm text-muted-foreground cursor-pointer">
           <input
             type="checkbox"
             checked={onTop}
@@ -88,7 +88,7 @@ export function FooterBar({
           />
           <span>On Top</span>
         </label>
-        <label className="flex items-center gap-1.5 text-sm text-[#8b949e] cursor-pointer">
+        <label className="flex items-center gap-1.5 text-sm text-muted-foreground cursor-pointer">
           <input
             type="checkbox"
             checked={lockSize}

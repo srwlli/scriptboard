@@ -24,7 +24,7 @@ interface StatusLabelProps {
 export function StatusLabel({ text, className = "" }: StatusLabelProps) {
   return (
     <div
-      className={`px-2.5 py-1.5 bg-[#0d1117] text-[#6e7681] text-sm w-full ${className}`}
+      className={`px-2.5 py-1.5 bg-secondary text-muted-foreground text-sm w-full ${className}`}
     >
       {text}
     </div>

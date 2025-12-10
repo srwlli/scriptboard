@@ -8,7 +8,9 @@ export function ThemeToggle() {
   useEffect(() => {
     // Load theme from localStorage on mount
     const savedTheme = localStorage.getItem("theme") as "light" | "dark" | null;
-    const initialTheme = savedTheme || "light";
+    // Also check the HTML attribute in case it was set elsewhere
+    const htmlTheme = document.documentElement.getAttribute("data-theme") as "light" | "dark" | null;
+    const initialTheme = savedTheme || htmlTheme || "light";
     setTheme(initialTheme);
     applyTheme(initialTheme);
   }, []);

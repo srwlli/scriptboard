@@ -1,0 +1,160 @@
+[
+  {
+    "timestamp": "2025-12-10T03:24:32.563400",
+    "workorder_id": "WO-DRAWER-NAVIGATION-HEADER-001",
+    "feature_name": "drawer-navigation-header",
+    "task_count": 30,
+    "tasks": [
+      {
+        "content": "PHASE-1--001: Create Drawer.tsx with backdrop and animation",
+        "activeForm": "PHASE-1--001: Creating Drawer.tsx with backdrop and animation",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-1--002: Add proper TypeScript types for Drawer props",
+        "activeForm": "PHASE-1--002: Adding proper TypeScript types for Drawer props",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-1--003: Implement open/close state management",
+        "activeForm": "PHASE-1--003: Implementing open/close state management",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-1--004: Add keyboard event handlers (ESC)",
+        "activeForm": "PHASE-1--004: Adding keyboard event handlers (ESC)",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-1--005: Add backdrop click handler",
+        "activeForm": "PHASE-1--005: Adding backdrop click handler",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-1--006: Create DrawerNavigation.tsx component",
+        "activeForm": "PHASE-1--006: Creating DrawerNavigation.tsx component",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-1--007: Add navigation items with icons",
+        "activeForm": "PHASE-1--007: Adding navigation items with icons",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-1--008: Implement active route detection",
+        "activeForm": "PHASE-1--008: Implementing active route detection",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-1--009: Add close handler for navigation clicks",
+        "activeForm": "PHASE-1--009: Adding close handler for navigation clicks",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-1--010: Test drawer animation and interactions",
+        "activeForm": "PHASE-1--010: Testing drawer animation and interactions",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-2--001: Update Header.tsx to remove nav links",
+        "activeForm": "PHASE-2--001: Updating Header.tsx to remove nav links",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-2--002: Remove ThemeToggle from Header",
+        "activeForm": "PHASE-2--002: Removeing ThemeToggle from Header",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-2--003: Add Menu icon button to Header",
+        "activeForm": "PHASE-2--003: Adding Menu icon button to Header",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-2--004: Integrate DrawerNavigation in Header",
+        "activeForm": "PHASE-2--004: Integrateing DrawerNavigation in Header",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-2--005: Create settings/page.tsx",
+        "activeForm": "PHASE-2--005: Creating settings/page.tsx",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-2--006: Add ThemeToggle to Settings page",
+        "activeForm": "PHASE-2--006: Adding ThemeToggle to Settings page",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-2--007: Add page title and layout",
+        "activeForm": "PHASE-2--007: Adding page title and layout",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-2--008: Test navigation to Settings page",
+        "activeForm": "PHASE-2--008: Testing navigation to Settings page",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-2--009: Test theme toggle on Settings page",
+        "activeForm": "PHASE-2--009: Testing theme toggle on Settings page",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-2--010: Verify all pages still render correctly",
+        "activeForm": "PHASE-2--010: Verifying all pages still render correctly",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-3--001: Write Drawer.test.tsx unit tests",
+        "activeForm": "PHASE-3--001: Writing Drawer.test.tsx unit tests",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-3--002: Write DrawerNavigation.test.tsx unit tests",
+        "activeForm": "PHASE-3--002: Writing DrawerNavigation.test.tsx unit tests",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-3--003: Run unit tests and fix any failures",
+        "activeForm": "PHASE-3--003: Running unit tests and fix any failures",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-3--004: Write drawer-navigation.spec.ts E2E tests",
+        "activeForm": "PHASE-3--004: Writing drawer-navigation.spec.ts E2E tests",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-3--005: Run E2E tests and fix any failures",
+        "activeForm": "PHASE-3--005: Running E2E tests and fix any failures",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-3--006: Test accessibility with keyboard navigation",
+        "activeForm": "PHASE-3--006: Testing accessibility with keyboard navigation",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-3--007: Test accessibility with screen reader",
+        "activeForm": "PHASE-3--007: Testing accessibility with screen reader",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-3--008: Verify no console errors",
+        "activeForm": "PHASE-3--008: Verifying no console errors",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-3--009: Verify no TypeScript errors",
+        "activeForm": "PHASE-3--009: Verifying no TypeScript errors",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-3--010: Update documentation if needed",
+        "activeForm": "PHASE-3--010: Updating documentation if needed",
+        "status": "pending"
+      }
+    ]
+  }
+]

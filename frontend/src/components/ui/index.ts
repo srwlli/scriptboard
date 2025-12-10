@@ -13,4 +13,6 @@ export { SectionButtonRow, type ButtonConfig } from "./SectionButtonRow";
 export { StatusLabel } from "./StatusLabel";
 export { SectionDivider } from "./SectionDivider";
 export { FooterBar } from "./FooterBar";
+export { Drawer } from "./Drawer";
+export type { DrawerProps } from "./Drawer";
 

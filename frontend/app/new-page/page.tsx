@@ -1,74 +1,60 @@
 "use client";
 
 import { Header } from "@/components/Header";
-import { FavoritesSection } from "@/components/ClassicLayout/FavoritesSection";
-import { PromptSection } from "@/components/ClassicLayout/PromptSection";
-import { AttachmentsSection } from "@/components/ClassicLayout/AttachmentsSection";
-import { ResponsesSection } from "@/components/ClassicLayout/ResponsesSection";
-import { ManagementSection } from "@/components/ClassicLayout/ManagementSection";
-import { ToggleablePreview } from "@/components/ClassicLayout/ToggleablePreview";
-import { FooterBar } from "@/components/ui";
-import { useClassicLayout } from "@/hooks/useClassicLayout";
+import { FavoritesPanel } from "@/components/FavoritesPanel";
+import { PromptPanel } from "@/components/PromptPanel";
+import { AttachmentsPanel } from "@/components/AttachmentsPanel";
+import { ResponsesPanel } from "@/components/ResponsesPanel";
+import { SessionManagerPanel } from "@/components/SessionManagerPanel";
+import { PreviewPanel } from "@/components/PreviewPanel";
+import { BatchQueuePanel } from "@/components/BatchQueuePanel";
+import { LoggingConsolePanel } from "@/components/LoggingConsolePanel";
+import { ProfileSelector } from "@/components/ProfileSelector";
+import { KeymapEditor } from "@/components/KeymapEditor";
+import { GitIntegrationPanel } from "@/components/GitIntegrationPanel";
+import { useScriptboardHotkeys } from "@/lib/hotkeys";
 
 /**
- * New page replicating original scriptboard.py UI/UX with vertical stack layout.
+ * Modern layout page with grid-based design.
  * 
- * Layout matches original:
- * - Favorites (horizontal button row)
- * - Prompt section (buttons + status)
- * - Attachments section (buttons + status)
- * - Responses section (buttons + status)
- * - Management section (buttons + status)
- * - Toggleable Preview (optional)
- * - Footer/Status bar (bottom)
+ * Features:
+ * - 3-column grid layout
+ * - All Phase-2 features visible
+ * - Batch Queue, Git Integration, Logging Console
+ * - Profile Selector, Keymap Editor
  */
-export default function NewPage() {
-  const {
-    previewVisible,
-    togglePreview,
-    statusMessage,
-    showSize,
-    lockSize,
-    setLockSize,
-    onTop,
-    setOnTop,
-    charCount,
-  } = useClassicLayout();
-
+export default function ModernPage() {
+  // Enable keyboard shortcuts
+  useScriptboardHotkeys();
   return (
-    <div className="min-h-screen bg-[#010409] classic-layout-container">
+    <div className="min-h-screen bg-background">
       <Header />
-      <main className="flex flex-col">
-        {/* Favorites Section */}
-        <FavoritesSection />
+      <ProfileSelector />
+      <main className="container mx-auto px-4 py-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          {/* Left Column */}
+          <div className="space-y-4">
+            <FavoritesPanel />
+            <PromptPanel />
+            <AttachmentsPanel />
+          </div>
 
-        {/* Prompt Section */}
-        <PromptSection />
+          {/* Middle Column */}
+          <div className="space-y-4">
+            <ResponsesPanel />
+            <BatchQueuePanel />
+            <GitIntegrationPanel />
+            <SessionManagerPanel />
+          </div>
 
-        {/* Attachments Section */}
-        <AttachmentsSection />
-
-        {/* Responses Section */}
-        <ResponsesSection />
-
-        {/* Management Section */}
-        <ManagementSection />
-
-        {/* Toggleable Preview */}
-        <ToggleablePreview visible={previewVisible} onToggle={togglePreview} />
-
-        {/* Footer/Status Bar */}
-        <FooterBar
-          statusMessage={statusMessage}
-          charCount={charCount}
-          showSize={showSize}
-          lockSize={lockSize}
-          onTop={onTop}
-          onLockSizeChange={setLockSize}
-          onOnTopChange={setOnTop}
-        />
+          {/* Right Column */}
+          <div className="space-y-4">
+            <PreviewPanel />
+            <KeymapEditor />
+            <LoggingConsolePanel />
+          </div>
+        </div>
       </main>
     </div>
   );
 }
-

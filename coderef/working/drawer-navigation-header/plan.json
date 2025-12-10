@@ -1,0 +1,435 @@
+{
+  "META_DOCUMENTATION": {
+    "feature_name": "drawer-navigation-header",
+    "schema_version": "1.0.0",
+    "version": "1.0.0",
+    "status": "complete",
+    "generated_by": "AI Assistant",
+    "has_context": true,
+    "has_analysis": true,
+    "workorder_id": "WO-DRAWER-NAVIGATION-HEADER-001"
+  },
+  "UNIVERSAL_PLANNING_STRUCTURE": {
+    "0_preparation": {
+      "foundation_docs_available": [
+        "README.md",
+        "ARCHITECTURE.md"
+      ],
+      "foundation_docs_missing": [
+        "API.md",
+        "COMPONENTS.md",
+        "SCHEMA.md",
+        "USER-GUIDE.md"
+      ],
+      "coding_standards_available": [],
+      "reference_components": [],
+      "technology_stack": {
+        "frontend": "Next.js 16.0.8 with React 18",
+        "styling": "Tailwind CSS",
+        "icons": "lucide-react",
+        "routing": "Next.js App Router"
+      },
+      "project_structure": {
+        "components": "frontend/src/components",
+        "pages": "frontend/app",
+        "styles": "frontend/src/styles"
+      }
+    },
+    "1_executive_summary": {
+      "feature_name": "drawer-navigation-header",
+      "goal": "Replace the current header with a modern drawer-based navigation system that provides better UX and organization of navigation items and settings",
+      "description": "Create a new header component with drawer navigation that slides in from the left. Include navigation items for Home, New Page, and Settings. Create a Settings page with dark mode toggle moved from the current header.",
+      "scope": "Frontend-only feature. Replaces existing Header component, adds DrawerNavigation component, creates Settings page, and moves ThemeToggle to Settings.",
+      "estimated_complexity": "Medium",
+      "estimated_duration": "4-6 hours"
+    },
+    "2_risk_assessment": {
+      "complexity_score": 6,
+      "risks": [
+        {
+          "risk": "Drawer animation performance on low-end devices",
+          "severity": "Low",
+          "mitigation": "Use CSS transforms and will-change for smooth animations"
+        },
+        {
+          "risk": "Breaking existing page layouts when Header changes",
+          "severity": "Medium",
+          "mitigation": "Maintain same header height and positioning, test all pages"
+        },
+        {
+          "risk": "Theme toggle state management when moved to Settings",
+          "severity": "Low",
+          "mitigation": "ThemeToggle already uses localStorage, no state management changes needed"
+        },
+        {
+          "risk": "Accessibility concerns with drawer navigation",
+          "severity": "Medium",
+          "mitigation": "Add proper ARIA labels, keyboard navigation, focus management"
+        }
+      ],
+      "dependencies": [
+        "lucide-react (already installed)",
+        "Next.js App Router",
+        "React 18 hooks"
+      ],
+      "blockers": []
+    },
+    "3_current_state_analysis": {
+      "files_to_modify": [
+        {
+          "path": "frontend/src/components/Header.tsx",
+          "purpose": "Replace with new header that includes drawer trigger button and search. Remove navigation links and ThemeToggle.",
+          "changes": "Remove nav links, remove ThemeToggle import, add drawer trigger button, keep search functionality"
+        },
+        {
+          "path": "frontend/app/page.tsx",
+          "purpose": "No changes needed - Header component will be updated",
+          "changes": "None"
+        },
+        {
+          "path": "frontend/app/new-page/page.tsx",
+          "purpose": "No changes needed - Header component will be updated",
+          "changes": "None"
+        },
+        {
+          "path": "frontend/app/layout.tsx",
+          "purpose": "No changes needed - Header is rendered in pages",
+          "changes": "None"
+        }
+      ],
+      "files_to_create": [
+        {
+          "path": "frontend/src/components/DrawerNavigation.tsx",
+          "purpose": "New drawer component that slides in from left with navigation items"
+        },
+        {
+          "path": "frontend/app/settings/page.tsx",
+          "purpose": "New Settings page with ThemeToggle component"
+        },
+        {
+          "path": "frontend/src/components/ui/Drawer.tsx",
+          "purpose": "Reusable drawer UI component with backdrop and animation"
+        }
+      ],
+      "files_to_delete": [],
+      "current_implementation": {
+        "header_location": "frontend/src/components/Header.tsx",
+        "header_features": [
+          "Navigation links (Classic, Modern)",
+          "Search functionality",
+          "ThemeToggle component"
+        ],
+        "theme_toggle_location": "frontend/src/components/ThemeToggle.tsx",
+        "theme_implementation": "Uses localStorage and data-theme attribute on html element"
+      }
+    },
+    "4_key_features": {
+      "features": [
+        {
+          "name": "Drawer Navigation",
+          "description": "Slide-in drawer from left with smooth animation. Contains navigation items: Home (/), New Page (/new-page), Settings (/settings)",
+          "requirements": [
+            "Drawer slides in from left",
+            "Backdrop overlay when open",
+            "Close on backdrop click",
+            "Close on navigation item click",
+            "Keyboard accessible (ESC to close)",
+            "Smooth animation (300ms transition)"
+          ]
+        },
+        {
+          "name": "Drawer Trigger Button",
+          "description": "Hamburger menu button in top left of header to open drawer",
+          "requirements": [
+            "Positioned in top left of header",
+            "Uses Menu icon from lucide-react",
+            "Accessible with aria-label",
+            "Visual feedback on hover/active"
+          ]
+        },
+        {
+          "name": "New Header Layout",
+          "description": "Updated header with drawer trigger, title, search, and no inline navigation",
+          "requirements": [
+            "Drawer trigger button (left)",
+            "Scriptboard title (left, after trigger)",
+            "Search bar (center, flex-1)",
+            "Maintains sticky positioning",
+            "Same height as current header"
+          ]
+        },
+        {
+          "name": "Settings Page",
+          "description": "New page at /settings containing ThemeToggle and future settings",
+          "requirements": [
+            "Route: /settings",
+            "Contains ThemeToggle component",
+            "Page title: Settings",
+            "Layout consistent with other pages",
+            "Accessible via drawer navigation"
+          ]
+        },
+        {
+          "name": "Theme Toggle Migration",
+          "description": "Move ThemeToggle from Header to Settings page",
+          "requirements": [
+            "Remove ThemeToggle from Header",
+            "Add ThemeToggle to Settings page",
+            "Maintain existing functionality",
+            "No breaking changes to theme system"
+          ]
+        }
+      ]
+    },
+    "5_task_id_system": {
+      "workorder": {
+        "id": "WO-DRAWER-NAVIGATION-HEADER-001",
+        "name": "Drawer Navigation Header",
+        "feature_dir": "coderef/working/drawer-navigation-header"
+      },
+      "tasks": [
+        {
+          "id": "DRAWER-001",
+          "workorder_id": "WO-DRAWER-NAVIGATION-HEADER-001",
+          "description": "Create reusable Drawer UI component with backdrop and slide animation",
+          "component": "frontend/src/components/ui/Drawer.tsx",
+          "acceptance_criteria": [
+            "Drawer slides in from left with transform translateX",
+            "Backdrop overlay with opacity transition",
+            "Close on backdrop click",
+            "ESC key closes drawer",
+            "Proper z-index layering",
+            "Accessible with ARIA attributes"
+          ]
+        },
+        {
+          "id": "DRAWER-002",
+          "workorder_id": "WO-DRAWER-NAVIGATION-HEADER-001",
+          "description": "Create DrawerNavigation component with navigation items",
+          "component": "frontend/src/components/DrawerNavigation.tsx",
+          "acceptance_criteria": [
+            "Uses Drawer UI component",
+            "Navigation items: Home, New Page, Settings",
+            "Icons from lucide-react (Home, Layout, Settings)",
+            "Active route highlighting",
+            "Close drawer on navigation click",
+            "Proper Link components for Next.js routing"
+          ]
+        },
+        {
+          "id": "HEADER-001",
+          "workorder_id": "WO-DRAWER-NAVIGATION-HEADER-001",
+          "description": "Update Header component with drawer trigger button",
+          "component": "frontend/src/components/Header.tsx",
+          "acceptance_criteria": [
+            "Add Menu icon button in top left",
+            "Remove existing navigation links",
+            "Remove ThemeToggle import and component",
+            "Keep search functionality",
+            "Maintain same header height and styling",
+            "Integrate DrawerNavigation component"
+          ]
+        },
+        {
+          "id": "SETTINGS-001",
+          "workorder_id": "WO-DRAWER-NAVIGATION-HEADER-001",
+          "description": "Create Settings page at /settings route",
+          "component": "frontend/app/settings/page.tsx",
+          "acceptance_criteria": [
+            "Page accessible at /settings",
+            "Includes Header component",
+            "Page title: Settings",
+            "Contains ThemeToggle component",
+            "Layout consistent with other pages",
+            "Proper page structure"
+          ]
+        },
+        {
+          "id": "TEST-001",
+          "workorder_id": "WO-DRAWER-NAVIGATION-HEADER-001",
+          "description": "Write unit tests for Drawer and DrawerNavigation components",
+          "component": "frontend/__tests__/",
+          "acceptance_criteria": [
+            "Test drawer open/close functionality",
+            "Test backdrop click closes drawer",
+            "Test ESC key closes drawer",
+            "Test navigation item clicks",
+            "Test active route highlighting",
+            "Test accessibility attributes"
+          ]
+        },
+        {
+          "id": "TEST-002",
+          "workorder_id": "WO-DRAWER-NAVIGATION-HEADER-001",
+          "description": "Write E2E tests for drawer navigation flow",
+          "component": "frontend/e2e/",
+          "acceptance_criteria": [
+            "Test drawer opens from header button",
+            "Test navigation to Home, New Page, Settings",
+            "Test drawer closes after navigation",
+            "Test Settings page displays ThemeToggle",
+            "Test theme toggle works on Settings page"
+          ]
+        }
+      ]
+    },
+    "6_implementation_phases": {
+      "phases": [
+        {
+          "phase": 1,
+          "name": "UI Components",
+          "description": "Create reusable Drawer UI component and DrawerNavigation component",
+          "tasks": ["DRAWER-001", "DRAWER-002"],
+          "deliverables": [
+            "frontend/src/components/ui/Drawer.tsx",
+            "frontend/src/components/DrawerNavigation.tsx"
+          ],
+          "estimated_duration": "2 hours"
+        },
+        {
+          "phase": 2,
+          "name": "Header and Settings",
+          "description": "Update Header component and create Settings page",
+          "tasks": ["HEADER-001", "SETTINGS-001"],
+          "deliverables": [
+            "Updated frontend/src/components/Header.tsx",
+            "frontend/app/settings/page.tsx"
+          ],
+          "estimated_duration": "1.5 hours"
+        },
+        {
+          "phase": 3,
+          "name": "Testing",
+          "description": "Write and run unit and E2E tests",
+          "tasks": ["TEST-001", "TEST-002"],
+          "deliverables": [
+            "frontend/__tests__/Drawer.test.tsx",
+            "frontend/__tests__/DrawerNavigation.test.tsx",
+            "frontend/e2e/drawer-navigation.spec.ts"
+          ],
+          "estimated_duration": "1.5 hours"
+        }
+      ]
+    },
+    "7_testing_strategy": {
+      "unit_tests": {
+        "components": [
+          {
+            "component": "Drawer",
+            "tests": [
+              "Renders with children",
+              "Opens when isOpen is true",
+              "Closes when isOpen is false",
+              "Calls onClose when backdrop is clicked",
+              "Calls onClose when ESC key is pressed",
+              "Applies correct CSS classes for animation",
+              "Has proper ARIA attributes"
+            ]
+          },
+          {
+            "component": "DrawerNavigation",
+            "tests": [
+              "Renders navigation items",
+              "Highlights active route",
+              "Calls onClose when navigation item is clicked",
+              "Renders correct icons for each item",
+              "Has proper Link components"
+            ]
+          }
+        ]
+      },
+      "integration_tests": {
+        "scenarios": [
+          "Header renders drawer trigger button",
+          "Clicking drawer trigger opens drawer",
+          "Navigation items navigate to correct routes",
+          "Settings page renders ThemeToggle",
+          "Theme toggle works on Settings page"
+        ]
+      },
+      "e2e_tests": {
+        "scenarios": [
+          "User opens drawer from header",
+          "User navigates to Home from drawer",
+          "User navigates to New Page from drawer",
+          "User navigates to Settings from drawer",
+          "User toggles theme on Settings page",
+          "Drawer closes after navigation",
+          "Drawer closes on backdrop click",
+          "Drawer closes on ESC key"
+        ]
+      },
+      "accessibility_tests": [
+        "Keyboard navigation works",
+        "Screen reader announces drawer state",
+        "Focus management when drawer opens/closes",
+        "ARIA labels are present and correct"
+      ]
+    },
+    "8_success_criteria": {
+      "functional": [
+        "Drawer slides in from left with smooth animation",
+        "Drawer contains navigation items: Home, New Page, Settings",
+        "Navigation items navigate to correct routes",
+        "Settings page displays ThemeToggle",
+        "Theme toggle functions correctly on Settings page",
+        "Drawer closes on backdrop click, ESC key, and navigation click",
+        "Header displays drawer trigger button in top left"
+      ],
+      "non_functional": [
+        "Animation is smooth (60fps)",
+        "Drawer is accessible via keyboard",
+        "Drawer is accessible via screen readers",
+        "No layout shifts when drawer opens",
+        "Works in both Electron and browser environments",
+        "Responsive design works on mobile and desktop"
+      ],
+      "acceptance_criteria": [
+        "User can open drawer from header button",
+        "User can navigate to all pages from drawer",
+        "User can toggle theme from Settings page",
+        "Drawer closes automatically after navigation",
+        "All existing functionality remains intact"
+      ]
+    },
+    "9_implementation_checklist": {
+      "phase_1_checklist": [
+        "Create Drawer.tsx with backdrop and animation",
+        "Add proper TypeScript types for Drawer props",
+        "Implement open/close state management",
+        "Add keyboard event handlers (ESC)",
+        "Add backdrop click handler",
+        "Create DrawerNavigation.tsx component",
+        "Add navigation items with icons",
+        "Implement active route detection",
+        "Add close handler for navigation clicks",
+        "Test drawer animation and interactions"
+      ],
+      "phase_2_checklist": [
+        "Update Header.tsx to remove nav links",
+        "Remove ThemeToggle from Header",
+        "Add Menu icon button to Header",
+        "Integrate DrawerNavigation in Header",
+        "Create settings/page.tsx",
+        "Add ThemeToggle to Settings page",
+        "Add page title and layout",
+        "Test navigation to Settings page",
+        "Test theme toggle on Settings page",
+        "Verify all pages still render correctly"
+      ],
+      "phase_3_checklist": [
+        "Write Drawer.test.tsx unit tests",
+        "Write DrawerNavigation.test.tsx unit tests",
+        "Run unit tests and fix any failures",
+        "Write drawer-navigation.spec.ts E2E tests",
+        "Run E2E tests and fix any failures",
+        "Test accessibility with keyboard navigation",
+        "Test accessibility with screen reader",
+        "Verify no console errors",
+        "Verify no TypeScript errors",
+        "Update documentation if needed"
+      ]
+    }
+  }
+}
+

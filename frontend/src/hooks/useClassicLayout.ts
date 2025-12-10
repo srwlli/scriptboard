@@ -55,42 +55,89 @@ export function useClassicLayout() {
     setPreviewVisible((prev) => !prev);
   }, []);
 
-  const handleLockSizeToggle = useCallback((locked: boolean) => {
+  const handleLockSizeToggle = useCallback(async (locked: boolean) => {
     setLockSize(locked);
-    // Apply CSS max-width to container if locked
-    if (locked && typeof document !== "undefined") {
-      const container = document.querySelector(".classic-layout-container");
-      if (container) {
-        const rect = (container as HTMLElement).getBoundingClientRect();
-        (container as HTMLElement).style.maxWidth = `${rect.width}px`;
+    
+    const electronAPI = typeof window !== "undefined" ? (window as any).electronAPI : null;
+    const hasElectronAPI = electronAPI && 
+      typeof electronAPI.getWindowSize === "function" &&
+      typeof electronAPI.setWindowSize === "function" &&
+      typeof electronAPI.setWindowResizable === "function";
+    
+    if (hasElectronAPI) {
+      // Electron: Lock window size
+      try {
+        if (locked) {
+          // Get current window size and lock it
+          const size = await electronAPI.getWindowSize();
+          if (size && size.width && size.height && !size.error) {
+            await electronAPI.setWindowSize(size.width, size.height);
+            await electronAPI.setWindowResizable(false);
+            showStatus("Size locked");
+          }
+        } else {
+          // Unlock: First explicitly reset constraints, then enable resizing
+          // Order is critical: reset constraints BEFORE enabling resizing
+          if (typeof electronAPI.resetWindowSizeConstraints === "function") {
+            await electronAPI.resetWindowSizeConstraints();
+          }
+          // Small delay to ensure constraints are applied
+          await new Promise(resolve => setTimeout(resolve, 50));
+          await electronAPI.setWindowResizable(true);
+          showStatus("Size unlocked");
+        }
+      } catch (error) {
+        if (process.env.NODE_ENV === 'development') {
+          console.error("Failed to toggle lock size:", error);
+        }
+        showStatus("Failed to toggle lock size");
       }
-    } else if (typeof document !== "undefined") {
-      const container = document.querySelector(".classic-layout-container");
-      if (container) {
-        (container as HTMLElement).style.maxWidth = "";
+    } else {
+      // Browser: Apply CSS max-width to container
+      if (locked && typeof document !== "undefined") {
+        const container = document.querySelector(".classic-layout-container");
+        if (container) {
+          const rect = (container as HTMLElement).getBoundingClientRect();
+          (container as HTMLElement).style.maxWidth = `${rect.width}px`;
+          showStatus("Size locked (CSS only)");
+        }
+      } else if (typeof document !== "undefined") {
+        const container = document.querySelector(".classic-layout-container");
+        if (container) {
+          (container as HTMLElement).style.maxWidth = "";
+          showStatus("Size unlocked");
+        }
       }
     }
-  }, []);
+  }, [showStatus]);
 
-  const handleOnTopToggle = useCallback((onTopValue: boolean) => {
-    setOnTop(onTopValue);
-    // Apply CSS position: sticky if on top
-    if (onTopValue && typeof document !== "undefined") {
-      const container = document.querySelector(".classic-layout-container");
-      if (container) {
-        (container as HTMLElement).style.position = "sticky";
-        (container as HTMLElement).style.top = "0";
-        (container as HTMLElement).style.zIndex = "10";
+  const handleOnTopToggle = useCallback(async (onTopValue: boolean) => {
+    const electronAPI = typeof window !== "undefined" ? (window as any).electronAPI : null;
+    const hasElectronAPI = electronAPI && typeof electronAPI.setAlwaysOnTop === "function";
+    
+    if (hasElectronAPI) {
+      // Electron: Set window always on top
+      try {
+        setOnTop(onTopValue);
+        await electronAPI.setAlwaysOnTop(onTopValue);
+        showStatus(onTopValue ? "Always on top enabled" : "Always on top disabled");
+      } catch (error) {
+        if (process.env.NODE_ENV === 'development') {
+          console.error("Failed to toggle always on top:", error);
+        }
+        showStatus("Failed to toggle always on top");
+        setOnTop(false);
       }
-    } else if (typeof document !== "undefined") {
-      const container = document.querySelector(".classic-layout-container");
-      if (container) {
-        (container as HTMLElement).style.position = "";
-        (container as HTMLElement).style.top = "";
-        (container as HTMLElement).style.zIndex = "";
+    } else {
+      // Browser: Not supported, show message
+      if (onTopValue) {
+        showStatus("Always on top requires Electron. Please use the desktop app.");
+        setOnTop(false);
+      } else {
+        setOnTop(false);
       }
     }
-  }, []);
+  }, [showStatus]);
 
   return {
     previewVisible,
