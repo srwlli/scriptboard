@@ -68,6 +68,11 @@ class PromptPreloadedPayload(BaseModel):
     key: str = Field(..., description="Key referring to PRELOADED_PROMPTS entry")
 
 
+class AddPromptPayload(BaseModel):
+    label: str = Field(..., description="Display label for the prompt", max_length=100)
+    text: str = Field(..., description="Prompt text content", max_length=10000)
+
+
 class AttachmentTextPayload(BaseModel):
     text: str = Field(..., description="Attachment content from clipboard or input")
     suggested_name: Optional[str] = Field(

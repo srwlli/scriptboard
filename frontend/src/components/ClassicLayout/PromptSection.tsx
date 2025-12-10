@@ -37,6 +37,11 @@ export function PromptSection() {
   const [viewContent, setViewContent] = useState("");
   const [preloadedPrompts, setPreloadedPrompts] = useState<PreloadedPrompt[]>([]);
   const [selectedPromptKey, setSelectedPromptKey] = useState<string>("");
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [newPromptLabel, setNewPromptLabel] = useState("");
+  const [newPromptText, setNewPromptText] = useState("");
+  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     loadSessionStatus();
@@ -164,13 +169,21 @@ export function PromptSection() {
 
   const handleViewPrompt = async () => {
     try {
-      const preview = await api.getPreview();
-      const promptText = preview.preview.split("\n\n")[0]?.replace("=== PROMPT ===\n", "") || "";
-      setViewContent(promptText);
-      setShowViewModal(true);
-    } catch (error) {
+      const response = await api.exportLlmFriendlyPrompt();
+      if (response && response.text) {
+        setViewContent(response.text);
+        setShowViewModal(true);
+      } else {
+        alert("No prompt to view");
+      }
+    } catch (error: any) {
       console.error("Failed to load prompt:", error);
-      alert("No prompt to view");
+      const errorMessage = error?.message || "Failed to load prompt";
+      if (errorMessage.includes("No prompt") || errorMessage.includes("No content")) {
+        alert("No prompt to view");
+      } else {
+        alert(`Error: ${errorMessage}`);
+      }
     }
   };
 
@@ -201,6 +214,63 @@ export function PromptSection() {
       console.error("Failed to load preloaded prompt:", error);
       alert("Failed to load preloaded prompt");
     }
+  };
+
+  const validatePromptForm = (): boolean => {
+    const errors: Record<string, string> = {};
+
+    // Validate label
+    if (!newPromptLabel.trim()) {
+      errors.label = "Label is required";
+    } else if (newPromptLabel.length > 100) {
+      errors.label = "Label must be 100 characters or less";
+    }
+
+    // Validate text
+    if (!newPromptText.trim()) {
+      errors.text = "Prompt text is required";
+    } else if (newPromptText.length > 10000) {
+      errors.text = "Prompt text must be 10,000 characters or less";
+    }
+
+    setValidationErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  const handleSavePrompt = async () => {
+    if (!validatePromptForm()) {
+      return;
+    }
+
+    setIsSaving(true);
+    try {
+      await api.addPreloadedPrompt(
+        newPromptLabel.trim(),
+        newPromptText.trim()
+      );
+      
+      // Reset form
+      setNewPromptLabel("");
+      setNewPromptText("");
+      setValidationErrors({});
+      setShowAddModal(false);
+      
+      // Refresh prompt list
+      await loadPreloadedPrompts();
+    } catch (error: any) {
+      console.error("Failed to add prompt:", error);
+      const errorMessage = error?.message || "Failed to add prompt";
+      alert(errorMessage);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleCloseAddModal = () => {
+    setShowAddModal(false);
+    setNewPromptLabel("");
+    setNewPromptText("");
+    setValidationErrors({});
   };
 
   const getStatusText = (): string => {
@@ -239,10 +309,7 @@ export function PromptSection() {
               <div className="flex flex-wrap gap-1 items-center justify-center">
                 {/* Add New Prompt Icon - First position */}
                 <button
-                  onClick={() => {
-                    // TODO: Wire up add new prompt functionality
-                    console.log("Add new prompt clicked - not yet implemented");
-                  }}
+                  onClick={() => setShowAddModal(true)}
                   className="p-1.5 rounded font-medium cursor-pointer transition-colors border border-dashed border-border bg-secondary text-muted-foreground hover:bg-accent hover:border-accent-foreground/20 hover:text-foreground flex items-center justify-center"
                   title="Add a new preloaded prompt"
                   aria-label="Add new preloaded prompt"
@@ -299,6 +366,93 @@ export function PromptSection() {
             <pre className="text-sm text-foreground whitespace-pre-wrap break-words font-mono">
               {viewContent || "No prompt content"}
             </pre>
+          </div>
+        </div>
+      )}
+
+      {/* Add Prompt Modal */}
+      {showAddModal && (
+        <div
+          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+          onClick={handleCloseAddModal}
+        >
+          <div
+            className="bg-background border border-border rounded-md p-4 max-w-2xl w-full mx-4 max-h-[90vh] overflow-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-semibold text-foreground">Add New Prompt</h3>
+              <button
+                onClick={handleCloseAddModal}
+                className="text-muted-foreground hover:text-foreground"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              {/* Label Field */}
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-1">
+                  Label
+                </label>
+                <input
+                  type="text"
+                  value={newPromptLabel}
+                  onChange={(e) => setNewPromptLabel(e.target.value)}
+                  className={`w-full px-3 py-2 bg-background border rounded text-foreground focus:outline-none focus:ring-2 focus:ring-primary ${
+                    validationErrors.label ? "border-red-500" : "border-border"
+                  }`}
+                  placeholder="e.g., My Custom Prompt"
+                  maxLength={100}
+                />
+                {validationErrors.label && (
+                  <p className="text-sm text-red-500 mt-1">{validationErrors.label}</p>
+                )}
+              </div>
+
+              {/* Text Field */}
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-1">
+                  Prompt Text
+                </label>
+                <textarea
+                  value={newPromptText}
+                  onChange={(e) => setNewPromptText(e.target.value)}
+                  className={`w-full px-3 py-2 bg-background border rounded text-foreground focus:outline-none focus:ring-2 focus:ring-primary font-mono text-sm ${
+                    validationErrors.text ? "border-red-500" : "border-border"
+                  }`}
+                  placeholder="Enter your prompt text here..."
+                  rows={10}
+                  maxLength={10000}
+                />
+                <div className="flex justify-between items-center mt-1">
+                  {validationErrors.text && (
+                    <p className="text-sm text-red-500">{validationErrors.text}</p>
+                  )}
+                  <p className="text-xs text-muted-foreground ml-auto">
+                    {newPromptText.length} / 10,000 characters
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-6 flex justify-end gap-2">
+              <button
+                onClick={handleCloseAddModal}
+                className="px-4 py-2 bg-secondary text-foreground rounded hover:bg-accent"
+                disabled={isSaving}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSavePrompt}
+                className="px-4 py-2 bg-primary text-primary-foreground rounded hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={isSaving}
+              >
+                {isSaving ? "Saving..." : "Save"}
+              </button>
+            </div>
           </div>
         </div>
       )}

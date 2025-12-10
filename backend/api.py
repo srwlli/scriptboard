@@ -20,6 +20,7 @@ from fastapi.exceptions import RequestValidationError
 
 from core import ScriptboardCore
 from schemas import (
+    AddPromptPayload,
     AttachmentTextPayload,
     ErrorCode,
     ErrorInfo,
@@ -233,6 +234,58 @@ def apply_profile_to_core(profile_name: str) -> None:
     # Note: View settings are handled by frontend, not core
 
 
+def generate_next_prompt_key(prompts: dict) -> str:
+    """
+    Generate the next available 4-digit numeric key for a prompt.
+    
+    Args:
+        prompts: Dictionary of existing prompts with keys
+        
+    Returns:
+        Next available 4-digit key (e.g., "0001", "0002", etc.)
+    """
+    # Find all numeric keys (4-digit format: 0001-9999)
+    numeric_keys = []
+    for key in prompts.keys():
+        # Check if key is numeric (could be "1", "2", "0001", "0002", etc.)
+        if key.isdigit():
+            numeric_keys.append(int(key))
+    
+    # If no numeric keys exist, start at 1
+    if not numeric_keys:
+        return "0001"
+    
+    # Find the maximum and increment
+    max_key = max(numeric_keys)
+    next_key = max_key + 1
+    
+    # Format as 4-digit zero-padded string
+    return f"{next_key:04d}"
+
+
+def migrate_prompt_keys_to_4digit(prompts: dict) -> dict:
+    """
+    Migrate existing prompt keys to 4-digit format.
+    Converts "1" -> "0001", "2" -> "0002", etc.
+    
+    Args:
+        prompts: Dictionary of prompts with potentially non-4-digit keys
+        
+    Returns:
+        New dictionary with all numeric keys converted to 4-digit format
+    """
+    migrated = {}
+    for key, value in prompts.items():
+        # If key is numeric, convert to 4-digit format
+        if key.isdigit():
+            new_key = f"{int(key):04d}"
+            migrated[new_key] = value
+        else:
+            # Non-numeric keys are kept as-is (shouldn't happen, but safe)
+            migrated[key] = value
+    return migrated
+
+
 def load_config() -> dict:
     """
     Load configuration from ~/.scriptboard/config.json with validation and fallback to defaults.
@@ -242,9 +295,15 @@ def load_config() -> dict:
     """
     config_path = get_config_path()
     
-    # If config doesn't exist, return defaults
+    # If config doesn't exist, return defaults with 4-digit keys
     if not config_path.exists():
-        from settings import DEFAULT_FAVORITES, DEFAULT_LLM_URLS
+        from settings import DEFAULT_FAVORITES, DEFAULT_LLM_URLS, PRELOADED_PROMPTS
+        # Convert PRELOADED_PROMPTS to JSON format with 4-digit keys
+        prompts = {}
+        for key, (label, text) in PRELOADED_PROMPTS.items():
+            # Convert to 4-digit format
+            new_key = f"{int(key):04d}" if key.isdigit() else key
+            prompts[new_key] = {"label": label, "text": text}
         return {
             "favorites": [{"label": label, "path": path} for label, path in DEFAULT_FAVORITES],
             "llm_urls": [{"label": label, "url": url} for label, url in DEFAULT_LLM_URLS],
@@ -259,6 +318,7 @@ def load_config() -> dict:
             },
             "keymap": {},
             "theme": None,
+            "prompts": prompts,
         }
     
     try:
@@ -293,11 +353,62 @@ def load_config() -> dict:
         if "theme" not in config:
             config["theme"] = None
         
+        # Initialize prompts: migrate defaults from settings.py to config.json if not present
+        if "prompts" not in config:
+            from settings import PRELOADED_PROMPTS
+            # Convert Python dict format to JSON format with 4-digit keys
+            prompts = {}
+            for key, (label, text) in PRELOADED_PROMPTS.items():
+                # Convert to 4-digit format
+                new_key = f"{int(key):04d}" if key.isdigit() else key
+                prompts[new_key] = {
+                    "label": label,
+                    "text": text
+                }
+            config["prompts"] = prompts
+            # Save migrated prompts to config file
+            try:
+                config_path = get_config_path()
+                with open(config_path, "w", encoding="utf-8") as f:
+                    json.dump(config, f, indent=2, ensure_ascii=False)
+            except (IOError, OSError):
+                pass  # If save fails, continue with in-memory config
+        else:
+            # Migrate existing keys to 4-digit format if needed
+            prompts = config["prompts"]
+            needs_migration = False
+            for key in prompts.keys():
+                # Check if key is numeric but not 4-digit format
+                if key.isdigit() and len(key) < 4:
+                    needs_migration = True
+                    break
+            
+            if needs_migration:
+                # Migrate all keys to 4-digit format
+                config["prompts"] = migrate_prompt_keys_to_4digit(prompts)
+                # Save migrated config
+                try:
+                    config_path = get_config_path()
+                    import tempfile
+                    import shutil
+                    temp_path = config_path.with_suffix(".tmp")
+                    with open(temp_path, "w", encoding="utf-8") as f:
+                        json.dump(config, f, indent=2, ensure_ascii=False)
+                    shutil.move(str(temp_path), str(config_path))
+                except (IOError, OSError):
+                    pass  # If save fails, continue with in-memory config
+        
         return config
     
     except (json.JSONDecodeError, IOError) as e:
-        # Invalid config - return defaults
-        from settings import DEFAULT_FAVORITES, DEFAULT_LLM_URLS
+        # Invalid config - return defaults with 4-digit keys
+        from settings import DEFAULT_FAVORITES, DEFAULT_LLM_URLS, PRELOADED_PROMPTS
+        # Convert PRELOADED_PROMPTS to JSON format with 4-digit keys
+        prompts = {}
+        for key, (label, text) in PRELOADED_PROMPTS.items():
+            # Convert to 4-digit format
+            new_key = f"{int(key):04d}" if key.isdigit() else key
+            prompts[new_key] = {"label": label, "text": text}
         return {
             "favorites": [{"label": label, "path": path} for label, path in DEFAULT_FAVORITES],
             "llm_urls": [{"label": label, "url": url} for label, url in DEFAULT_LLM_URLS],
@@ -312,6 +423,7 @@ def load_config() -> dict:
             },
             "keymap": {},
             "theme": None,
+            "prompts": prompts,
         }
 
 
@@ -484,14 +596,19 @@ async def clear_prompt():
 
 @app.get("/prompts")
 async def get_preloaded_prompts():
-    """Get list of all available preloaded prompts."""
-    from settings import PRELOADED_PROMPTS
+    """Get list of all available preloaded prompts from config.json."""
     from schemas import PreloadedPromptItem, PreloadedPromptsResponse
     
+    config = load_config()
+    prompts_dict = config.get("prompts", {})
+    
+    # Convert to list
     prompts = []
-    for key, (label, prompt_text) in PRELOADED_PROMPTS.items():
+    for key, prompt_data in prompts_dict.items():
+        label = prompt_data["label"]
+        text = prompt_data["text"]
         # Get first 100 characters as preview
-        preview = prompt_text[:100] + "..." if len(prompt_text) > 100 else prompt_text
+        preview = text[:100] + "..." if len(text) > 100 else text
         prompts.append(PreloadedPromptItem(
             key=key,
             label=label,
@@ -501,17 +618,57 @@ async def get_preloaded_prompts():
     return PreloadedPromptsResponse(prompts=prompts)
 
 
+@app.post("/prompts")
+async def add_preloaded_prompt(payload: AddPromptPayload):
+    """Add a new preloaded prompt to config.json with auto-generated 4-digit key."""
+    config = load_config()
+    prompts = config.get("prompts", {})
+    
+    # Auto-generate next 4-digit key
+    new_key = generate_next_prompt_key(prompts)
+    
+    # Add to prompts
+    prompts[new_key] = {
+        "label": payload.label,
+        "text": payload.text
+    }
+    config["prompts"] = prompts
+    
+    # Save config
+    config_path = get_config_path()
+    try:
+        # Atomic write: write to temp file, then rename
+        import tempfile
+        import shutil
+        temp_path = config_path.with_suffix(".tmp")
+        with open(temp_path, "w", encoding="utf-8") as f:
+            json.dump(config, f, indent=2, ensure_ascii=False)
+        shutil.move(str(temp_path), str(config_path))
+    except (IOError, OSError) as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to save prompt: {str(e)}"
+        )
+    
+    return {"status": "ok", "key": new_key}
+
+
 @app.post("/prompt/preloaded")
 async def use_preloaded_prompt(payload: PromptPreloadedPayload):
-    """Load a preloaded prompt by key."""
-    success = core.use_preloaded_prompt(payload.key)
-    if not success:
-        raise HTTPException(
-            status_code=404,
-            detail=f"Preloaded prompt '{payload.key}' not found"
-        )
-    trigger_autosave()
-    return {"status": "ok"}
+    """Load a preloaded prompt by key from config.json."""
+    config = load_config()
+    prompts = config.get("prompts", {})
+    
+    if payload.key in prompts:
+        prompt_data = prompts[payload.key]
+        core.set_prompt(prompt_data["text"], source=f"preloaded:{payload.key}")
+        trigger_autosave()
+        return {"status": "ok"}
+    
+    raise HTTPException(
+        status_code=404,
+        detail=f"Preloaded prompt '{payload.key}' not found"
+    )
 
 
 # --------------------------------------------------------------------------- #
@@ -722,6 +879,35 @@ async def export_json():
     """Export entire session as JSON."""
     session_dict = core.to_dict()
     return session_dict
+
+
+# More specific routes must come before less specific ones in FastAPI
+@app.get("/export/llm/prompt")
+async def export_llm_friendly_prompt():
+    """Export prompt only in LLM-friendly text format."""
+    text = core.build_llm_friendly_prompt()
+    return {"text": text}
+
+
+@app.get("/export/llm/attachments")
+async def export_llm_friendly_attachments():
+    """Export attachments only in LLM-friendly text format."""
+    text = core.build_llm_friendly_attachments()
+    return {"text": text}
+
+
+@app.get("/export/llm/responses")
+async def export_llm_friendly_responses():
+    """Export responses only in LLM-friendly text format."""
+    text = core.build_llm_friendly_responses()
+    return {"text": text}
+
+
+@app.get("/export/llm")
+async def export_llm_friendly():
+    """Export session in LLM-friendly text format for pasting into chat interfaces."""
+    text = core.build_llm_friendly_export()
+    return {"text": text}
 
 
 # --------------------------------------------------------------------------- #

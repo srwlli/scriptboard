@@ -420,6 +420,84 @@ class ScriptboardCore:
         
         return "\n\n".join(sections)
 
+    def build_llm_friendly_export(self) -> str:
+        """
+        Build LLM-optimized export format for pasting into chat interfaces.
+        
+        Returns:
+            Formatted text optimized for LLM consumption
+        """
+        sections = []
+        
+        # Prompt section with source info
+        if self.prompt:
+            source_info = f" (Source: {self.prompt_source})" if self.prompt_source else ""
+            sections.append(f"# PROMPT{source_info}\n\n{self.prompt}")
+        
+        # Attachments section with better formatting
+        if self.attachments:
+            sections.append(f"\n# ATTACHMENTS ({len(self.attachments)} file{'s' if len(self.attachments) != 1 else ''})\n")
+            for i, att in enumerate(self.attachments, 1):
+                if att.binary:
+                    sections.append(f"## File {i}: {att.filename}\n\n(binary file - content not available)\n")
+                else:
+                    # Detect if content looks like code (simple heuristic)
+                    is_likely_code = any(ext in att.filename.lower() for ext in ['.py', '.js', '.ts', '.json', '.md', '.txt', '.html', '.css', '.sql', '.sh', '.yaml', '.yml'])
+                    if is_likely_code:
+                        sections.append(f"## File {i}: {att.filename}\n\n```\n{att.content}\n```\n")
+                    else:
+                        sections.append(f"## File {i}: {att.filename}\n\n{att.content}\n")
+        
+        # Responses section with clear separation
+        if self.responses:
+            sections.append(f"\n# RESPONSES ({len(self.responses)} response{'s' if len(self.responses) != 1 else ''})\n")
+            for i, resp in enumerate(self.responses, 1):
+                sections.append(f"## Response {i}: {resp.source}\n\n{resp.content}\n")
+        
+        if not sections:
+            return "No content available."
+        
+        # Add a brief header if there's content
+        header = "--- Scriptboard Session Export ---\n\n"
+        return header + "\n".join(sections)
+
+    def build_llm_friendly_prompt(self) -> str:
+        """Build LLM-friendly format for prompt only."""
+        if not self.prompt:
+            return "No prompt available."
+        source_info = f" (Source: {self.prompt_source})" if self.prompt_source else ""
+        return f"# PROMPT{source_info}\n\n{self.prompt}"
+
+    def build_llm_friendly_attachments(self) -> str:
+        """Build LLM-friendly format for attachments only."""
+        if not self.attachments:
+            return "No attachments available."
+        
+        sections = [f"# ATTACHMENTS ({len(self.attachments)} file{'s' if len(self.attachments) != 1 else ''})\n"]
+        for i, att in enumerate(self.attachments, 1):
+            if att.binary:
+                sections.append(f"## File {i}: {att.filename}\n\n(binary file - content not available)\n")
+            else:
+                # Detect if content looks like code
+                is_likely_code = any(ext in att.filename.lower() for ext in ['.py', '.js', '.ts', '.json', '.md', '.txt', '.html', '.css', '.sql', '.sh', '.yaml', '.yml'])
+                if is_likely_code:
+                    sections.append(f"## File {i}: {att.filename}\n\n```\n{att.content}\n```\n")
+                else:
+                    sections.append(f"## File {i}: {att.filename}\n\n{att.content}\n")
+        
+        return "\n".join(sections)
+
+    def build_llm_friendly_responses(self) -> str:
+        """Build LLM-friendly format for responses only."""
+        if not self.responses:
+            return "No responses available."
+        
+        sections = [f"# RESPONSES ({len(self.responses)} response{'s' if len(self.responses) != 1 else ''})\n"]
+        for i, resp in enumerate(self.responses, 1):
+            sections.append(f"## Response {i}: {resp.source}\n\n{resp.content}\n")
+        
+        return "\n".join(sections)
+
     # --------------------------------------------------------------------------- #
     # Session Serialization
     # --------------------------------------------------------------------------- #

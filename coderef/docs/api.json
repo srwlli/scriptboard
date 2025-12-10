@@ -1,0 +1,61 @@
+{
+  "inventory_type": "api",
+  "base_url": "/",
+  "framework": "fastapi",
+  "file": "backend/api.py",
+  "endpoints": [
+    {"method": "GET", "path": "/", "handler": "root", "auth_required": false},
+    {"method": "OPTIONS", "path": "/{full_path:path}", "handler": "options_handler", "auth_required": false},
+    {"method": "GET", "path": "/health", "handler": "health", "auth_required": false},
+    {"method": "GET", "path": "/favicon.ico", "handler": "favicon", "auth_required": false},
+
+    {"method": "GET", "path": "/session", "handler": "get_session", "auth_required": false},
+
+    {"method": "POST", "path": "/prompt", "handler": "set_prompt", "auth_required": false},
+    {"method": "DELETE", "path": "/prompt", "handler": "clear_prompt", "auth_required": false},
+    {"method": "GET", "path": "/prompts", "handler": "get_preloaded_prompts", "auth_required": false},
+    {"method": "POST", "path": "/prompts", "handler": "add_preloaded_prompt", "auth_required": false},
+    {"method": "POST", "path": "/prompt/preloaded", "handler": "use_preloaded_prompt", "auth_required": false},
+
+    {"method": "POST", "path": "/attachments/text", "handler": "add_attachment_text", "auth_required": false},
+    {"method": "GET", "path": "/attachments", "handler": "list_attachments", "auth_required": false},
+    {"method": "POST", "path": "/attachments/folder", "handler": "import_folder", "auth_required": false},
+    {"method": "DELETE", "path": "/attachments", "handler": "clear_attachments", "auth_required": false},
+
+    {"method": "POST", "path": "/responses", "handler": "add_response", "auth_required": false},
+    {"method": "GET", "path": "/responses/summary", "handler": "get_responses_summary", "auth_required": false},
+    {"method": "GET", "path": "/responses", "handler": "get_responses", "auth_required": false},
+    {"method": "DELETE", "path": "/responses", "handler": "clear_responses", "auth_required": false},
+
+    {"method": "GET", "path": "/preview", "handler": "get_preview", "auth_required": false},
+    {"method": "GET", "path": "/preview/full", "handler": "get_preview_full", "auth_required": false},
+
+    {"method": "GET", "path": "/export/markdown", "handler": "export_markdown", "auth_required": false},
+    {"method": "GET", "path": "/export/json", "handler": "export_json", "auth_required": false},
+    {"method": "GET", "path": "/export/llm/prompt", "handler": "export_llm_friendly_prompt", "auth_required": false},
+    {"method": "GET", "path": "/export/llm/attachments", "handler": "export_llm_friendly_attachments", "auth_required": false},
+    {"method": "GET", "path": "/export/llm/responses", "handler": "export_llm_friendly_responses", "auth_required": false},
+    {"method": "GET", "path": "/export/llm", "handler": "export_llm_friendly", "auth_required": false},
+
+    {"method": "GET", "path": "/search", "handler": "search", "auth_required": false},
+    {"method": "GET", "path": "/tokens", "handler": "get_tokens", "auth_required": false},
+
+    {"method": "POST", "path": "/sessions/save", "handler": "save_session_endpoint", "auth_required": false},
+    {"method": "POST", "path": "/sessions/load", "handler": "load_session_endpoint", "auth_required": false},
+    {"method": "GET", "path": "/autosave/status", "handler": "get_autosave_status", "auth_required": false},
+    {"method": "POST", "path": "/autosave/recover", "handler": "recover_autosave", "auth_required": false},
+
+    {"method": "GET", "path": "/profiles", "handler": "list_profiles", "auth_required": false},
+    {"method": "POST", "path": "/profiles/load", "handler": "load_profile_endpoint", "auth_required": false},
+
+    {"method": "POST", "path": "/batch/enqueue", "handler": "enqueue_batch", "auth_required": false},
+    {"method": "GET", "path": "/batch/jobs", "handler": "get_batch_jobs", "auth_required": false},
+    {"method": "POST", "path": "/batch/jobs/{job_id}/cancel", "handler": "cancel_batch_job", "auth_required": false},
+
+    {"method": "GET", "path": "/llm/providers", "handler": "get_llm_providers", "auth_required": false},
+    {"method": "POST", "path": "/llm/call", "handler": "call_llm_api", "auth_required": false},
+
+    {"method": "GET", "path": "/git/status", "handler": "get_git_status", "auth_required": false},
+    {"method": "POST", "path": "/git/commit", "handler": "commit_session", "auth_required": false}
+  ]
+}

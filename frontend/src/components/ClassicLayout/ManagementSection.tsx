@@ -40,23 +40,24 @@ export function ManagementSection() {
 
   const handleCopyAll = async () => {
     try {
-      const json = await api.exportJson();
-      const jsonString = JSON.stringify(json, null, 2);
+      // Use LLM-friendly text format instead of JSON
+      const response = await api.exportLlmFriendly();
+      const text = response.text;
       // Ensure document is focused before writing to clipboard
       if (typeof window !== "undefined" && document.hasFocus) {
         window.focus();
         await new Promise((resolve) => setTimeout(resolve, 100));
       }
-      await navigator.clipboard.writeText(jsonString);
+      await navigator.clipboard.writeText(text);
       
       const parts: string[] = [];
       if (promptCount > 0) parts.push("prompt");
       if (attachmentCount > 0) parts.push(`${attachmentCount} files`);
       if (responseCount > 0) parts.push(`${responseCount} responses`);
       
-      alert(`Copied JSON: ${parts.join(" + ")}`);
+      alert(`Copied to clipboard: ${parts.join(" + ")}`);
     } catch (error) {
-      console.error("Failed to copy JSON:", error);
+      console.error("Failed to copy:", error);
       if (error instanceof Error && error.name === "NotAllowedError") {
         alert("Please click the button again to allow clipboard access");
       } else {
@@ -109,8 +110,8 @@ export function ManagementSection() {
 
   const handleViewCombinedPreview = async () => {
     try {
-      const preview = await api.getPreviewFull();
-      setViewContent(preview.preview);
+      const response = await api.exportLlmFriendly();
+      setViewContent(response.text);
       setShowViewModal(true);
     } catch (error) {
       console.error("Failed to load preview:", error);

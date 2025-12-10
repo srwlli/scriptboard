@@ -1,0 +1,45 @@
+{
+  "inventory_type": "database",
+  "system": "local-json",
+  "files": [
+    {
+      "path": "~/.scriptboard/sessions/*.json",
+      "purpose": "saved session snapshots"
+    },
+    {
+      "path": "~/.scriptboard/autosave.json",
+      "purpose": "debounced autosave snapshot"
+    },
+    {
+      "path": "~/.scriptboard/config.json",
+      "purpose": "user configuration (favorites, llm_urls, prompts)"
+    }
+  ],
+  "schemas": [
+    {
+      "name": "session_snapshot",
+      "file": "generated at runtime (core.to_dict)",
+      "fields": [
+        {"name": "prompt", "type": "string"},
+        {"name": "attachments", "type": "array"},
+        {"name": "responses", "type": "array"},
+        {"name": "favorites", "type": "array"},
+        {"name": "llm_urls", "type": "array"},
+        {"name": "current_profile", "type": "string|null"}
+      ]
+    },
+    {
+      "name": "config",
+      "file": "~/.scriptboard/config.json",
+      "fields": [
+        {"name": "favorites", "type": "array"},
+        {"name": "llm_urls", "type": "array"},
+        {"name": "workspace_profiles", "type": "array"},
+        {"name": "view_defaults", "type": "object"},
+        {"name": "keymap", "type": "object"},
+        {"name": "theme", "type": "string|null"},
+        {"name": "prompts", "type": "object"}
+      ]
+    }
+  ]
+}

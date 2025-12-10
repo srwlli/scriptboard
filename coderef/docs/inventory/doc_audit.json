@@ -1,0 +1,25 @@
+{
+  "inventory_type": "documentation",
+  "score": 85,
+  "notes": "Project has comprehensive root docs and generated foundation docs. Some markdownlint spacing fixes recommended.",
+  "files": [
+    {"path": "README.md", "status": "present", "completeness": "high"},
+    {"path": "ARCHITECTURE.md", "status": "present", "completeness": "medium"},
+    {"path": "CHANGELOG.md", "status": "present", "completeness": "high"},
+    {"path": "INSTALL.md", "status": "present", "completeness": "medium"},
+    {"path": "QUICKSTART.md", "status": "present", "completeness": "medium"},
+    {"path": "MIGRATION.md", "status": "present", "completeness": "medium"},
+    {"path": "FLOW_COMPARISON.md", "status": "present", "completeness": "medium"},
+    {"path": "LAYOUT_COMPARISON.md", "status": "present", "completeness": "medium"},
+
+    {"path": "mcp-workflows/foundation-docs-agent-training.md", "status": "present", "completeness": "high"},
+    {"path": "mcp-workflows/quick-inventory-agent-training.md", "status": "present", "completeness": "high"},
+    {"path": "mcp-workflows/mcp-server-guide.md", "status": "present", "completeness": "medium"},
+
+    {"path": "coderef/docs/foundation/README.md", "status": "present", "completeness": "high"},
+    {"path": "coderef/docs/foundation/ARCHITECTURE.md", "status": "present", "completeness": "medium"},
+    {"path": "coderef/docs/foundation/API.md", "status": "present", "completeness": "high"},
+    {"path": "coderef/docs/foundation/COMPONENTS.md", "status": "present", "completeness": "medium"},
+    {"path": "coderef/docs/foundation/SCHEMA.md", "status": "present", "completeness": "medium"}
+  ]
+}

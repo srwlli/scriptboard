@@ -1,0 +1,415 @@
+{
+  "META_DOCUMENTATION": {
+    "feature_name": "favorites-modal",
+    "schema_version": "1.0.0",
+    "version": "1.0.0",
+    "status": "complete",
+    "generated_by": "AI Assistant",
+    "has_context": false,
+    "has_analysis": false,
+    "workorder_id": "WO-FAVORITES-MODAL-001"
+  },
+  "UNIVERSAL_PLANNING_STRUCTURE": {
+    "0_preparation": {
+      "foundation_docs": [
+        "README.md",
+        "ARCHITECTURE.md"
+      ],
+      "coding_standards": [
+        "TypeScript/React patterns",
+        "Tailwind CSS styling",
+        "Electron IPC patterns"
+      ],
+      "reference_components": [
+        "frontend/src/components/ui/Drawer.tsx",
+        "frontend/src/components/ClassicLayout/PromptSection.tsx",
+        "frontend/src/components/Header.tsx"
+      ],
+      "key_patterns": [
+        "Modal dialogs with backdrop",
+        "Tab navigation",
+        "Search filtering",
+        "Electron IPC for file system access"
+      ]
+    },
+    "1_executive_summary": {
+      "description": "Implement a favorites modal that provides quick access to favorite folders and recently accessed folders. The modal replaces the previous horizontal favorites section with a compact header button that opens a tabbed modal interface.",
+      "goal": "Enable users to quickly access favorite project folders and recently opened folders for drag-and-drop file operations in Windows Explorer.",
+      "scope": "Frontend React component with Electron IPC integration for folder opening. Includes favorites management, recent folders tracking, and search functionality.",
+      "out_of_scope": [
+        "File browser within the modal",
+        "Folder creation/editing",
+        "File operations (copy, move, delete)"
+      ],
+      "success_metrics": [
+        "Modal opens/closes smoothly",
+        "Favorites load from config.json",
+        "Folders open in Windows Explorer on click",
+        "Search filters both tabs correctly",
+        "Add favorite functionality works",
+        "Recent folders are tracked and displayed"
+      ]
+    },
+    "2_risk_assessment": {
+      "complexity": "medium",
+      "risks": [
+        {
+          "risk": "Electron IPC not available in browser environment",
+          "severity": "medium",
+          "mitigation": "Check for electronAPI availability before calling, show appropriate fallback messages"
+        },
+        {
+          "risk": "Recent folders tracking requires persistent storage",
+          "severity": "low",
+          "mitigation": "Use localStorage or backend API to track recent folder access"
+        },
+        {
+          "risk": "Path validation for Windows paths",
+          "severity": "low",
+          "mitigation": "Validate paths exist before opening, handle errors gracefully"
+        }
+      ],
+      "dependencies": [
+        "Electron shell.openPath API",
+        "Backend config.json API",
+        "localStorage or backend storage for recent folders"
+      ]
+    },
+    "3_current_state_analysis": {
+      "files_to_modify": [
+        {
+          "path": "frontend/src/components/ClassicLayout/FavoritesDropdownMockup.tsx",
+          "purpose": "Replace mock data with real API calls, wire up Electron IPC for folder opening",
+          "current_state": "Mockup component with mock data and placeholder handlers"
+        },
+        {
+          "path": "frontend/src/components/Header.tsx",
+          "purpose": "Already integrated, may need minor adjustments",
+          "current_state": "Favorites button already in header"
+        },
+        {
+          "path": "frontend/src/lib/api.ts",
+          "purpose": "Verify favorites API methods exist",
+          "current_state": "Has getConfig() method for loading favorites"
+        }
+      ],
+      "files_to_create": [
+        {
+          "path": "frontend/src/components/ClassicLayout/FavoritesModal.tsx",
+          "purpose": "Rename and finalize the modal component (rename from FavoritesDropdownMockup)"
+        },
+        {
+          "path": "frontend/src/hooks/useRecentFolders.ts",
+          "purpose": "Custom hook to manage recent folders tracking in localStorage"
+        }
+      ],
+      "backend_changes": [
+        {
+          "path": "backend/api.py",
+          "purpose": "May need endpoint for tracking recent folders (optional, can use localStorage)"
+        }
+      ]
+    },
+    "4_key_features": {
+      "features": [
+        {
+          "name": "Favorites Tab",
+          "description": "Display user's favorite folders from config.json with label and path. Click to open in Windows Explorer.",
+          "requirements": [
+            "Load favorites from API",
+            "Display label and path",
+            "Open folder on click via Electron IPC",
+            "Search filtering"
+          ]
+        },
+        {
+          "name": "Recents Tab",
+          "description": "Display recently accessed folders with timestamp. Track folder access and persist to localStorage.",
+          "requirements": [
+            "Track folder access when opened",
+            "Store in localStorage",
+            "Display with time ago format",
+            "Search filtering",
+            "Limit to last 10-20 recent folders"
+          ]
+        },
+        {
+          "name": "Search Functionality",
+          "description": "Real-time search that filters both favorites and recents tabs based on label/path.",
+          "requirements": [
+            "Search input in header",
+            "Filter favorites by label and path",
+            "Filter recents by path",
+            "Clear search button",
+            "Auto-focus on modal open"
+          ]
+        },
+        {
+          "name": "Add Favorite",
+          "description": "Button to add new favorite folder. Opens folder picker dialog and saves to config.json.",
+          "requirements": [
+            "Open folder picker via Electron IPC",
+            "Save to backend config.json",
+            "Refresh favorites list",
+            "Show success/error feedback"
+          ]
+        },
+        {
+          "name": "Modal Interactions",
+          "description": "Smooth modal open/close, keyboard shortcuts, click outside to close.",
+          "requirements": [
+            "Click backdrop to close",
+            "Escape key to close",
+            "Prevent body scroll when open",
+            "Fixed modal size (no resizing on tab switch)"
+          ]
+        }
+      ]
+    },
+    "5_task_id_system": {
+      "workorder": {
+        "id": "WO-FAVORITES-MODAL-001",
+        "name": "Favorites Modal Implementation",
+        "feature_dir": "coderef/working/favorites-modal"
+      },
+      "tasks": [
+        {
+          "id": "FAV-001",
+          "workorder_id": "WO-FAVORITES-MODAL-001",
+          "description": "Wire up favorites loading from API - replace mock data with real config.json data",
+          "component": "FavoritesModal",
+          "acceptance_criteria": [
+            "Favorites load from api.getConfig() on component mount",
+            "Display real favorites from user's config",
+            "Handle empty favorites state gracefully"
+          ]
+        },
+        {
+          "id": "FAV-002",
+          "workorder_id": "WO-FAVORITES-MODAL-001",
+          "description": "Implement folder opening via Electron IPC - wire up handleOpenFolder to use window.electronAPI.openFolder",
+          "component": "FavoritesModal",
+          "acceptance_criteria": [
+            "Clicking favorite opens folder in Windows Explorer",
+            "Check for Electron availability before calling",
+            "Show error message if Electron not available",
+            "Close modal after opening folder"
+          ]
+        },
+        {
+          "id": "FAV-003",
+          "workorder_id": "WO-FAVORITES-MODAL-001",
+          "description": "Create useRecentFolders hook to track and persist recent folder access",
+          "component": "useRecentFolders hook",
+          "acceptance_criteria": [
+            "Track folder path and timestamp when opened",
+            "Store in localStorage with key 'recentFolders'",
+            "Limit to last 20 recent folders",
+            "Provide getRecentFolders() and addRecentFolder(path) methods"
+          ]
+        },
+        {
+          "id": "FAV-004",
+          "workorder_id": "WO-FAVORITES-MODAL-001",
+          "description": "Wire up Recents tab to display tracked recent folders from localStorage",
+          "component": "FavoritesModal",
+          "acceptance_criteria": [
+            "Load recent folders from useRecentFolders hook",
+            "Display path and formatted time ago",
+            "Handle empty recents state",
+            "Update recents when folder is opened"
+          ]
+        },
+        {
+          "id": "FAV-005",
+          "workorder_id": "WO-FAVORITES-MODAL-001",
+          "description": "Implement Add Favorite functionality - open folder picker and save to config",
+          "component": "FavoritesModal",
+          "acceptance_criteria": [
+            "Click Add Favorite opens Electron folder picker",
+            "Get selected folder path",
+            "Prompt for label (default to folder name)",
+            "Call api.addFavorite(label, path)",
+            "Refresh favorites list",
+            "Show success/error feedback"
+          ]
+        },
+        {
+          "id": "FAV-006",
+          "workorder_id": "WO-FAVORITES-MODAL-001",
+          "description": "Rename FavoritesDropdownMockup to FavoritesModal and update imports",
+          "component": "File rename and import updates",
+          "acceptance_criteria": [
+            "Component renamed to FavoritesModal.tsx",
+            "All imports updated (Header.tsx)",
+            "No broken references"
+          ]
+        },
+        {
+          "id": "FAV-007",
+          "workorder_id": "WO-FAVORITES-MODAL-001",
+          "description": "Test modal in both Electron and browser environments",
+          "component": "Testing",
+          "acceptance_criteria": [
+            "Modal works in Electron (full functionality)",
+            "Modal works in browser (with appropriate fallbacks)",
+            "Error messages shown when Electron APIs unavailable"
+          ]
+        }
+      ]
+    },
+    "6_implementation_phases": {
+      "phases": [
+        {
+          "phase": 1,
+          "name": "Data Integration",
+          "description": "Replace mock data with real API calls and Electron IPC",
+          "tasks": ["FAV-001", "FAV-002"],
+          "deliverables": [
+            "Favorites load from config.json",
+            "Folders open in Windows Explorer on click"
+          ]
+        },
+        {
+          "phase": 2,
+          "name": "Recent Folders Tracking",
+          "description": "Implement recent folders tracking and display",
+          "tasks": ["FAV-003", "FAV-004"],
+          "deliverables": [
+            "useRecentFolders hook created",
+            "Recents tab displays tracked folders",
+            "Recent folders persist across sessions"
+          ]
+        },
+        {
+          "phase": 3,
+          "name": "Add Favorite Functionality",
+          "description": "Implement adding new favorites via folder picker",
+          "tasks": ["FAV-005"],
+          "deliverables": [
+            "Add Favorite button opens folder picker",
+            "New favorites save to config.json",
+            "Favorites list refreshes after adding"
+          ]
+        },
+        {
+          "phase": 4,
+          "name": "Cleanup and Testing",
+          "description": "Rename component, update imports, and test in all environments",
+          "tasks": ["FAV-006", "FAV-007"],
+          "deliverables": [
+            "Component properly renamed",
+            "All imports updated",
+            "Tested in Electron and browser"
+          ]
+        }
+      ]
+    },
+    "7_testing_strategy": {
+      "unit_tests": [
+        {
+          "component": "useRecentFolders hook",
+          "tests": [
+            "Should add folder to recent list",
+            "Should limit to 20 recent folders",
+            "Should persist to localStorage",
+            "Should load from localStorage on init"
+          ]
+        },
+        {
+          "component": "FavoritesModal search",
+          "tests": [
+            "Should filter favorites by label",
+            "Should filter favorites by path",
+            "Should filter recents by path",
+            "Should clear search correctly"
+          ]
+        }
+      ],
+      "integration_tests": [
+        {
+          "test": "Load favorites from API",
+          "description": "Verify favorites load correctly from config.json on modal open"
+        },
+        {
+          "test": "Open folder in Electron",
+          "description": "Verify clicking favorite opens folder via Electron IPC"
+        },
+        {
+          "test": "Add favorite flow",
+          "description": "Verify complete flow: pick folder → enter label → save → refresh list"
+        }
+      ],
+      "e2e_tests": [
+        {
+          "test": "Favorites modal workflow",
+          "description": "Open modal → switch tabs → search → open folder → add favorite"
+        }
+      ],
+      "manual_testing": [
+        "Test in Electron environment (full functionality)",
+        "Test in browser environment (fallback messages)",
+        "Test with empty favorites",
+        "Test with many favorites (scroll behavior)",
+        "Test search with special characters",
+        "Test adding duplicate favorites"
+      ]
+    },
+    "8_success_criteria": {
+      "functional_requirements": [
+        "Favorites load from config.json and display correctly",
+        "Clicking favorite opens folder in Windows Explorer",
+        "Recent folders are tracked and displayed with timestamps",
+        "Search filters both tabs in real-time",
+        "Add Favorite opens folder picker and saves to config",
+        "Modal opens/closes smoothly with proper animations"
+      ],
+      "non_functional_requirements": [
+        "Modal maintains fixed size when switching tabs",
+        "No console errors in browser or Electron",
+        "Responsive design works on different screen sizes",
+        "Keyboard navigation (Escape to close) works",
+        "Accessibility: proper ARIA labels and roles"
+      ],
+      "acceptance_criteria": [
+        "User can open favorite folders in Windows Explorer",
+        "User can see recently accessed folders",
+        "User can search favorites and recents",
+        "User can add new favorites via folder picker",
+        "All functionality works in Electron environment",
+        "Appropriate fallbacks shown in browser environment"
+      ]
+    },
+    "9_implementation_checklist": {
+      "phase_1_checklist": [
+        "[ ] Wire up api.getConfig() to load favorites",
+        "[ ] Replace mockFavorites with real data",
+        "[ ] Implement handleOpenFolder with Electron IPC",
+        "[ ] Add Electron availability checks",
+        "[ ] Test folder opening in Electron"
+      ],
+      "phase_2_checklist": [
+        "[ ] Create useRecentFolders hook",
+        "[ ] Implement localStorage persistence",
+        "[ ] Wire up recents tab to use hook",
+        "[ ] Update handleOpenFolder to track recents",
+        "[ ] Test recent folders tracking"
+      ],
+      "phase_3_checklist": [
+        "[ ] Implement handleAddFavorite with folder picker",
+        "[ ] Add label input/prompt",
+        "[ ] Wire up api.addFavorite()",
+        "[ ] Refresh favorites after adding",
+        "[ ] Add success/error feedback"
+      ],
+      "phase_4_checklist": [
+        "[ ] Rename FavoritesDropdownMockup to FavoritesModal",
+        "[ ] Update all imports",
+        "[ ] Test in Electron environment",
+        "[ ] Test in browser environment",
+        "[ ] Verify no console errors"
+      ]
+    }
+  }
+}
+

@@ -130,12 +130,14 @@ export function AttachmentsSection() {
       alert("No attachments to view");
       return;
     }
-    // Build attachment list text
-    const content = attachments
-      .map((att) => `📎 ${att.filename} (${att.lines} lines${att.binary ? ", binary" : ""})`)
-      .join("\n");
-    setViewContent(content);
-    setShowViewModal(true);
+    try {
+      const response = await api.exportLlmFriendlyAttachments();
+      setViewContent(response.text);
+      setShowViewModal(true);
+    } catch (error) {
+      console.error("Failed to load attachments:", error);
+      alert("No attachments to view");
+    }
   };
 
   const handleClearAttachments = async () => {

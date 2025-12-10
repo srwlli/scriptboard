@@ -88,15 +88,8 @@ export function ResponsesSection() {
 
   const handleViewResponses = async () => {
     try {
-      const responses = await api.getResponses();
-      if (!responses.responses || responses.responses.length === 0) {
-        alert("No responses to view");
-        return;
-      }
-      const content = responses.responses
-        .map((resp: any) => `[${resp.source || "Unknown"}]\n${resp.content.substring(0, 200)}...`)
-        .join("\n\n---\n\n");
-      setViewContent(content);
+      const response = await api.exportLlmFriendlyResponses();
+      setViewContent(response.text);
       setShowViewModal(true);
     } catch (error) {
       console.error("Failed to load responses:", error);

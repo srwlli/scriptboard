@@ -1,7 +1,6 @@
 "use client";
 
 import { Header } from "@/components/Header";
-import { FavoritesSection } from "@/components/ClassicLayout/FavoritesSection";
 import { PromptSection } from "@/components/ClassicLayout/PromptSection";
 import { AttachmentsSection } from "@/components/ClassicLayout/AttachmentsSection";
 import { ResponsesSection } from "@/components/ClassicLayout/ResponsesSection";
@@ -14,7 +13,7 @@ import { useClassicLayout } from "@/hooks/useClassicLayout";
  * Main page with classic layout replicating original scriptboard.py UI/UX.
  * 
  * Layout matches original:
- * - Favorites (horizontal button row)
+ * - Favorites button (moved to header, top right)
  * - Prompt section (buttons + status)
  * - Attachments section (buttons + status)
  * - Responses section (buttons + status)
@@ -39,9 +38,6 @@ export default function Home() {
     <div className="min-h-screen bg-background classic-layout-container flex flex-col">
       <Header />
       <main className="flex flex-col flex-1">
-        {/* Favorites Section */}
-        <FavoritesSection />
-
         {/* Prompt Section */}
         <PromptSection />
 

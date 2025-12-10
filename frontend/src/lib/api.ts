@@ -26,30 +26,111 @@ class ApiClient {
     options: RequestInit = {}
   ): Promise<T> {
     const url = `${this.baseUrl}${endpoint}`;
-    const response = await fetch(url, {
-      ...options,
-      headers: {
-        "Content-Type": "application/json",
-        ...options.headers,
-      },
-    });
-
-    if (!response.ok) {
-      let errorData: ApiError;
-      try {
-        errorData = await response.json();
-      } catch {
-        errorData = {
-          error: {
-            code: "UNKNOWN_ERROR",
-            message: `HTTP ${response.status}: ${response.statusText}`,
-          },
-        };
+    const method = options.method || "GET";
+    
+    // Only set Content-Type for requests that have a body
+    const headers: HeadersInit = {
+      ...options.headers,
+    };
+    
+    // Only add Content-Type for POST, PUT, PATCH requests
+    if (["POST", "PUT", "PATCH"].includes(method.toUpperCase())) {
+      headers["Content-Type"] = "application/json";
+    }
+    
+    let response: Response;
+    try {
+      // For GET requests, ensure no body is sent
+      const fetchOptions: RequestInit = {
+        method,
+        headers,
+      };
+      
+      // Only include body for non-GET requests
+      if (method.toUpperCase() !== "GET" && options.body) {
+        fetchOptions.body = options.body;
       }
-      throw new Error(errorData.error.message);
+      
+      // Include other options (like credentials, cache, etc.) but exclude body for GET
+      const { body, ...otherOptions } = options;
+      if (method.toUpperCase() !== "GET") {
+        Object.assign(fetchOptions, otherOptions);
+      } else {
+        // For GET, only copy safe options
+        if (otherOptions.credentials) fetchOptions.credentials = otherOptions.credentials;
+        if (otherOptions.cache) fetchOptions.cache = otherOptions.cache;
+        if (otherOptions.mode) fetchOptions.mode = otherOptions.mode;
+      }
+      
+      response = await fetch(url, fetchOptions);
+    } catch (error) {
+      // Network error (e.g., backend not running, CORS issue)
+      const networkError = error instanceof Error ? error.message : "Network error";
+      throw new Error(`Failed to connect to backend: ${networkError}`);
     }
 
-    return response.json();
+    if (!response.ok) {
+      let errorData: any;
+      let errorMessage: string;
+      
+      // Log the request details for debugging
+      if (process.env.NODE_ENV === 'development') {
+        console.error(`API Error: ${method} ${url} - Status: ${response.status}`);
+      }
+      
+      try {
+        const contentType = response.headers.get("content-type");
+        if (contentType && contentType.includes("application/json")) {
+          errorData = await response.json();
+        } else {
+          // Not JSON, try to read as text
+          const text = await response.text();
+          errorData = text || null;
+        }
+      } catch (parseError) {
+        // Failed to parse response
+        errorData = null;
+      }
+      
+      // Handle various error response formats
+      try {
+        if (errorData?.error?.message) {
+          errorMessage = String(errorData.error.message);
+        } else if (errorData?.error && typeof errorData.error === "string") {
+          errorMessage = errorData.error;
+        } else if (typeof errorData === "string") {
+          errorMessage = errorData;
+        } else if (errorData?.message) {
+          errorMessage = String(errorData.message);
+        } else if (errorData?.detail) {
+          // FastAPI often returns {detail: "message"}
+          errorMessage = String(errorData.detail);
+        } else {
+          errorMessage = `HTTP ${response.status}: ${response.statusText}`;
+        }
+      } catch {
+        // Fallback if anything goes wrong parsing the error
+        errorMessage = `HTTP ${response.status}: ${response.statusText}`;
+      }
+      
+      // Ensure errorMessage is never empty or undefined
+      if (!errorMessage || errorMessage.trim() === "") {
+        errorMessage = `HTTP ${response.status}: ${response.statusText}`;
+      }
+      
+      // Add more context for 405 errors
+      if (response.status === 405) {
+        errorMessage = `${errorMessage} (Endpoint: ${method} ${endpoint})`;
+      }
+      
+      throw new Error(errorMessage);
+    }
+
+    try {
+      return await response.json();
+    } catch (parseError) {
+      throw new Error("Invalid JSON response from server");
+    }
   }
 
   // Health and Session
@@ -75,6 +156,13 @@ class ApiClient {
 
   async getPreloadedPrompts() {
     return this.request<{ prompts: Array<{ key: string; label: string; preview: string }> }>("/prompts");
+  }
+
+  async addPreloadedPrompt(label: string, text: string) {
+    return this.request<{ status: string; key: string }>("/prompts", {
+      method: "POST",
+      body: JSON.stringify({ label, text }),
+    });
   }
 
   async usePreloadedPrompt(key: string) {
@@ -138,6 +226,32 @@ class ApiClient {
 
   async exportJson() {
     return this.request("/export/json");
+  }
+
+  async exportLlmFriendly() {
+    return this.request<{ text: string }>("/export/llm", {
+      method: "GET",
+    });
+  }
+
+  async exportLlmFriendlyPrompt() {
+    // Explicitly use GET method without any body
+    return this.request<{ text: string }>("/export/llm/prompt", {
+      method: "GET",
+      body: undefined, // Ensure no body is sent
+    });
+  }
+
+  async exportLlmFriendlyAttachments() {
+    return this.request<{ text: string }>("/export/llm/attachments", {
+      method: "GET",
+    });
+  }
+
+  async exportLlmFriendlyResponses() {
+    return this.request<{ text: string }>("/export/llm/responses", {
+      method: "GET",
+    });
   }
 
   async exportMarkdown() {
