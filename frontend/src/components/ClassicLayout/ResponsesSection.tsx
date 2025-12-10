@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { api } from "@/lib/api";
 import { SectionButtonRow, StatusLabel, SectionDivider, type ButtonConfig } from "@/components/ui";
+import { useSessionRefresh } from "@/hooks/useSessionRefresh";
 
 /**
  * Responses section component matching original scriptboard.py layout.
@@ -20,6 +21,11 @@ export function ResponsesSection() {
   useEffect(() => {
     loadData();
   }, []);
+
+  // Listen for session refresh events
+  useSessionRefresh(() => {
+    loadData();
+  });
 
   const loadData = async () => {
     try {
@@ -103,6 +109,11 @@ export function ResponsesSection() {
       await api.clearResponses();
       setResponseCount(0);
       setTotalChars(0);
+      
+      // Trigger refresh for other sections
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new CustomEvent("session-refresh"));
+      }
     } catch (error) {
       console.error("Failed to clear responses:", error);
     }

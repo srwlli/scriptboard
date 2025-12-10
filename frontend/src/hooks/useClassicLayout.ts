@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { api } from "@/lib/api";
+import { useSessionRefresh } from "./useSessionRefresh";
 
 /**
  * Custom hook for managing classic layout state.
@@ -20,22 +21,28 @@ export function useClassicLayout() {
   const [charCount, setCharCount] = useState(0);
 
   // Load character count from session
-  useEffect(() => {
-    const loadCharCount = async () => {
-      try {
-        const session = await api.getSession();
-        setCharCount(session.total_chars || 0);
-      } catch (error) {
-        if (process.env.NODE_ENV === 'development') {
-          console.error("Failed to load char count:", error);
-        }
+  const loadCharCount = useCallback(async () => {
+    try {
+      const session = await api.getSession();
+      setCharCount(session.total_chars || 0);
+    } catch (error) {
+      if (process.env.NODE_ENV === 'development') {
+        console.error("Failed to load char count:", error);
       }
-    };
+    }
+  }, []);
+
+  useEffect(() => {
     loadCharCount();
     // Poll for updates
     const interval = setInterval(loadCharCount, 2000);
     return () => clearInterval(interval);
-  }, []);
+  }, [loadCharCount]);
+
+  // Listen for session refresh events
+  useSessionRefresh(() => {
+    loadCharCount();
+  });
 
   const showStatus = useCallback((message: string, timeoutMs: number = 2000) => {
     setStatusMessage(message);

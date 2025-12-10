@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { api } from "@/lib/api";
 import { SectionButtonRow, StatusLabel, SectionDivider, type ButtonConfig } from "@/components/ui";
+import { useSessionRefresh } from "@/hooks/useSessionRefresh";
 
 /**
  * Prompt section component matching original scriptboard.py layout.
@@ -23,6 +24,12 @@ export function PromptSection() {
       setIsElectron(true);
     }
   }, []);
+
+  // Listen for session refresh events
+  useSessionRefresh(() => {
+    loadSessionStatus();
+    setPromptPasteCount(0);
+  });
 
   const loadSessionStatus = async () => {
     try {
@@ -130,6 +137,11 @@ export function PromptSection() {
       setPromptSource(null);
       setPromptPasteCount(0);
       await loadSessionStatus();
+      
+      // Trigger refresh for other sections
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new CustomEvent("session-refresh"));
+      }
     } catch (error) {
       console.error("Failed to clear prompt:", error);
     }

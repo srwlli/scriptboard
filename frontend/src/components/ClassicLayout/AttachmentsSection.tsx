@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { api } from "@/lib/api";
 import { SectionButtonRow, StatusLabel, SectionDivider, type ButtonConfig } from "@/components/ui";
+import { useSessionRefresh } from "@/hooks/useSessionRefresh";
 
 interface Attachment {
   id: string;
@@ -29,6 +30,11 @@ export function AttachmentsSection() {
       setIsElectron(true);
     }
   }, []);
+
+  // Listen for session refresh events
+  useSessionRefresh(() => {
+    loadAttachments();
+  });
 
   const loadAttachments = async () => {
     try {
@@ -136,6 +142,11 @@ export function AttachmentsSection() {
     try {
       await api.clearAttachments();
       setAttachments([]);
+      
+      // Trigger refresh for other sections
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new CustomEvent("session-refresh"));
+      }
     } catch (error) {
       console.error("Failed to clear attachments:", error);
     }

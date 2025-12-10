@@ -130,6 +130,12 @@ export function ManagementSection() {
         api.clearResponses(),
       ]);
       await loadCounts();
+      
+      // Trigger refresh event for all sections
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new CustomEvent("session-refresh"));
+      }
+      
       alert("Cleared all");
     } catch (error) {
       console.error("Failed to clear all:", error);
