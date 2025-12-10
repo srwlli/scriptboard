@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Menu } from "lucide-react";
 import { DrawerNavigation } from "./DrawerNavigation";
-import { FavoritesDropdownMockup } from "./ClassicLayout/FavoritesDropdownMockup";
+import { FavoritesModal } from "./ClassicLayout/FavoritesModal";
 
 export function Header() {
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -27,7 +27,7 @@ export function Header() {
           
           {/* Favorites Button - Top Right */}
           <div className="flex items-center">
-            <FavoritesDropdownMockup />
+            <FavoritesModal />
           </div>
         </div>
       </header>

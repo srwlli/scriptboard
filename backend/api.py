@@ -25,6 +25,7 @@ from schemas import (
     ErrorCode,
     ErrorInfo,
     ErrorResponse,
+    FavoriteEntry,
     PromptPreloadedPayload,
     TextPayload,
 )
@@ -1336,4 +1337,78 @@ async def get_config_endpoint():
     # Return config but exclude any sensitive fields (API keys, etc.)
     # For now, just return the full config as it doesn't contain secrets
     return config
+
+
+@app.post("/favorites")
+async def add_favorite(payload: FavoriteEntry):
+    """Add a new favorite folder to config.json."""
+    
+    config = load_config()
+    favorites = config.get("favorites", [])
+    
+    # Check for duplicates (same path)
+    for fav in favorites:
+        if fav.get("path") == payload.path:
+            raise HTTPException(
+                status_code=409,
+                detail=f"Favorite with path '{payload.path}' already exists"
+            )
+    
+    # Add new favorite
+    favorites.append({
+        "label": payload.label,
+        "path": payload.path
+    })
+    config["favorites"] = favorites
+    
+    # Save config (atomic write)
+    config_path = get_config_path()
+    try:
+        import tempfile
+        import shutil
+        temp_path = config_path.with_suffix(".tmp")
+        with open(temp_path, "w", encoding="utf-8") as f:
+            json.dump(config, f, indent=2, ensure_ascii=False)
+        shutil.move(str(temp_path), str(config_path))
+    except (IOError, OSError) as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to save favorite: {str(e)}"
+        )
+    
+    return {"status": "ok"}
+
+
+@app.delete("/favorites/{index}")
+async def remove_favorite(index: int):
+    """Remove a favorite folder by index from config.json."""
+    config = load_config()
+    favorites = config.get("favorites", [])
+    
+    if index < 0 or index >= len(favorites):
+        raise HTTPException(
+            status_code=404,
+            detail=f"Favorite at index {index} not found"
+        )
+    
+    # Remove favorite at index
+    favorites.pop(index)
+    config["favorites"] = favorites
+    
+    # Save config (atomic write)
+    config_path = get_config_path()
+    try:
+        import tempfile
+        import shutil
+        temp_path = config_path.with_suffix(".tmp")
+        with open(temp_path, "w", encoding="utf-8") as f:
+            json.dump(config, f, indent=2, ensure_ascii=False)
+        shutil.move(str(temp_path), str(config_path))
+    except (IOError, OSError) as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to save config: {str(e)}"
+        )
+    
+    return {"status": "ok"}
 

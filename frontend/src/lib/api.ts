@@ -310,6 +310,19 @@ class ApiClient {
     return this.request<{ favorites?: Array<{ label: string; path: string }>; llm_urls?: Array<{ label: string; url: string }>; keymap?: Record<string, string>; [key: string]: any }>("/config");
   }
 
+  async addFavorite(label: string, path: string) {
+    return this.request<{ status: string }>("/favorites", {
+      method: "POST",
+      body: JSON.stringify({ label, path }),
+    });
+  }
+
+  async removeFavorite(index: number) {
+    return this.request<{ status: string }>(`/favorites/${index}`, {
+      method: "DELETE",
+    });
+  }
+
   // Batch processing (Phase-2)
   async enqueueBatch(prompt: string, models: string[]) {
     return this.request("/batch/enqueue", {

@@ -1,0 +1,110 @@
+[
+  {
+    "timestamp": "2025-12-10T16:47:30.613256",
+    "workorder_id": "WO-FAVORITES-MODAL-001",
+    "feature_name": "favorites-modal",
+    "task_count": 20,
+    "tasks": [
+      {
+        "content": "PHASE-1--001: [ ] Wire up api.getConfig() to load favorites",
+        "activeForm": "PHASE-1--001: [ing ] Wire up api.getConfig() to load favorites",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-1--002: [ ] Replace mockFavorites with real data",
+        "activeForm": "PHASE-1--002: [ing ] Replace mockFavorites with real data",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-1--003: [ ] Implement handleOpenFolder with Electron IPC",
+        "activeForm": "PHASE-1--003: [ing ] Implement handleOpenFolder with Electron IPC",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-1--004: [ ] Add Electron availability checks",
+        "activeForm": "PHASE-1--004: [ing ] Add Electron availability checks",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-1--005: [ ] Test folder opening in Electron",
+        "activeForm": "PHASE-1--005: [ing ] Test folder opening in Electron",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-2--001: [ ] Create useRecentFolders hook",
+        "activeForm": "PHASE-2--001: [ing ] Create useRecentFolders hook",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-2--002: [ ] Implement localStorage persistence",
+        "activeForm": "PHASE-2--002: [ing ] Implement localStorage persistence",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-2--003: [ ] Wire up recents tab to use hook",
+        "activeForm": "PHASE-2--003: [ing ] Wire up recents tab to use hook",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-2--004: [ ] Update handleOpenFolder to track recents",
+        "activeForm": "PHASE-2--004: [ing ] Update handleOpenFolder to track recents",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-2--005: [ ] Test recent folders tracking",
+        "activeForm": "PHASE-2--005: [ing ] Test recent folders tracking",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-3--001: [ ] Implement handleAddFavorite with folder picker",
+        "activeForm": "PHASE-3--001: [ing ] Implement handleAddFavorite with folder picker",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-3--002: [ ] Add label input/prompt",
+        "activeForm": "PHASE-3--002: [ing ] Add label input/prompt",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-3--003: [ ] Wire up api.addFavorite()",
+        "activeForm": "PHASE-3--003: [ing ] Wire up api.addFavorite()",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-3--004: [ ] Refresh favorites after adding",
+        "activeForm": "PHASE-3--004: [ing ] Refresh favorites after adding",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-3--005: [ ] Add success/error feedback",
+        "activeForm": "PHASE-3--005: [ing ] Add success/error feedback",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-4--001: [ ] Rename FavoritesDropdownMockup to FavoritesModal",
+        "activeForm": "PHASE-4--001: [ing ] Rename FavoritesDropdownMockup to FavoritesModal",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-4--002: [ ] Update all imports",
+        "activeForm": "PHASE-4--002: [ing ] Update all imports",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-4--003: [ ] Test in Electron environment",
+        "activeForm": "PHASE-4--003: [ing ] Test in Electron environment",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-4--004: [ ] Test in browser environment",
+        "activeForm": "PHASE-4--004: [ing ] Test in browser environment",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-4--005: [ ] Verify no console errors",
+        "activeForm": "PHASE-4--005: [ing ] Verify no console errors",
+        "status": "pending"
+      }
+    ]
+  }
+]

@@ -1,0 +1,406 @@
+{
+  "META_DOCUMENTATION": {
+    "feature_name": "classic-page-view-modes",
+    "schema_version": "1.0.0",
+    "version": "1.0.0",
+    "status": "complete",
+    "generated_by": "AI Assistant",
+    "has_context": false,
+    "has_analysis": false,
+    "workorder_id": "WO-CLASSIC-PAGE-VIEW-MODES-001"
+  },
+  "UNIVERSAL_PLANNING_STRUCTURE": {
+    "0_preparation": {
+      "foundation_docs": [
+        "README.md",
+        "ARCHITECTURE.md"
+      ],
+      "coding_standards": [
+        "TypeScript/React patterns",
+        "Tailwind CSS styling",
+        "Responsive grid layouts"
+      ],
+      "reference_components": [
+        "frontend/app/page.tsx",
+        "frontend/app/new-page/page.tsx",
+        "frontend/src/components/ClassicLayout/PromptSection.tsx",
+        "frontend/src/components/ClassicLayout/AttachmentsSection.tsx",
+        "frontend/src/components/ClassicLayout/ResponsesSection.tsx",
+        "frontend/src/components/ClassicLayout/ManagementSection.tsx"
+      ],
+      "key_patterns": [
+        "Grid layouts with Tailwind CSS",
+        "View state management",
+        "Responsive design patterns",
+        "Layout switching without remounting components"
+      ]
+    },
+    "1_executive_summary": {
+      "description": "Add two view modes to the classic page: Grid 2x2 view and List view (current vertical stack). Users can toggle between views to organize sections in a compact grid or traditional vertical list layout.",
+      "goal": "Provide users with flexible layout options for viewing and organizing the classic page sections (Prompt, Attachments, Responses, Management) in either a compact 2x2 grid or the traditional vertical list format.",
+      "scope": "Frontend React component updates to support view mode toggle and grid/list layout switching. Includes view mode persistence in localStorage.",
+      "out_of_scope": [
+        "Changing section component internals",
+        "Adding more view modes beyond grid/list",
+        "Responsive breakpoints for grid (grid is fixed 2x2)",
+        "Preview panel in grid view (stays as toggleable overlay)"
+      ],
+      "success_metrics": [
+        "View toggle button visible and functional",
+        "Grid view displays 4 sections in 2x2 layout",
+        "List view maintains current vertical stack",
+        "View preference persists across sessions",
+        "Smooth transition between views",
+        "All section functionality works in both views"
+      ]
+    },
+    "2_risk_assessment": {
+      "complexity": "low",
+      "risks": [
+        {
+          "risk": "Grid layout may not fit well on smaller screens",
+          "severity": "low",
+          "mitigation": "Grid view is optional - users can switch back to list view. Consider responsive breakpoint to auto-switch to list on small screens."
+        },
+        {
+          "risk": "Section heights may vary in grid causing layout issues",
+          "severity": "low",
+          "mitigation": "Use CSS Grid with auto-fit rows or set min-height for grid items. Sections should maintain their natural height."
+        },
+        {
+          "risk": "View state not persisting",
+          "severity": "low",
+          "mitigation": "Use localStorage with proper error handling and fallback to default (list view)"
+        }
+      ],
+      "dependencies": [
+        "localStorage for view preference persistence",
+        "Tailwind CSS grid utilities",
+        "React state management for view mode"
+      ]
+    },
+    "3_current_state_analysis": {
+      "files_to_modify": [
+        {
+          "path": "frontend/app/page.tsx",
+          "purpose": "Add view mode toggle and conditional rendering for grid/list layouts",
+          "current_state": "Vertical stack layout with all sections in flex-col"
+        },
+        {
+          "path": "frontend/src/hooks/useClassicLayout.ts",
+          "purpose": "Add view mode state management and persistence",
+          "current_state": "Manages preview, footer status, window controls, character count"
+        },
+        {
+          "path": "frontend/src/components/Header.tsx",
+          "purpose": "Add view mode toggle button (grid/list icons)",
+          "current_state": "Has hamburger menu and favorites button"
+        }
+      ],
+      "files_to_create": [
+        {
+          "path": "frontend/src/components/ui/ViewModeToggle.tsx",
+          "purpose": "Reusable toggle component for switching between grid and list views"
+        }
+      ],
+      "backend_changes": []
+    },
+    "4_key_features": {
+      "features": [
+        {
+          "name": "View Mode Toggle",
+          "description": "Toggle button in header to switch between Grid and List views. Shows current mode with icons (Grid/Layout icons from lucide-react).",
+          "requirements": [
+            "Toggle button in header (next to favorites button or in header actions)",
+            "Grid icon and List icon to indicate current/available modes",
+            "Smooth transition between views",
+            "Visual feedback for active mode"
+          ]
+        },
+        {
+          "name": "Grid 2x2 View",
+          "description": "Display the 4 main sections (Prompt, Attachments, Responses, Management) in a 2x2 grid layout. Each section takes equal space in the grid.",
+          "requirements": [
+            "CSS Grid with 2 columns, 2 rows",
+            "Equal sizing for grid items",
+            "Sections maintain their functionality",
+            "Preview panel remains toggleable overlay (not in grid)",
+            "Footer remains at bottom"
+          ]
+        },
+        {
+          "name": "List View",
+          "description": "Current vertical stack layout - sections displayed one after another in a column. This is the default view.",
+          "requirements": [
+            "Maintain current flex-col layout",
+            "All sections in vertical stack",
+            "Same spacing and dividers as current",
+            "No changes to existing behavior"
+          ]
+        },
+        {
+          "name": "View Preference Persistence",
+          "description": "Save user's view mode preference to localStorage and restore on page load.",
+          "requirements": [
+            "Save view mode to localStorage on change",
+            "Load view mode from localStorage on mount",
+            "Default to 'list' if no preference saved",
+            "Handle localStorage errors gracefully"
+          ]
+        }
+      ]
+    },
+    "5_task_id_system": {
+      "workorder": {
+        "id": "WO-CLASSIC-PAGE-VIEW-MODES-001",
+        "name": "Classic Page View Modes",
+        "feature_dir": "coderef/working/classic-page-view-modes"
+      },
+      "tasks": [
+        {
+          "id": "VIEW-001",
+          "workorder_id": "WO-CLASSIC-PAGE-VIEW-MODES-001",
+          "description": "Add view mode state to useClassicLayout hook with localStorage persistence",
+          "component": "useClassicLayout hook",
+          "acceptance_criteria": [
+            "View mode state (grid/list) added to hook",
+            "localStorage persistence implemented",
+            "Default to 'list' view",
+            "Error handling for localStorage failures"
+          ]
+        },
+        {
+          "id": "VIEW-002",
+          "workorder_id": "WO-CLASSIC-PAGE-VIEW-MODES-001",
+          "description": "Create ViewModeToggle component with grid/list icons",
+          "component": "ViewModeToggle",
+          "acceptance_criteria": [
+            "Toggle button with Grid and List icons from lucide-react",
+            "Shows active mode with visual highlight",
+            "Calls onChange callback on click",
+            "Accessible with proper ARIA labels"
+          ]
+        },
+        {
+          "id": "VIEW-003",
+          "workorder_id": "WO-CLASSIC-PAGE-VIEW-MODES-001",
+          "description": "Add ViewModeToggle to Header component",
+          "component": "Header",
+          "acceptance_criteria": [
+            "Toggle button added to header (near favorites button)",
+            "Connected to useClassicLayout view mode state",
+            "Proper spacing and alignment",
+            "Works in both Electron and browser"
+          ]
+        },
+        {
+          "id": "VIEW-004",
+          "workorder_id": "WO-CLASSIC-PAGE-VIEW-MODES-001",
+          "description": "Implement Grid 2x2 layout in page.tsx",
+          "component": "page.tsx",
+          "acceptance_criteria": [
+            "Grid layout displays when view mode is 'grid'",
+            "2 columns, 2 rows using CSS Grid",
+            "Prompt and Attachments in first row",
+            "Responses and Management in second row",
+            "Equal sizing for all grid items",
+            "Sections maintain full functionality"
+          ]
+        },
+        {
+          "id": "VIEW-005",
+          "workorder_id": "WO-CLASSIC-PAGE-VIEW-MODES-001",
+          "description": "Maintain List view as default and ensure it works correctly",
+          "component": "page.tsx",
+          "acceptance_criteria": [
+            "List view is default when no preference saved",
+            "Vertical stack layout maintained",
+            "All sections render in correct order",
+            "No regressions in existing functionality"
+          ]
+        },
+        {
+          "id": "VIEW-006",
+          "workorder_id": "WO-CLASSIC-PAGE-VIEW-MODES-001",
+          "description": "Handle Preview panel in both view modes",
+          "component": "page.tsx",
+          "acceptance_criteria": [
+            "Preview panel works in list view (current behavior)",
+            "Preview panel works in grid view (overlay/toggleable)",
+            "Preview doesn't interfere with grid layout",
+            "Toggle functionality preserved"
+          ]
+        },
+        {
+          "id": "VIEW-007",
+          "workorder_id": "WO-CLASSIC-PAGE-VIEW-MODES-001",
+          "description": "Test view switching and persistence",
+          "component": "Testing",
+          "acceptance_criteria": [
+            "View mode persists across page reloads",
+            "Smooth transition between views",
+            "All sections functional in both views",
+            "No layout breaking on view switch"
+          ]
+        }
+      ]
+    },
+    "6_implementation_phases": {
+      "phases": [
+        {
+          "phase": 1,
+          "name": "State Management and Toggle Component",
+          "description": "Add view mode state management and create toggle component",
+          "tasks": ["VIEW-001", "VIEW-002"],
+          "deliverables": [
+            "View mode state in useClassicLayout hook",
+            "localStorage persistence working",
+            "ViewModeToggle component created"
+          ]
+        },
+        {
+          "phase": 2,
+          "name": "Header Integration",
+          "description": "Add toggle button to header and wire up state",
+          "tasks": ["VIEW-003"],
+          "deliverables": [
+            "Toggle button visible in header",
+            "Connected to view mode state",
+            "Icons display correctly"
+          ]
+        },
+        {
+          "phase": 3,
+          "name": "Grid Layout Implementation",
+          "description": "Implement 2x2 grid layout for sections",
+          "tasks": ["VIEW-004", "VIEW-006"],
+          "deliverables": [
+            "Grid view displays sections in 2x2 layout",
+            "Preview panel works in grid view",
+            "All sections functional in grid"
+          ]
+        },
+        {
+          "phase": 4,
+          "name": "List View Maintenance and Testing",
+          "description": "Ensure list view works correctly and test both modes",
+          "tasks": ["VIEW-005", "VIEW-007"],
+          "deliverables": [
+            "List view maintains current behavior",
+            "View switching tested and working",
+            "Persistence verified"
+          ]
+        }
+      ]
+    },
+    "7_testing_strategy": {
+      "unit_tests": [
+        {
+          "component": "ViewModeToggle",
+          "tests": [
+            "Should render grid and list icons",
+            "Should show active mode highlight",
+            "Should call onChange on click",
+            "Should handle keyboard navigation"
+          ]
+        },
+        {
+          "component": "useClassicLayout hook",
+          "tests": [
+            "Should default to list view",
+            "Should load view mode from localStorage",
+            "Should save view mode to localStorage",
+            "Should handle localStorage errors gracefully"
+          ]
+        }
+      ],
+      "integration_tests": [
+        {
+          "test": "View mode toggle in header",
+          "description": "Verify toggle button switches between grid and list views"
+        },
+        {
+          "test": "Grid layout rendering",
+          "description": "Verify 4 sections render correctly in 2x2 grid"
+        },
+        {
+          "test": "List layout rendering",
+          "description": "Verify sections render correctly in vertical stack"
+        },
+        {
+          "test": "View persistence",
+          "description": "Verify selected view mode persists across page reloads"
+        }
+      ],
+      "e2e_tests": [
+        {
+          "test": "View mode switching workflow",
+          "description": "Open page → Toggle to grid → Verify layout → Toggle to list → Verify layout → Reload → Verify persistence"
+        }
+      ],
+      "manual_testing": [
+        "Test grid view on different screen sizes",
+        "Test list view maintains current behavior",
+        "Test view switching multiple times",
+        "Test persistence after browser restart",
+        "Test all section buttons work in both views",
+        "Test preview panel in both views"
+      ]
+    },
+    "8_success_criteria": {
+      "functional_requirements": [
+        "Toggle button visible in header with grid/list icons",
+        "Grid view displays 4 sections in 2x2 layout",
+        "List view maintains current vertical stack layout",
+        "View mode preference persists in localStorage",
+        "Smooth transition when switching views",
+        "All section functionality works in both views",
+        "Preview panel works in both view modes"
+      ],
+      "non_functional_requirements": [
+        "No performance degradation when switching views",
+        "No layout breaking on view switch",
+        "Accessible toggle button (keyboard navigation, ARIA labels)",
+        "Responsive design (grid may need breakpoint for small screens)",
+        "No console errors in browser or Electron"
+      ],
+      "acceptance_criteria": [
+        "User can toggle between grid and list views",
+        "Grid view shows sections in 2x2 layout",
+        "List view shows sections in vertical stack",
+        "Selected view persists across sessions",
+        "All existing functionality works in both views",
+        "UI is intuitive and visually consistent"
+      ]
+    },
+    "9_implementation_checklist": {
+      "phase_1_checklist": [
+        "[ ] Add viewMode state to useClassicLayout hook",
+        "[ ] Implement localStorage save/load for view mode",
+        "[ ] Create ViewModeToggle component with icons",
+        "[ ] Add active state styling to toggle"
+      ],
+      "phase_2_checklist": [
+        "[ ] Import ViewModeToggle in Header",
+        "[ ] Add toggle button to header layout",
+        "[ ] Connect toggle to useClassicLayout view mode",
+        "[ ] Test toggle button appearance and functionality"
+      ],
+      "phase_3_checklist": [
+        "[ ] Add conditional rendering in page.tsx for grid/list",
+        "[ ] Implement CSS Grid layout (2 columns, 2 rows)",
+        "[ ] Position sections: Prompt/Attachments (row 1), Responses/Management (row 2)",
+        "[ ] Ensure preview panel works in grid view",
+        "[ ] Test all section buttons in grid view"
+      ],
+      "phase_4_checklist": [
+        "[ ] Verify list view maintains current layout",
+        "[ ] Test view switching multiple times",
+        "[ ] Test localStorage persistence",
+        "[ ] Test in both Electron and browser",
+        "[ ] Verify no console errors"
+      ]
+    }
+  }
+}
+

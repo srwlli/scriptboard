@@ -44,7 +44,11 @@ export function DrawerNavigation({ isOpen, onClose }: DrawerNavigationProps) {
     <Drawer isOpen={isOpen} onClose={onClose}>
       <div className="flex flex-col h-full">
         {/* Header */}
-        <div className="px-6 py-4 border-b border-border">
+        <div 
+          className="px-6 py-4 border-b border-border cursor-pointer hover:bg-accent/50 transition-colors"
+          onClick={onClose}
+          title="Click to close"
+        >
           <h2 className="text-lg font-semibold text-foreground">Navigation</h2>
         </div>
 

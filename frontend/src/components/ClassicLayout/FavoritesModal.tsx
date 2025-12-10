@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Folder, Star, Plus, Search, Clock, X } from "lucide-react";
+import { Folder, Star, Plus, Search, Clock, X, Trash2 } from "lucide-react";
 import { api } from "@/lib/api";
 import { useRecentFolders } from "@/hooks/useRecentFolders";
 
@@ -28,7 +28,7 @@ interface RecentFolder {
  * - Escape key to close
  * - Prevents body scroll when open
  */
-export function FavoritesDropdownMockup() {
+export function FavoritesModal() {
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState<"favorites" | "recents">("favorites");
@@ -36,6 +36,9 @@ export function FavoritesDropdownMockup() {
   const [isLoadingFavorites, setIsLoadingFavorites] = useState(false);
   const [isElectron, setIsElectron] = useState(false);
   const [isAddingFavorite, setIsAddingFavorite] = useState(false);
+  const [showLabelModal, setShowLabelModal] = useState(false);
+  const [selectedFolderPath, setSelectedFolderPath] = useState("");
+  const [newFavoriteLabel, setNewFavoriteLabel] = useState("");
   const { recentFolders, addRecentFolder } = useRecentFolders();
 
   // Check for Electron API availability and load favorites
@@ -99,6 +102,10 @@ export function FavoritesDropdownMockup() {
   }, [isOpen]);
 
   const handleOpenFolder = async (path: string) => {
+    // Close modal immediately on click
+    setIsOpen(false);
+    setSearchQuery("");
+    
     if (isElectron) {
       try {
         const result = await (window as any).electronAPI.openFolder(path);
@@ -107,10 +114,8 @@ export function FavoritesDropdownMockup() {
           alert(`Failed to open folder: ${result.error}`);
           return;
         }
-        // Success - track as recent folder and close modal
+        // Success - track as recent folder
         addRecentFolder(path);
-        setIsOpen(false);
-        setSearchQuery("");
       } catch (error) {
         console.error("Failed to open folder:", error);
         alert("Failed to open folder in file explorer");
@@ -118,6 +123,27 @@ export function FavoritesDropdownMockup() {
     } else {
       // Fallback for web: show path info
       alert(`Folder: ${path}\n\nOpening folders requires the Electron desktop app.`);
+    }
+  };
+
+  const handleRemoveFavorite = async (index: number, event: React.MouseEvent) => {
+    event.preventDefault();
+    event.stopPropagation();
+    
+    const favorite = favorites[index];
+    if (!favorite) return;
+    
+    if (!confirm(`Remove favorite "${favorite.label}"?`)) {
+      return;
+    }
+
+    try {
+      await api.removeFavorite(index);
+      // Refresh favorites list
+      await loadFavorites();
+    } catch (error: any) {
+      console.error("Failed to remove favorite:", error);
+      alert(`Failed to remove favorite: ${error.message || String(error)}`);
     }
   };
 
@@ -136,6 +162,7 @@ export function FavoritesDropdownMockup() {
         if (result?.error) {
           alert(`Failed to select folder: ${result.error}`);
         }
+        setIsAddingFavorite(false);
         return;
       }
 
@@ -144,35 +171,54 @@ export function FavoritesDropdownMockup() {
       // Get folder name as default label
       const defaultLabel = selectedPath.split(/[/\\]/).filter(Boolean).pop() || "Favorite";
       
-      // Prompt for label
-      const label = prompt("Enter a label for this favorite:", defaultLabel);
-      if (!label || !label.trim()) {
-        return; // User cancelled or entered empty label
-      }
-
-      // Add favorite via API
-      try {
-        await api.addFavorite(label.trim(), selectedPath);
-        
-        // Refresh favorites list
-        await loadFavorites();
-        
-        // Show success feedback
-        alert(`Favorite "${label.trim()}" added successfully!`);
-        
-        // Close modal
-        setIsOpen(false);
-        setSearchQuery("");
-      } catch (error: any) {
-        console.error("Failed to add favorite:", error);
-        alert(`Failed to add favorite: ${error.message || String(error)}`);
-      }
+      // Show label input modal
+      setSelectedFolderPath(selectedPath);
+      setNewFavoriteLabel(defaultLabel);
+      setShowLabelModal(true);
+      setIsAddingFavorite(false);
     } catch (error: any) {
       console.error("Failed to select folder:", error);
       alert(`Failed to open folder picker: ${error.message || String(error)}`);
+      setIsAddingFavorite(false);
+    }
+  };
+
+  const handleSaveFavoriteLabel = async () => {
+    if (!newFavoriteLabel.trim()) {
+      alert("Please enter a label for the favorite.");
+      return;
+    }
+
+    try {
+      setIsAddingFavorite(true);
+      
+      // Add favorite via API
+      await api.addFavorite(newFavoriteLabel.trim(), selectedFolderPath);
+      
+      // Refresh favorites list
+      await loadFavorites();
+      
+      // Close modals
+      setShowLabelModal(false);
+      setSelectedFolderPath("");
+      setNewFavoriteLabel("");
+      setIsOpen(false);
+      setSearchQuery("");
+      
+      // Show success feedback (optional - could use a toast instead)
+      // alert(`Favorite "${newFavoriteLabel.trim()}" added successfully!`);
+    } catch (error: any) {
+      console.error("Failed to add favorite:", error);
+      alert(`Failed to add favorite: ${error.message || String(error)}`);
     } finally {
       setIsAddingFavorite(false);
     }
+  };
+
+  const handleCancelLabelModal = () => {
+    setShowLabelModal(false);
+    setSelectedFolderPath("");
+    setNewFavoriteLabel("");
   };
 
   const handleTabChange = (tab: "favorites" | "recents") => {
@@ -294,27 +340,49 @@ export function FavoritesDropdownMockup() {
                 <div>
                   {filteredFavorites.length > 0 ? (
                     <div className="space-y-1">
-                      {filteredFavorites.map((fav, idx) => (
-                        <button
-                          key={idx}
-                          onClick={() => handleOpenFolder(fav.path)}
-                          className="w-full text-left px-3 py-2.5 rounded-md hover:bg-accent transition-colors flex items-center justify-between group"
-                          role="menuitem"
-                        >
-                          <div className="flex-1 min-w-0">
-                            <div className="text-sm font-medium text-foreground truncate">
-                              {fav.label}
-                            </div>
-                            <div className="text-xs text-muted-foreground truncate mt-0.5">
-                              {fav.path}
+                      {filteredFavorites.map((fav, idx) => {
+                        // Find the actual index in the full favorites array
+                        const actualIndex = favorites.findIndex(f => f.path === fav.path && f.label === fav.label);
+                        return (
+                          <div
+                            key={idx}
+                            className="group relative"
+                          >
+                            <div
+                              onClick={() => handleOpenFolder(fav.path)}
+                              onContextMenu={(e) => handleRemoveFavorite(actualIndex, e)}
+                              className="w-full text-left px-3 py-2.5 rounded-md hover:bg-accent transition-colors flex items-center justify-between cursor-pointer"
+                              role="menuitem"
+                            >
+                              <div className="flex-1 min-w-0">
+                                <div className="text-sm font-medium text-foreground truncate">
+                                  {fav.label}
+                                </div>
+                                <div className="text-xs text-muted-foreground truncate mt-0.5">
+                                  {fav.path}
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-2 ml-2">
+                                <Folder
+                                  size={16}
+                                  className="text-muted-foreground group-hover:text-foreground flex-shrink-0"
+                                />
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleRemoveFavorite(actualIndex, e);
+                                  }}
+                                  className="opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-destructive/20 text-muted-foreground hover:text-destructive transition-all flex-shrink-0"
+                                  title="Remove favorite"
+                                  aria-label={`Remove favorite: ${fav.label}`}
+                                >
+                                  <Trash2 size={14} />
+                                </button>
+                              </div>
                             </div>
                           </div>
-                          <Folder
-                            size={16}
-                            className="ml-2 text-muted-foreground group-hover:text-foreground flex-shrink-0"
-                          />
-                        </button>
-                      ))}
+                        );
+                      })}
                     </div>
                   ) : (
                     <div className="text-sm text-muted-foreground py-3 text-center">
@@ -374,6 +442,80 @@ export function FavoritesDropdownMockup() {
                 </button>
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* Label Input Modal */}
+      {showLabelModal && (
+        <div
+          className="fixed inset-0 bg-black/50 flex items-center justify-center z-[60]"
+          onClick={handleCancelLabelModal}
+        >
+          <div
+            className="bg-background border border-border rounded-md p-6 max-w-md w-full mx-4"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-semibold text-foreground">Add Favorite</h3>
+              <button
+                onClick={handleCancelLabelModal}
+                className="text-muted-foreground hover:text-foreground transition-colors p-1 rounded hover:bg-accent"
+                aria-label="Close"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-1">
+                  Folder Path
+                </label>
+                <div className="px-3 py-2 bg-secondary border border-border rounded text-sm text-muted-foreground break-all">
+                  {selectedFolderPath}
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-1">
+                  Label
+                </label>
+                <input
+                  type="text"
+                  value={newFavoriteLabel}
+                  onChange={(e) => setNewFavoriteLabel(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      handleSaveFavoriteLabel();
+                    } else if (e.key === "Escape") {
+                      handleCancelLabelModal();
+                    }
+                  }}
+                  className="w-full px-3 py-2 bg-background border border-border rounded text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                  placeholder="Enter a label for this favorite"
+                  maxLength={100}
+                  autoFocus
+                />
+              </div>
+            </div>
+
+            <div className="mt-6 flex justify-end gap-2">
+              <button
+                onClick={handleCancelLabelModal}
+                className="px-4 py-2 bg-secondary text-foreground rounded hover:bg-accent transition-colors"
+                disabled={isAddingFavorite}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSaveFavoriteLabel}
+                className="px-4 py-2 bg-primary text-primary-foreground rounded hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={isAddingFavorite || !newFavoriteLabel.trim()}
+              >
+                {isAddingFavorite ? "Adding..." : "Add Favorite"}
+              </button>
+            </div>
           </div>
         </div>
       )}
