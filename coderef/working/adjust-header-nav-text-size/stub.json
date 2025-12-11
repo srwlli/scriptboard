@@ -1,0 +1,9 @@
+{
+  "feature_name": "adjust-header-nav-text-size",
+  "description": "Change header size and navigation text size to default values",
+  "category": "improvement",
+  "priority": "medium",
+  "created": "2025-12-10T19:34:43.690Z",
+  "status": "stub"
+}
+

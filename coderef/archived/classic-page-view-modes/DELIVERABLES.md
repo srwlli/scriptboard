@@ -3,8 +3,9 @@
 **Project**: next
 **Feature**: classic-page-view-modes
 **Workorder**: WO-CLASSIC-PAGE-VIEW-MODES-001
-**Status**: 🚧 Not Started
+**Status**: ✅ Implemented (then reverted)
 **Generated**: 2025-12-10
+**Note**: This feature was fully implemented and tested, but the user decided to revert the changes and keep the original list-only layout.
 
 ---
 

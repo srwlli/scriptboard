@@ -20,7 +20,7 @@ export function Header() {
               aria-label="Open navigation menu"
               aria-expanded={drawerOpen}
             >
-              <Menu size={20} className="text-foreground" />
+              <Menu size={20} className="text-foreground" strokeWidth={2} />
             </button>
             <h1 className="text-xl font-bold text-foreground">Scriptboard</h1>
           </div>

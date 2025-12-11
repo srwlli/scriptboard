@@ -1,0 +1,9 @@
+{
+  "feature_name": "remove-footer-feedback",
+  "description": "Remove the 'On Top' and 'Lock Size' checkboxes from the footer bar",
+  "category": "improvement",
+  "priority": "medium",
+  "created": "2025-12-10T19:34:00.266Z",
+  "status": "stub"
+}
+

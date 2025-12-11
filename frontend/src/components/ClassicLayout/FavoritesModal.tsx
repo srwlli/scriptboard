@@ -231,11 +231,11 @@ export function FavoritesModal() {
       {/* Single Icon Button */}
       <button
         onClick={() => setIsOpen(true)}
-        className="p-2 rounded-md hover:bg-accent transition-colors flex items-center justify-center"
+        className="p-1.5 rounded font-medium cursor-pointer transition-colors border bg-secondary text-foreground border-border hover:bg-accent hover:border-accent-foreground/20 flex items-center justify-center"
         title="Open favorites and recent folders"
         aria-label="Open favorites and recent folders"
       >
-        <Folder size={18} className="text-foreground" />
+        <Folder size={14} className="text-foreground" />
       </button>
 
       {/* Modal */}

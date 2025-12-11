@@ -1,0 +1,9 @@
+{
+  "feature_name": "menu-bar-refactor",
+  "description": "Implement Electron menu bar (File, Edit, View, Window, Help) to replace or complement the current drawer navigation, matching the original Tkinter app structure and providing better feature organization.",
+  "category": "refactor",
+  "priority": "medium",
+  "created": "2025-12-10T00:00:00.000Z",
+  "status": "stub"
+}
+

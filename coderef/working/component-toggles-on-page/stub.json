@@ -1,0 +1,9 @@
+{
+  "feature_name": "component-toggles-on-page",
+  "description": "Add component toggles on the page to show/hide different sections or components",
+  "category": "feature",
+  "priority": "medium",
+  "created": "2025-12-10T19:36:58.050Z",
+  "status": "stub"
+}
+

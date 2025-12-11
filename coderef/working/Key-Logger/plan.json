@@ -1,0 +1,599 @@
+{
+  "META_DOCUMENTATION": {
+    "feature_name": "Key-Logger",
+    "schema_version": "1.0.0",
+    "version": "1.0.0",
+    "status": "complete",
+    "generated_by": "AI Assistant",
+    "has_context": true,
+    "has_analysis": true,
+    "created_at": "2025-12-10T19:57:24.235319"
+  },
+  "UNIVERSAL_PLANNING_STRUCTURE": {
+    "0_preparation": {
+      "foundation_docs_available": [
+        "README.md (root)"
+      ],
+      "foundation_docs_missing": [
+        "API.md",
+        "ARCHITECTURE.md",
+        "COMPONENTS.md",
+        "SCHEMA.md",
+        "USER-GUIDE.md"
+      ],
+      "coding_standards_available": [
+        "BEHAVIOR-STANDARDS.md",
+        "UI-STANDARDS.md",
+        "UX-PATTERNS.md",
+        "COMPONENT-INDEX.md"
+      ],
+      "reference_components": [],
+      "technology_stack": {
+        "backend": "Python 3.10+, FastAPI, pynput, pyperclip",
+        "frontend": "Next.js, React, TypeScript, TailwindCSS",
+        "storage": "JSON files in ~/.scriptboard/macros/"
+      },
+      "project_structure": {
+        "backend_path": "backend/",
+        "frontend_path": "frontend/src/",
+        "api_path": "backend/api.py",
+        "core_path": "backend/core.py",
+        "components_path": "frontend/src/components/"
+      }
+    },
+    "1_executive_summary": {
+      "feature_name": "Key-Logger",
+      "description": "Key logging feature that records keyboard actions and clipboard activity to capture sequences of actions that can be saved as reusable macros. Windows-first implementation with minimal flow: Start → Track → Stop → Name → Save.",
+      "goal": "Enable users to automatically capture sequences of keyboard and clipboard actions as reusable macros that reflect real user behavior, allowing for easy replay or scripting.",
+      "scope": "Windows-first implementation with minimal UI flow. Inline component on modern page. No hotkeys, drawer, or toolbar integration initially.",
+      "out_of_scope": [
+        "Hotkeys for triggering macros initially",
+        "Drawer/toolbar integration",
+        "Window focus tracking in initial version (optional feature)",
+        "Cross-platform support initially"
+      ],
+      "estimated_complexity": "medium",
+      "estimated_duration": "2-3 weeks"
+    },
+    "2_risk_assessment": {
+      "technical_risks": [
+        {
+          "risk": "Windows global keyboard hooks require elevated permissions",
+          "severity": "medium",
+          "mitigation": "Use pynput library which handles permissions gracefully, provide clear error messages if permissions denied"
+        },
+        {
+          "risk": "Clipboard monitoring may miss rapid changes",
+          "severity": "low",
+          "mitigation": "Use polling with 100ms interval as fallback, Win32 events preferred when available"
+        },
+        {
+          "risk": "Performance impact of global hooks",
+          "severity": "low",
+          "mitigation": "Lightweight event capture, minimal processing during recording, events cached in memory"
+        }
+      ],
+      "security_risks": [
+        {
+          "risk": "Key logging captures sensitive data",
+          "severity": "high",
+          "mitigation": "Store macros locally only, no network transmission, clear user warnings about data capture"
+        },
+        {
+          "risk": "Macro files could contain sensitive information",
+          "severity": "medium",
+          "mitigation": "Store in user directory with proper permissions, no automatic sharing"
+        }
+      ],
+      "user_experience_risks": [
+        {
+          "risk": "Users may accidentally record sensitive actions",
+          "severity": "medium",
+          "mitigation": "Clear visual indicators when recording, require explicit start/stop actions"
+        }
+      ]
+    },
+    "3_current_state_analysis": {
+      "files_to_create": [
+        {
+          "path": "backend/key_logger.py",
+          "purpose": "Recorder module with keyboard hooks and clipboard monitoring for Windows"
+        },
+        {
+          "path": "backend/schemas.py",
+          "purpose": "Add MacroEvent, Macro, and macro-related Pydantic models (modify existing file)"
+        },
+        {
+          "path": "backend/api.py",
+          "purpose": "Add FastAPI endpoints for recording control and macro storage (modify existing file)"
+        },
+        {
+          "path": "frontend/src/components/KeyLogPanel.tsx",
+          "purpose": "Frontend component with Record/Stop/Save buttons for macro recording"
+        },
+        {
+          "path": "frontend/src/lib/api.ts",
+          "purpose": "Add ApiClient methods for macro endpoints (modify existing file)"
+        },
+        {
+          "path": "frontend/app/new-page/page.tsx",
+          "purpose": "Integrate KeyLogPanel component inline on modern page (modify existing file)"
+        },
+        {
+          "path": "backend/tests/test_key_logger.py",
+          "purpose": "Unit tests for recorder module"
+        },
+        {
+          "path": "backend/tests/test_macro_api.py",
+          "purpose": "Integration tests for macro API endpoints"
+        }
+      ],
+      "files_to_modify": [
+        {
+          "path": "backend/schemas.py",
+          "purpose": "Add MacroEvent, Macro, MacroSavePayload, MacroRecordResponse models"
+        },
+        {
+          "path": "backend/api.py",
+          "purpose": "Add POST /macros/record/start, POST /macros/record/stop, POST /macros/save endpoints"
+        },
+        {
+          "path": "frontend/src/lib/api.ts",
+          "purpose": "Add startRecording(), stopRecording(), saveMacro() methods"
+        },
+        {
+          "path": "frontend/app/new-page/page.tsx",
+          "purpose": "Add KeyLogPanel component to page layout"
+        },
+        {
+          "path": "backend/requirements.txt",
+          "purpose": "Add pynput>=1.7.6 and pyperclip>=1.8.2 dependencies"
+        }
+      ],
+      "directories_to_create": [
+        {
+          "path": "~/.scriptboard/macros/",
+          "purpose": "Storage directory for saved macro JSON files"
+        }
+      ]
+    },
+    "4_key_features": {
+      "features": [
+        {
+          "id": "F1",
+          "name": "Keyboard Event Recording",
+          "description": "Capture KeyDown and KeyUp events using Windows global keyboard hooks via pynput library",
+          "priority": "high"
+        },
+        {
+          "id": "F2",
+          "name": "Clipboard Monitoring",
+          "description": "Monitor clipboard changes using Win32 events or polling fallback, capture ClipboardSet events",
+          "priority": "high"
+        },
+        {
+          "id": "F3",
+          "name": "Event Timing",
+          "description": "Track timestamps and compute ts_delta_ms between events, clamp very long idle gaps",
+          "priority": "medium"
+        },
+        {
+          "id": "F4",
+          "name": "Recording Control API",
+          "description": "FastAPI endpoints for starting/stopping recording and saving macros with validation",
+          "priority": "high"
+        },
+        {
+          "id": "F5",
+          "name": "Macro Storage",
+          "description": "Save macros as JSON files under ~/.scriptboard/macros/ with atomic writes and name validation",
+          "priority": "high"
+        },
+        {
+          "id": "F6",
+          "name": "KeyLogPanel UI",
+          "description": "Inline React component with Record/Stop/Save buttons, status display, and name input",
+          "priority": "high"
+        },
+        {
+          "id": "F7",
+          "name": "Event Data Model",
+          "description": "Structured event types: KeyDown, KeyUp, ClipboardSet, Delay, WindowFocus (optional)",
+          "priority": "medium"
+        }
+      ]
+    },
+    "5_task_id_system": {
+      "workorder": {
+        "id": "WO-KEY-LOGGER-001",
+        "name": "Key Logger",
+        "feature_dir": "coderef/working/Key-Logger"
+      },
+      "tasks": [
+        {
+          "id": "SETUP-001",
+          "workorder_id": "WO-KEY-LOGGER-001",
+          "feature_id": "F1",
+          "description": "Add pynput and pyperclip dependencies to backend/requirements.txt",
+          "type": "setup",
+          "estimated_time": "5 minutes"
+        },
+        {
+          "id": "REC-001",
+          "workorder_id": "WO-KEY-LOGGER-001",
+          "feature_id": "F1",
+          "description": "Create backend/key_logger.py with KeyLogger class and Windows keyboard hook setup",
+          "type": "implementation",
+          "estimated_time": "2 hours"
+        },
+        {
+          "id": "REC-002",
+          "workorder_id": "WO-KEY-LOGGER-001",
+          "feature_id": "F2",
+          "description": "Implement clipboard monitoring with Win32 events and polling fallback in key_logger.py",
+          "type": "implementation",
+          "estimated_time": "1.5 hours"
+        },
+        {
+          "id": "REC-003",
+          "workorder_id": "WO-KEY-LOGGER-001",
+          "feature_id": "F3",
+          "description": "Add timestamp tracking and ts_delta_ms computation with idle gap clamping",
+          "type": "implementation",
+          "estimated_time": "1 hour"
+        },
+        {
+          "id": "REC-004",
+          "workorder_id": "WO-KEY-LOGGER-001",
+          "feature_id": "F7",
+          "description": "Define event data structures (KeyDown, KeyUp, ClipboardSet, Delay) in key_logger.py",
+          "type": "implementation",
+          "estimated_time": "30 minutes"
+        },
+        {
+          "id": "SCHEMA-001",
+          "workorder_id": "WO-KEY-LOGGER-001",
+          "feature_id": "F7",
+          "description": "Add MacroEvent, Macro, MacroSavePayload, MacroRecordResponse Pydantic models to backend/schemas.py",
+          "type": "implementation",
+          "estimated_time": "1 hour"
+        },
+        {
+          "id": "API-001",
+          "workorder_id": "WO-KEY-LOGGER-001",
+          "feature_id": "F4",
+          "description": "Add POST /macros/record/start endpoint to backend/api.py",
+          "type": "implementation",
+          "estimated_time": "1 hour"
+        },
+        {
+          "id": "API-002",
+          "workorder_id": "WO-KEY-LOGGER-001",
+          "feature_id": "F4",
+          "description": "Add POST /macros/record/stop endpoint to backend/api.py",
+          "type": "implementation",
+          "estimated_time": "1 hour"
+        },
+        {
+          "id": "API-003",
+          "workorder_id": "WO-KEY-LOGGER-001",
+          "feature_id": "F5",
+          "description": "Add POST /macros/save endpoint with name validation and atomic JSON write to backend/api.py",
+          "type": "implementation",
+          "estimated_time": "1.5 hours"
+        },
+        {
+          "id": "API-004",
+          "workorder_id": "WO-KEY-LOGGER-001",
+          "feature_id": "F5",
+          "description": "Create get_macros_dir() helper function and ensure directory exists in backend/api.py",
+          "type": "implementation",
+          "estimated_time": "30 minutes"
+        },
+        {
+          "id": "CLIENT-001",
+          "workorder_id": "WO-KEY-LOGGER-001",
+          "feature_id": "F4",
+          "description": "Add startRecording(), stopRecording(), saveMacro() methods to frontend/src/lib/api.ts",
+          "type": "implementation",
+          "estimated_time": "1 hour"
+        },
+        {
+          "id": "UI-001",
+          "workorder_id": "WO-KEY-LOGGER-001",
+          "feature_id": "F6",
+          "description": "Create frontend/src/components/KeyLogPanel.tsx component with Record/Stop/Save buttons",
+          "type": "implementation",
+          "estimated_time": "3 hours"
+        },
+        {
+          "id": "UI-002",
+          "workorder_id": "WO-KEY-LOGGER-001",
+          "feature_id": "F6",
+          "description": "Add status display (Idle/Recording) and name input field to KeyLogPanel",
+          "type": "implementation",
+          "estimated_time": "1 hour"
+        },
+        {
+          "id": "UI-003",
+          "workorder_id": "WO-KEY-LOGGER-001",
+          "feature_id": "F6",
+          "description": "Integrate KeyLogPanel component inline on frontend/app/new-page/page.tsx",
+          "type": "implementation",
+          "estimated_time": "30 minutes"
+        },
+        {
+          "id": "TEST-001",
+          "workorder_id": "WO-KEY-LOGGER-001",
+          "feature_id": "F1",
+          "description": "Write unit tests for keyboard event capture in backend/tests/test_key_logger.py",
+          "type": "testing",
+          "estimated_time": "2 hours"
+        },
+        {
+          "id": "TEST-002",
+          "workorder_id": "WO-KEY-LOGGER-001",
+          "feature_id": "F2",
+          "description": "Write unit tests for clipboard monitoring in backend/tests/test_key_logger.py",
+          "type": "testing",
+          "estimated_time": "1.5 hours"
+        },
+        {
+          "id": "TEST-003",
+          "workorder_id": "WO-KEY-LOGGER-001",
+          "feature_id": "F4",
+          "description": "Write integration tests for API endpoints (start/stop/save) in backend/tests/test_macro_api.py",
+          "type": "testing",
+          "estimated_time": "2 hours"
+        },
+        {
+          "id": "TEST-004",
+          "workorder_id": "WO-KEY-LOGGER-001",
+          "feature_id": "F5",
+          "description": "Write tests for macro storage and JSON serialization in backend/tests/test_macro_api.py",
+          "type": "testing",
+          "estimated_time": "1 hour"
+        },
+        {
+          "id": "E2E-001",
+          "workorder_id": "WO-KEY-LOGGER-001",
+          "feature_id": "F6",
+          "description": "Manual E2E testing: verify UI flow (Start → Track → Stop → Name → Save) and file saved",
+          "type": "testing",
+          "estimated_time": "1 hour"
+        }
+      ]
+    },
+    "6_implementation_phases": {
+      "phases": [
+        {
+          "phase": 1,
+          "name": "Backend Recorder Module",
+          "description": "Implement the core key logger module with keyboard hooks and clipboard monitoring",
+          "tasks": [
+            "SETUP-001",
+            "REC-001",
+            "REC-002",
+            "REC-003",
+            "REC-004"
+          ],
+          "deliverables": [
+            "backend/key_logger.py with KeyLogger class",
+            "Windows keyboard hook implementation",
+            "Clipboard monitoring with fallback",
+            "Event timestamp tracking"
+          ],
+          "dependencies": [],
+          "estimated_duration": "6 hours"
+        },
+        {
+          "phase": 2,
+          "name": "Backend API Endpoints",
+          "description": "Add FastAPI endpoints and data models for recording control and macro storage",
+          "tasks": [
+            "SCHEMA-001",
+            "API-001",
+            "API-002",
+            "API-003",
+            "API-004"
+          ],
+          "deliverables": [
+            "Pydantic models in schemas.py",
+            "POST /macros/record/start endpoint",
+            "POST /macros/record/stop endpoint",
+            "POST /macros/save endpoint",
+            "Macro storage directory setup"
+          ],
+          "dependencies": ["phase_1"],
+          "estimated_duration": "5.5 hours"
+        },
+        {
+          "phase": 3,
+          "name": "Frontend Integration",
+          "description": "Create KeyLogPanel component and integrate with API client and modern page",
+          "tasks": [
+            "CLIENT-001",
+            "UI-001",
+            "UI-002",
+            "UI-003"
+          ],
+          "deliverables": [
+            "ApiClient methods for macro endpoints",
+            "KeyLogPanel React component",
+            "Integration on new-page",
+            "Complete UI flow"
+          ],
+          "dependencies": ["phase_2"],
+          "estimated_duration": "5.5 hours"
+        },
+        {
+          "phase": 4,
+          "name": "Testing and Validation",
+          "description": "Write unit tests, integration tests, and perform manual E2E validation",
+          "tasks": [
+            "TEST-001",
+            "TEST-002",
+            "TEST-003",
+            "TEST-004",
+            "E2E-001"
+          ],
+          "deliverables": [
+            "Unit tests for recorder module",
+            "Integration tests for API endpoints",
+            "Manual E2E test results",
+            "Test coverage report"
+          ],
+          "dependencies": ["phase_3"],
+          "estimated_duration": "7.5 hours"
+        }
+      ]
+    },
+    "7_testing_strategy": {
+      "unit_tests": {
+        "scope": "Backend recorder module functionality",
+        "files": [
+          "backend/tests/test_key_logger.py"
+        ],
+        "test_cases": [
+          "Keyboard event capture (KeyDown/KeyUp)",
+          "Clipboard change detection",
+          "Timestamp delta computation",
+          "Idle gap clamping",
+          "Event serialization to JSON"
+        ],
+        "coverage_target": "80%"
+      },
+      "integration_tests": {
+        "scope": "API endpoints and macro storage",
+        "files": [
+          "backend/tests/test_macro_api.py"
+        ],
+        "test_cases": [
+          "POST /macros/record/start - start recording",
+          "POST /macros/record/stop - stop and return events",
+          "POST /macros/save - save macro with name validation",
+          "Macro file creation and JSON structure",
+          "Error handling for invalid inputs"
+        ],
+        "coverage_target": "90%"
+      },
+      "e2e_tests": {
+        "scope": "Manual testing of complete user flow",
+        "test_scenarios": [
+          "Start recording → perform actions → stop → name → save",
+          "Verify macro file created in ~/.scriptboard/macros/",
+          "Verify JSON structure matches expected format",
+          "Test error cases (empty name, no events, etc.)"
+        ],
+        "manual_steps": true
+      },
+      "test_environment": {
+        "os": "Windows (required for keyboard hooks)",
+        "dependencies": "pynput, pyperclip, pytest, httpx"
+      }
+    },
+    "8_success_criteria": {
+      "functional_criteria": [
+        {
+          "criterion": "User can start recording keyboard and clipboard events",
+          "measurement": "POST /macros/record/start returns success, events captured",
+          "priority": "high"
+        },
+        {
+          "criterion": "User can stop recording and receive captured events",
+          "measurement": "POST /macros/record/stop returns event array",
+          "priority": "high"
+        },
+        {
+          "criterion": "User can save macro with name and events",
+          "measurement": "POST /macros/save creates JSON file in ~/.scriptboard/macros/",
+          "priority": "high"
+        },
+        {
+          "criterion": "KeyLogPanel displays recording status",
+          "measurement": "UI shows 'Idle' or 'Recording...' status",
+          "priority": "medium"
+        },
+        {
+          "criterion": "Macro JSON contains correct event structure",
+          "measurement": "Saved file has id, name, created_at, events array with type, ts_delta_ms",
+          "priority": "high"
+        }
+      ],
+      "non_functional_criteria": [
+        {
+          "criterion": "Recording does not significantly impact system performance",
+          "measurement": "CPU usage < 5% during recording",
+          "priority": "medium"
+        },
+        {
+          "criterion": "Macro files are saved atomically",
+          "measurement": "No partial files created, write-or-fail behavior",
+          "priority": "high"
+        },
+        {
+          "criterion": "Error handling provides clear user feedback",
+          "measurement": "API errors return structured error responses",
+          "priority": "medium"
+        }
+      ],
+      "acceptance_criteria": [
+        "Complete flow works: Start → Track → Stop → Name → Save",
+        "Macro file saved under ~/.scriptboard/macros/ with valid JSON",
+        "UI component integrated inline on modern page",
+        "Unit tests pass with 80%+ coverage",
+        "Integration tests pass for all API endpoints"
+      ]
+    },
+    "9_implementation_checklist": {
+      "phase_1_checklist": [
+        "[ ] Add pynput and pyperclip to requirements.txt",
+        "[ ] Create backend/key_logger.py with KeyLogger class",
+        "[ ] Implement Windows keyboard hook using pynput",
+        "[ ] Implement clipboard monitoring with Win32 events",
+        "[ ] Add polling fallback for clipboard (100ms interval)",
+        "[ ] Implement timestamp tracking and ts_delta_ms computation",
+        "[ ] Add idle gap clamping (max 5 seconds between events)",
+        "[ ] Define event data structures (KeyDown, KeyUp, ClipboardSet, Delay)"
+      ],
+      "phase_2_checklist": [
+        "[ ] Add MacroEvent Pydantic model to schemas.py",
+        "[ ] Add Macro Pydantic model to schemas.py",
+        "[ ] Add MacroSavePayload model to schemas.py",
+        "[ ] Add MacroRecordResponse model to schemas.py",
+        "[ ] Create get_macros_dir() helper function",
+        "[ ] Implement POST /macros/record/start endpoint",
+        "[ ] Implement POST /macros/record/stop endpoint",
+        "[ ] Implement POST /macros/save endpoint with name validation",
+        "[ ] Add atomic JSON file write for macro storage",
+        "[ ] Add error handling for invalid inputs"
+      ],
+      "phase_3_checklist": [
+        "[ ] Add startRecording() method to ApiClient",
+        "[ ] Add stopRecording() method to ApiClient",
+        "[ ] Add saveMacro() method to ApiClient",
+        "[ ] Create KeyLogPanel.tsx component",
+        "[ ] Add Record button with startRecording() call",
+        "[ ] Add Stop button with stopRecording() call",
+        "[ ] Add Save button with name input and saveMacro() call",
+        "[ ] Add status display (Idle/Recording)",
+        "[ ] Disable Save button until name provided",
+        "[ ] Integrate KeyLogPanel on new-page/page.tsx"
+      ],
+      "phase_4_checklist": [
+        "[ ] Write unit tests for keyboard event capture",
+        "[ ] Write unit tests for clipboard monitoring",
+        "[ ] Write unit tests for timestamp computation",
+        "[ ] Write integration test for POST /macros/record/start",
+        "[ ] Write integration test for POST /macros/record/stop",
+        "[ ] Write integration test for POST /macros/save",
+        "[ ] Write test for macro file creation",
+        "[ ] Write test for JSON structure validation",
+        "[ ] Perform manual E2E test: complete flow",
+        "[ ] Verify macro file saved correctly",
+        "[ ] Check test coverage (target: 80%+)"
+      ]
+    }
+  }
+}
+

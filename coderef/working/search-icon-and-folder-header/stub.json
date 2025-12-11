@@ -1,0 +1,9 @@
+{
+  "feature_name": "search-icon-and-folder-header",
+  "description": "Move the search function to an icon that opens the search feature and move the add folder button to the modal header",
+  "category": "improvement",
+  "priority": "medium",
+  "created": "2025-12-10T19:34:00.266Z",
+  "status": "stub"
+}
+

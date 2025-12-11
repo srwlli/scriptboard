@@ -1,0 +1,34 @@
+{
+  "feature_name": "Key-Logger",
+  "description": "Key logging feature that records keyboard actions and clipboard activity to capture sequences of actions that can be saved as reusable macros. Windows-first implementation with minimal flow: Start \u2192 Track \u2192 Stop \u2192 Name \u2192 Save.",
+  "goal": "Enable users to automatically capture sequences of keyboard and clipboard actions as reusable macros that reflect real user behavior, allowing for easy replay or scripting.",
+  "requirements": [
+    "Windows-first implementation",
+    "Minimal flow: Start \u2192 Track \u2192 Stop \u2192 Name \u2192 Save",
+    "Inline component on modern page (no drawer/toolbar)",
+    "Recorder module with keyboard global hook and clipboard listener",
+    "FastAPI endpoints for recording control and macro storage",
+    "Frontend KeyLogPanel component with Record/Stop/Save buttons",
+    "Macro storage as JSON under ~/.scriptboard/macros/",
+    "Event types: KeyDown, KeyUp, ClipboardSet, Delay, WindowFocus (optional)"
+  ],
+  "out_of_scope": [
+    "Hotkeys for triggering macros initially",
+    "Drawer/toolbar integration",
+    "Window focus tracking in initial version (optional feature)",
+    "Cross-platform support initially"
+  ],
+  "constraints": [
+    "Windows-first (no cross-platform initially)",
+    "No hotkeys initially",
+    "Minimal flow only",
+    "Optional window focus tracking behind a flag"
+  ],
+  "decisions": {},
+  "success_criteria": {},
+  "_metadata": {
+    "workorder_id": "WO-KEY-LOGGER-001",
+    "workorder_assigned_at": "2025-12-11T00:57:30.648864+00:00",
+    "workorder_assigned_by": "gather_context"
+  }
+}
