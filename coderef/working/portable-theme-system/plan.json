@@ -39,6 +39,20 @@
         "More accessible than custom dropdowns",
         "Native <select> inconsistent across browsers"
       ]
+    },
+    "flash_prevention": {
+      "decision": "Inline script in <head>",
+      "why": "Runs before React hydrates, prevents flash of wrong theme",
+      "implementation": "Small script reads localStorage and sets data-theme attribute immediately"
+    },
+    "theme_persistence": {
+      "decision": "Persist user choice, not resolved theme",
+      "example": "If user selects 'System', store 'system' - not 'light' or 'dark'",
+      "why": [
+        "OS changes at sunset update theme automatically",
+        "User intent preserved across sessions",
+        "Resolved theme is computed at runtime from stored preference"
+      ]
     }
   },
   "architecture": {
@@ -49,6 +63,7 @@
       { "name": "ThemeSwitcher.tsx", "purpose": "Icon button UI (Sun/Moon/Monitor)" },
       { "name": "useTheme.ts", "purpose": "Hook for theme management" },
       { "name": "themes.ts", "purpose": "Theme registry - metadata only, no CSS" },
+      { "name": "theme-script.ts", "purpose": "Inline script for flash prevention (runs in <head>)" },
       { "name": "README.md", "purpose": "Portability documentation" }
     ]
   },

@@ -40,8 +40,22 @@ Refactor the current binary theme toggle into a portable, extensible theme syste
   ├── ThemeSwitcher.tsx
   ├── useTheme.ts
   ├── themes.ts
+  ├── theme-script.ts   # Flash prevention script
   └── README.md
   ```
+
+### 4. Flash Prevention
+- **Decision**: Inline script in `<head>`
+- **Why**: Runs before React hydrates, prevents flash of wrong theme
+- **How**: Small script reads localStorage and sets `data-theme` immediately
+
+### 5. Theme Persistence
+- **Decision**: Persist user choice, not resolved theme
+- **Example**: If user selects "System", store `"system"` - not `"light"` or `"dark"`
+- **Why**:
+  - OS changes at sunset update theme automatically
+  - User intent preserved across sessions
+  - Resolved theme computed at runtime from stored preference
 
 ## Architecture
 
@@ -52,6 +66,7 @@ frontend/src/components/theme/
 ├── ThemeSwitcher.tsx     # UI component (replaces ThemeToggle)
 ├── useTheme.ts           # Hook for theme management
 ├── themes.ts             # Theme registry and types
+├── theme-script.ts       # Flash prevention (inline in <head>)
 └── README.md             # Usage documentation
 ```
 
@@ -202,16 +217,64 @@ export function ThemeSwitcher() {
 }
 ```
 
-### 5. Create Barrel Export (`index.ts`)
+### 5. Create Flash Prevention Script (`theme-script.ts`)
+
+This script runs in `<head>` before React hydrates to prevent flash of wrong theme.
+
+```typescript
+// Export as string to inline in <head>
+export const themeScript = `
+(function() {
+  const STORAGE_KEY = 'theme-preference';
+  const stored = localStorage.getItem(STORAGE_KEY);
+
+  function getSystemTheme() {
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  }
+
+  let theme;
+  if (stored === 'light' || stored === 'dark') {
+    theme = stored;
+  } else if (stored === 'system' || !stored) {
+    theme = getSystemTheme();
+  } else {
+    theme = 'light'; // fallback
+  }
+
+  document.documentElement.setAttribute('data-theme', theme);
+})();
+`;
+```
+
+**Usage in layout.tsx:**
+```tsx
+import { themeScript } from "@/components/theme";
+
+export default function RootLayout({ children }) {
+  return (
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+      </head>
+      <body>
+        <ThemeProvider>{children}</ThemeProvider>
+      </body>
+    </html>
+  );
+}
+```
+
+### 6. Create Barrel Export (`index.ts`)
 
 ```typescript
 export { ThemeProvider } from "./ThemeProvider";
 export { ThemeSwitcher } from "./ThemeSwitcher";
 export { useTheme } from "./useTheme";
 export { themes, type ThemeOption, type ThemeConfig } from "./themes";
+export { themeScript } from "./theme-script";
 ```
 
-### 6. Update Settings Page
+### 8. Update Settings Page
 
 Replace ThemeToggle import with ThemeSwitcher:
 ```typescript
@@ -222,7 +285,7 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { ThemeSwitcher } from "@/components/theme";
 ```
 
-### 7. Update Root Layout
+### 9. Update Root Layout
 
 Move ThemeProvider import:
 ```typescript
@@ -233,7 +296,7 @@ import { ThemeProvider } from "@/components/ThemeProvider";
 import { ThemeProvider } from "@/components/theme";
 ```
 
-### 8. Delete Old Files
+### 10. Delete Old Files
 
 - `frontend/src/components/ThemeToggle.tsx`
 - `frontend/src/components/ThemeProvider.tsx` (moved to theme/)
@@ -264,16 +327,21 @@ module.exports = {
 }
 ```
 
-### 3. Setup Provider
+### 3. Setup Provider with Flash Prevention
 In your root layout/app:
 ```tsx
-import { ThemeProvider } from "@/components/theme";
+import { ThemeProvider, themeScript } from "@/components/theme";
 
-export default function App({ children }) {
+export default function RootLayout({ children }) {
   return (
-    <ThemeProvider>
-      {children}
-    </ThemeProvider>
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+      </head>
+      <body>
+        <ThemeProvider>{children}</ThemeProvider>
+      </body>
+    </html>
   );
 }
 ```
