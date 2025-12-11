@@ -12,6 +12,7 @@ import { LoggingConsolePanel } from "@/components/LoggingConsolePanel";
 import { ProfileSelector } from "@/components/ProfileSelector";
 import { KeymapEditor } from "@/components/KeymapEditor";
 import { GitIntegrationPanel } from "@/components/GitIntegrationPanel";
+import { KeyLogPanel } from "@/components/KeyLogPanel";
 import { useScriptboardHotkeys } from "@/lib/hotkeys";
 
 /**
@@ -50,6 +51,7 @@ export default function ModernPage() {
           {/* Right Column */}
           <div className="space-y-4">
             <PreviewPanel />
+            <KeyLogPanel />
             <KeymapEditor />
             <LoggingConsolePanel />
           </div>

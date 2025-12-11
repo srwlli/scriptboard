@@ -1,0 +1,461 @@
+{
+  "META_DOCUMENTATION": {
+    "feature_name": "key-logger-mouse-tracking",
+    "schema_version": "1.0.0",
+    "version": "1.0.0",
+    "status": "complete",
+    "generated_by": "AI Assistant",
+    "has_context": false,
+    "has_analysis": false,
+    "created_at": "2025-12-10"
+  },
+  "UNIVERSAL_PLANNING_STRUCTURE": {
+    "0_preparation": {
+      "foundation_docs": [
+        "backend/key_logger.py - Current keyboard/clipboard recording implementation",
+        "backend/schemas.py - Pydantic models for MacroEvent, MacroEventType",
+        "backend/api.py - API endpoints for macro recording",
+        "frontend/src/components/KeyLogPanel.tsx - UI component for recording",
+        "frontend/src/lib/api.ts - Frontend API client"
+      ],
+      "inventory_summary": {
+        "backend_files": 3,
+        "frontend_files": 2,
+        "test_files": 2
+      },
+      "key_dependencies": [
+        "pynput - keyboard and mouse input monitoring",
+        "pywin32 - Windows API for window tracking",
+        "pyperclip - clipboard monitoring"
+      ]
+    },
+    "1_executive_summary": {
+      "feature_name": "Key Logger Mouse Tracking Enhancement",
+      "description": "Enhance the existing key logger to capture mouse clicks with coordinates, track active window focus changes, and provide context for clipboard operations (copy source/paste target).",
+      "goal": "Enable comprehensive input recording for macro creation that includes mouse interactions and window context, allowing users to record and replay complex multi-step workflows.",
+      "scope": {
+        "in_scope": [
+          "Mouse click capture (left, right, middle button)",
+          "Mouse click coordinates (x, y screen position)",
+          "Active window tracking (title, process name)",
+          "Window focus change events",
+          "Clipboard source window tracking",
+          "Paste target window tracking",
+          "Updated API schemas for new event types",
+          "Updated frontend to display new event types"
+        ],
+        "out_of_scope": [
+          "Mouse movement tracking (too noisy)",
+          "Mouse scroll events",
+          "UI element identification (accessibility APIs)",
+          "Cross-platform support (Windows-first)",
+          "Macro playback implementation"
+        ]
+      },
+      "estimated_complexity": "Medium",
+      "risk_level": "Low-Medium"
+    },
+    "2_risk_assessment": {
+      "technical_risks": [
+        {
+          "risk": "pynput mouse listener may conflict with keyboard listener",
+          "likelihood": "Low",
+          "impact": "Medium",
+          "mitigation": "Both listeners are designed to coexist; test thoroughly"
+        },
+        {
+          "risk": "win32gui calls may fail on non-Windows platforms",
+          "likelihood": "Medium",
+          "impact": "Low",
+          "mitigation": "Already have WIN32_AVAILABLE flag pattern; graceful fallback"
+        },
+        {
+          "risk": "High-frequency mouse events may cause performance issues",
+          "likelihood": "Low",
+          "impact": "Medium",
+          "mitigation": "Only capture click events, not movement"
+        }
+      ],
+      "dependencies": [
+        {
+          "name": "pynput.mouse",
+          "status": "Available (same package as keyboard)",
+          "fallback": "None required - pynput already installed"
+        },
+        {
+          "name": "win32gui",
+          "status": "Available via pywin32",
+          "fallback": "Graceful degradation - window tracking disabled"
+        }
+      ]
+    },
+    "3_current_state_analysis": {
+      "files_to_modify": [
+        {
+          "path": "backend/key_logger.py",
+          "changes": "Add mouse listener, window tracking, new event types"
+        },
+        {
+          "path": "backend/schemas.py",
+          "changes": "Add MouseClick, WindowFocus event types and fields"
+        },
+        {
+          "path": "backend/api.py",
+          "changes": "Update imports if needed"
+        },
+        {
+          "path": "frontend/src/components/KeyLogPanel.tsx",
+          "changes": "Display mouse and window events in status"
+        },
+        {
+          "path": "frontend/src/lib/api.ts",
+          "changes": "Update event type interfaces"
+        }
+      ],
+      "files_to_create": [
+        {
+          "path": "backend/tests/test_mouse_tracking.py",
+          "purpose": "Unit tests for mouse and window tracking"
+        }
+      ],
+      "existing_patterns": {
+        "event_system": "MacroEvent dataclass with EventType enum",
+        "listener_pattern": "pynput Listener with callbacks, started in start_recording()",
+        "thread_pattern": "Daemon threads for background monitoring",
+        "error_handling": "Try/except with graceful fallback, print debug messages"
+      }
+    },
+    "4_key_features": {
+      "features": [
+        {
+          "id": "F1",
+          "name": "Mouse Click Capture",
+          "description": "Capture mouse button clicks (left, right, middle) with screen coordinates",
+          "requirements": [
+            "Detect mouse button press and release",
+            "Record x, y screen coordinates",
+            "Record which button was clicked",
+            "Record timestamp delta like keyboard events"
+          ]
+        },
+        {
+          "id": "F2",
+          "name": "Active Window Tracking",
+          "description": "Track which window is currently focused and detect focus changes",
+          "requirements": [
+            "Get current foreground window title",
+            "Get process name of foreground window",
+            "Detect window focus changes",
+            "Record WindowFocus events when focus changes"
+          ]
+        },
+        {
+          "id": "F3",
+          "name": "Clipboard Context",
+          "description": "Track which window clipboard operations occur in",
+          "requirements": [
+            "Record source window when clipboard content changes (copy)",
+            "Record target window when Ctrl+V is pressed (paste)",
+            "Associate window context with ClipboardSet events"
+          ]
+        },
+        {
+          "id": "F4",
+          "name": "Schema Updates",
+          "description": "Update event schemas to support new event types and fields",
+          "requirements": [
+            "Add MouseClick event type",
+            "Add mouse_button, x, y fields to MacroEvent",
+            "Add process_name field to MacroEvent",
+            "Update Pydantic schemas to match"
+          ]
+        }
+      ]
+    },
+    "5_task_id_system": {
+      "workorder": {
+        "id": "WO-KEY-LOGGER-MOUSE-TRACKING-001",
+        "name": "Key Logger Mouse Tracking",
+        "feature_dir": "coderef/working/key-logger-mouse-tracking"
+      },
+      "tasks": [
+        {
+          "id": "MOUSE-001",
+          "workorder_id": "WO-KEY-LOGGER-MOUSE-TRACKING-001",
+          "feature": "F1",
+          "description": "Add MouseClick and MouseUp event types to EventType enum",
+          "file": "backend/key_logger.py",
+          "estimated_loc": 5
+        },
+        {
+          "id": "MOUSE-002",
+          "workorder_id": "WO-KEY-LOGGER-MOUSE-TRACKING-001",
+          "feature": "F1",
+          "description": "Add mouse_button, x, y fields to MacroEvent dataclass",
+          "file": "backend/key_logger.py",
+          "estimated_loc": 15
+        },
+        {
+          "id": "MOUSE-003",
+          "workorder_id": "WO-KEY-LOGGER-MOUSE-TRACKING-001",
+          "feature": "F1",
+          "description": "Import pynput.mouse and create mouse listener",
+          "file": "backend/key_logger.py",
+          "estimated_loc": 20
+        },
+        {
+          "id": "MOUSE-004",
+          "workorder_id": "WO-KEY-LOGGER-MOUSE-TRACKING-001",
+          "feature": "F1",
+          "description": "Implement _on_mouse_click callback",
+          "file": "backend/key_logger.py",
+          "estimated_loc": 25
+        },
+        {
+          "id": "MOUSE-005",
+          "workorder_id": "WO-KEY-LOGGER-MOUSE-TRACKING-001",
+          "feature": "F1",
+          "description": "Start/stop mouse listener in start_recording/stop_recording",
+          "file": "backend/key_logger.py",
+          "estimated_loc": 15
+        },
+        {
+          "id": "WINDOW-001",
+          "workorder_id": "WO-KEY-LOGGER-MOUSE-TRACKING-001",
+          "feature": "F2",
+          "description": "Add _get_active_window() helper method using win32gui",
+          "file": "backend/key_logger.py",
+          "estimated_loc": 25
+        },
+        {
+          "id": "WINDOW-002",
+          "workorder_id": "WO-KEY-LOGGER-MOUSE-TRACKING-001",
+          "feature": "F2",
+          "description": "Add process_name field to MacroEvent dataclass",
+          "file": "backend/key_logger.py",
+          "estimated_loc": 10
+        },
+        {
+          "id": "WINDOW-003",
+          "workorder_id": "WO-KEY-LOGGER-MOUSE-TRACKING-001",
+          "feature": "F2",
+          "description": "Implement window focus change detection thread",
+          "file": "backend/key_logger.py",
+          "estimated_loc": 35
+        },
+        {
+          "id": "WINDOW-004",
+          "workorder_id": "WO-KEY-LOGGER-MOUSE-TRACKING-001",
+          "feature": "F2",
+          "description": "Record WindowFocus events on focus change",
+          "file": "backend/key_logger.py",
+          "estimated_loc": 15
+        },
+        {
+          "id": "CLIP-001",
+          "workorder_id": "WO-KEY-LOGGER-MOUSE-TRACKING-001",
+          "feature": "F3",
+          "description": "Add source_window field to ClipboardSet events",
+          "file": "backend/key_logger.py",
+          "estimated_loc": 10
+        },
+        {
+          "id": "CLIP-002",
+          "workorder_id": "WO-KEY-LOGGER-MOUSE-TRACKING-001",
+          "feature": "F3",
+          "description": "Track paste target by detecting Ctrl+V and recording active window",
+          "file": "backend/key_logger.py",
+          "estimated_loc": 20
+        },
+        {
+          "id": "SCHEMA-001",
+          "workorder_id": "WO-KEY-LOGGER-MOUSE-TRACKING-001",
+          "feature": "F4",
+          "description": "Update MacroEventType enum in schemas.py",
+          "file": "backend/schemas.py",
+          "estimated_loc": 5
+        },
+        {
+          "id": "SCHEMA-002",
+          "workorder_id": "WO-KEY-LOGGER-MOUSE-TRACKING-001",
+          "feature": "F4",
+          "description": "Update MacroEvent Pydantic model with new fields",
+          "file": "backend/schemas.py",
+          "estimated_loc": 15
+        },
+        {
+          "id": "FE-001",
+          "workorder_id": "WO-KEY-LOGGER-MOUSE-TRACKING-001",
+          "feature": "F4",
+          "description": "Update event type interface in api.ts",
+          "file": "frontend/src/lib/api.ts",
+          "estimated_loc": 10
+        },
+        {
+          "id": "FE-002",
+          "workorder_id": "WO-KEY-LOGGER-MOUSE-TRACKING-001",
+          "feature": "F4",
+          "description": "Update KeyLogPanel to show event type breakdown",
+          "file": "frontend/src/components/KeyLogPanel.tsx",
+          "estimated_loc": 20
+        },
+        {
+          "id": "TEST-001",
+          "workorder_id": "WO-KEY-LOGGER-MOUSE-TRACKING-001",
+          "feature": "F1",
+          "description": "Write unit tests for mouse click capture",
+          "file": "backend/tests/test_mouse_tracking.py",
+          "estimated_loc": 40
+        },
+        {
+          "id": "TEST-002",
+          "workorder_id": "WO-KEY-LOGGER-MOUSE-TRACKING-001",
+          "feature": "F2",
+          "description": "Write unit tests for window tracking",
+          "file": "backend/tests/test_mouse_tracking.py",
+          "estimated_loc": 40
+        }
+      ]
+    },
+    "6_implementation_phases": {
+      "phases": [
+        {
+          "phase": 1,
+          "name": "Mouse Click Capture",
+          "description": "Add mouse click recording with coordinates",
+          "tasks": ["MOUSE-001", "MOUSE-002", "MOUSE-003", "MOUSE-004", "MOUSE-005"],
+          "deliverables": [
+            "MouseClick/MouseUp event types in EventType enum",
+            "mouse_button, x, y fields in MacroEvent",
+            "Mouse listener integration in KeyLogger class"
+          ]
+        },
+        {
+          "phase": 2,
+          "name": "Window Tracking",
+          "description": "Add active window tracking and focus change detection",
+          "tasks": ["WINDOW-001", "WINDOW-002", "WINDOW-003", "WINDOW-004"],
+          "deliverables": [
+            "_get_active_window() helper method",
+            "process_name field in MacroEvent",
+            "WindowFocus events on focus change"
+          ]
+        },
+        {
+          "phase": 3,
+          "name": "Clipboard Context",
+          "description": "Associate window context with clipboard operations",
+          "tasks": ["CLIP-001", "CLIP-002"],
+          "deliverables": [
+            "source_window field in ClipboardSet events",
+            "Paste target window tracking via Ctrl+V detection"
+          ]
+        },
+        {
+          "phase": 4,
+          "name": "Schema & Frontend Updates",
+          "description": "Update schemas and frontend to support new event types",
+          "tasks": ["SCHEMA-001", "SCHEMA-002", "FE-001", "FE-002", "TEST-001", "TEST-002"],
+          "deliverables": [
+            "Updated Pydantic schemas",
+            "Updated TypeScript interfaces",
+            "KeyLogPanel showing event type breakdown",
+            "Unit tests passing"
+          ]
+        }
+      ]
+    },
+    "7_testing_strategy": {
+      "unit_tests": [
+        {
+          "name": "test_mouse_click_capture",
+          "description": "Test that mouse clicks are captured with correct coordinates and button",
+          "file": "backend/tests/test_mouse_tracking.py"
+        },
+        {
+          "name": "test_window_tracking",
+          "description": "Test that active window info is retrieved correctly",
+          "file": "backend/tests/test_mouse_tracking.py"
+        },
+        {
+          "name": "test_focus_change_detection",
+          "description": "Test that window focus changes trigger WindowFocus events",
+          "file": "backend/tests/test_mouse_tracking.py"
+        },
+        {
+          "name": "test_clipboard_context",
+          "description": "Test that clipboard events include source window",
+          "file": "backend/tests/test_mouse_tracking.py"
+        }
+      ],
+      "integration_tests": [
+        {
+          "name": "test_full_recording_session",
+          "description": "Test recording session with keyboard, mouse, and window events",
+          "file": "backend/tests/test_macro_api.py"
+        }
+      ],
+      "manual_tests": [
+        "Start recording, click in different windows, verify events captured",
+        "Copy text from one app, paste in another, verify window context",
+        "Switch between windows rapidly, verify focus events recorded"
+      ]
+    },
+    "8_success_criteria": {
+      "functional": [
+        "Mouse clicks captured with x, y coordinates and button type",
+        "Active window title and process name tracked",
+        "Window focus changes recorded as events",
+        "Clipboard events include source window context",
+        "All existing keyboard/clipboard functionality unchanged"
+      ],
+      "performance": [
+        "No noticeable lag when clicking or typing",
+        "Memory usage increase < 10MB during recording",
+        "Event processing < 10ms per event"
+      ],
+      "quality": [
+        "All unit tests passing",
+        "No regression in existing tests",
+        "Debug logging available for troubleshooting"
+      ]
+    },
+    "9_implementation_checklist": {
+      "phase_1_checklist": [
+        "[ ] Add MouseClick, MouseUp to EventType enum",
+        "[ ] Add mouse_button, x, y to MacroEvent dataclass",
+        "[ ] Import pynput.mouse with try/except pattern",
+        "[ ] Implement _on_mouse_click callback",
+        "[ ] Add mouse_listener member variable",
+        "[ ] Start mouse listener in start_recording()",
+        "[ ] Stop mouse listener in stop_recording()",
+        "[ ] Test mouse click capture manually"
+      ],
+      "phase_2_checklist": [
+        "[ ] Import win32gui, win32process",
+        "[ ] Implement _get_active_window() returning (title, process_name)",
+        "[ ] Add process_name field to MacroEvent",
+        "[ ] Create window monitoring thread",
+        "[ ] Detect focus changes by polling foreground window",
+        "[ ] Record WindowFocus events on change",
+        "[ ] Test window tracking manually"
+      ],
+      "phase_3_checklist": [
+        "[ ] Store last active window when clipboard changes",
+        "[ ] Add source_window to ClipboardSet events",
+        "[ ] Detect Ctrl+V keypresses",
+        "[ ] Record paste target window",
+        "[ ] Test clipboard context manually"
+      ],
+      "phase_4_checklist": [
+        "[ ] Update MacroEventType enum in schemas.py",
+        "[ ] Add new fields to MacroEvent Pydantic model",
+        "[ ] Update TypeScript event interface",
+        "[ ] Update KeyLogPanel status display",
+        "[ ] Write unit tests for mouse tracking",
+        "[ ] Write unit tests for window tracking",
+        "[ ] Run all tests and verify passing"
+      ]
+    }
+  }
+}

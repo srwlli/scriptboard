@@ -364,6 +364,26 @@ class ApiClient {
   async getLLMProviders() {
     return this.request("/llm/providers");
   }
+
+  // Macro / Key Logger endpoints (Key-Logger feature)
+  async startRecording() {
+    return this.request<{ status: string }>("/macros/record/start", {
+      method: "POST",
+    });
+  }
+
+  async stopRecording() {
+    return this.request<{ status: string; events?: Array<{ type: string; ts_delta_ms: number; key?: string; clipboard_text?: string; delay_ms?: number; window_title?: string }> }>("/macros/record/stop", {
+      method: "POST",
+    });
+  }
+
+  async saveMacro(name: string, events: Array<{ type: string; ts_delta_ms: number; key?: string; clipboard_text?: string; delay_ms?: number; window_title?: string }>) {
+    return this.request<{ id: string; name: string; path: string; created_at: string }>("/macros/save", {
+      method: "POST",
+      body: JSON.stringify({ name, events }),
+    });
+  }
 }
 
 export const api = new ApiClient(API_BASE_URL);

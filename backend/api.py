@@ -26,6 +26,9 @@ from schemas import (
     ErrorInfo,
     ErrorResponse,
     FavoriteEntry,
+    MacroEvent,
+    MacroRecordResponse,
+    MacroSavePayload,
     PromptPreloadedPayload,
     TextPayload,
 )
@@ -35,6 +38,18 @@ core = ScriptboardCore()
 
 # Autosave debounce state
 _autosave_task: Optional[asyncio.Task] = None
+
+# Global KeyLogger instance
+try:
+    from key_logger import KeyLogger
+    from key_logger import keyboard as _pynput_keyboard, pyperclip as _pyperclip
+    key_logger = KeyLogger()
+    print(f"[KeyLogger] Initialized successfully")
+    print(f"[KeyLogger] pynput.keyboard available: {_pynput_keyboard is not None}")
+    print(f"[KeyLogger] pyperclip available: {_pyperclip is not None}")
+except ImportError as e:
+    key_logger = None
+    print(f"[KeyLogger] Failed to import: {e}")
 
 # FastAPI app
 app = FastAPI(title="Scriptboard API", version="0.1.0")
@@ -73,6 +88,14 @@ def get_autosave_path() -> Path:
     config_dir = home / ".scriptboard"
     config_dir.mkdir(exist_ok=True)
     return config_dir / "autosave.json"
+
+
+def get_macros_dir() -> Path:
+    """Get path to macros directory."""
+    home = Path.home()
+    macros_dir = home / ".scriptboard" / "macros"
+    macros_dir.mkdir(parents=True, exist_ok=True)
+    return macros_dir
 
 
 def save_session(session_data: dict, filename: Optional[str] = None) -> Path:
@@ -1411,4 +1434,145 @@ async def remove_favorite(index: int):
         )
     
     return {"status": "ok"}
+
+
+# --------------------------------------------------------------------------- #
+# Macro / Key Logger Endpoints (Key-Logger feature)
+# --------------------------------------------------------------------------- #
+
+@app.post("/macros/record/start", response_model=MacroRecordResponse)
+async def start_macro_recording():
+    """Start recording keyboard and clipboard events."""
+    if key_logger is None:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Key logger not available (pynput/pyperclip not installed)"
+        )
+
+    try:
+        # Debug: Check if already recording
+        if key_logger.is_recording():
+            print("[KeyLogger] Warning: Already recording, stopping first...")
+            try:
+                key_logger.stop_recording()
+            except Exception:
+                pass
+
+        key_logger.start_recording()
+        return MacroRecordResponse(status="recording")
+    except RuntimeError as e:
+        # Provide more detailed error info
+        error_msg = str(e)
+        print(f"[KeyLogger] RuntimeError: {error_msg}")
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=error_msg
+        )
+    except Exception as e:
+        print(f"[KeyLogger] Unexpected error: {type(e).__name__}: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to start recording: {str(e)}"
+        )
+
+
+@app.post("/macros/record/stop", response_model=MacroRecordResponse)
+async def stop_macro_recording():
+    """Stop recording and return captured events."""
+    if key_logger is None:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Key logger not available (pynput/pyperclip not installed)"
+        )
+    
+    try:
+        events = key_logger.stop_recording()
+        
+        # Convert MacroEvent dataclasses to Pydantic models
+        pydantic_events = []
+        for event in events:
+            # Convert to dict first, then to Pydantic model
+            event_dict = event.to_dict()
+            pydantic_events.append(MacroEvent(**event_dict))
+        
+        return MacroRecordResponse(
+            status="stopped",
+            events=pydantic_events
+        )
+    except RuntimeError as e:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=str(e)
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to stop recording: {str(e)}"
+        )
+
+
+@app.post("/macros/save")
+async def save_macro(payload: MacroSavePayload):
+    """Save a macro with name validation and atomic JSON write."""
+    # Validate name (alphanumeric, spaces, hyphens, underscores only)
+    import re
+    if not re.match(r'^[a-zA-Z0-9\s_-]+$', payload.name):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Macro name can only contain alphanumeric characters, spaces, hyphens, and underscores"
+        )
+    
+    # Validate events
+    if not payload.events or len(payload.events) == 0:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Macro must contain at least one event"
+        )
+    
+    # Generate macro ID and timestamp
+    import uuid
+    from datetime import datetime
+    macro_id = str(uuid.uuid4())
+    created_at = datetime.now().isoformat()
+    
+    # Create macro object
+    macro_data = {
+        "id": macro_id,
+        "name": payload.name,
+        "created_at": created_at,
+        "events": [event.dict() for event in payload.events]
+    }
+    
+    # Sanitize filename (replace invalid chars with underscores)
+    safe_name = re.sub(r'[^\w\s-]', '_', payload.name)
+    safe_name = re.sub(r'[-\s]+', '_', safe_name)
+    filename = f"{safe_name}_{macro_id[:8]}.json"
+    
+    # Get macros directory
+    macros_dir = get_macros_dir()
+    macro_path = macros_dir / filename
+    
+    # Atomic write: write to temp file first, then move
+    try:
+        import tempfile
+        import shutil
+        temp_path = macro_path.with_suffix(".tmp")
+        
+        with open(temp_path, "w", encoding="utf-8") as f:
+            json.dump(macro_data, f, indent=2, ensure_ascii=False)
+        
+        # Atomic move
+        shutil.move(str(temp_path), str(macro_path))
+    except (IOError, OSError) as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to save macro: {str(e)}"
+        )
+    
+    return {
+        "id": macro_id,
+        "name": payload.name,
+        "path": str(macro_path),
+        "created_at": created_at
+    }
 

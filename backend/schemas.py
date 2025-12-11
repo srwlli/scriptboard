@@ -365,3 +365,49 @@ class PreloadedPromptItem(BaseModel):
 
 class PreloadedPromptsResponse(BaseModel):
     prompts: List[PreloadedPromptItem] = Field(..., description="List of available preloaded prompts")
+
+
+# ---------------------------------------------------------------------------
+# Macro / Key Logger (Key-Logger feature)
+# ---------------------------------------------------------------------------
+
+class MacroEventType(str, Enum):
+    """Types of events in a macro."""
+    KEY_DOWN = "KeyDown"
+    KEY_UP = "KeyUp"
+    CLIPBOARD_SET = "ClipboardSet"
+    DELAY = "Delay"
+    WINDOW_FOCUS = "WindowFocus"
+
+
+class MacroEvent(BaseModel):
+    """Represents a single event in a macro."""
+    type: MacroEventType = Field(..., description="Type of event")
+    ts_delta_ms: int = Field(0, description="Milliseconds since previous event")
+    key: Optional[str] = Field(None, description="Key name for KeyDown/KeyUp events")
+    clipboard_text: Optional[str] = Field(None, description="Clipboard content for ClipboardSet events")
+    delay_ms: Optional[int] = Field(None, description="Explicit delay in milliseconds")
+    window_title: Optional[str] = Field(None, description="Window title for WindowFocus events")
+
+
+class Macro(BaseModel):
+    """Represents a saved macro."""
+    id: str = Field(..., description="Unique macro identifier")
+    name: str = Field(..., description="Macro name")
+    created_at: str = Field(..., description="ISO 8601 timestamp of creation")
+    events: List[MacroEvent] = Field(..., description="List of events in the macro")
+
+
+class MacroSavePayload(BaseModel):
+    """Payload for saving a macro."""
+    name: str = Field(..., description="Macro name", min_length=1, max_length=100)
+    events: List[MacroEvent] = Field(..., description="List of events to save", min_length=1)
+
+
+class MacroRecordResponse(BaseModel):
+    """Response from starting/stopping recording."""
+    status: str = Field(..., description="Status: 'recording' or 'stopped'")
+    events: Optional[List[MacroEvent]] = Field(
+        None,
+        description="Captured events (only present when stopping)"
+    )
