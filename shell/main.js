@@ -190,6 +190,8 @@ function createWindow() {
     height: 725,
     minWidth: 350,
     minHeight: 550,
+    frame: false, // Frameless window - custom menu bar handles window chrome
+    titleBarStyle: "hidden", // Hide title bar but keep window controls on macOS
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
@@ -443,6 +445,50 @@ ipcMain.handle("set-always-on-top", async (event, flag) => {
   try {
     mainWindow.setAlwaysOnTop(flag);
     return { success: true };
+  } catch (error) {
+    return { error: error.message };
+  }
+});
+
+// Window control IPC handlers for custom menu bar
+ipcMain.handle("minimize-window", async () => {
+  if (!mainWindow) return { error: "No window" };
+  try {
+    mainWindow.minimize();
+    return { success: true };
+  } catch (error) {
+    return { error: error.message };
+  }
+});
+
+ipcMain.handle("maximize-window", async () => {
+  if (!mainWindow) return { error: "No window" };
+  try {
+    if (mainWindow.isMaximized()) {
+      mainWindow.unmaximize();
+    } else {
+      mainWindow.maximize();
+    }
+    return { success: true, isMaximized: mainWindow.isMaximized() };
+  } catch (error) {
+    return { error: error.message };
+  }
+});
+
+ipcMain.handle("close-window", async () => {
+  if (!mainWindow) return { error: "No window" };
+  try {
+    mainWindow.close();
+    return { success: true };
+  } catch (error) {
+    return { error: error.message };
+  }
+});
+
+ipcMain.handle("is-window-maximized", async () => {
+  if (!mainWindow) return { error: "No window" };
+  try {
+    return { isMaximized: mainWindow.isMaximized() };
   } catch (error) {
     return { error: error.message };
   }

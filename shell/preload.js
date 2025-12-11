@@ -17,5 +17,10 @@ contextBridge.exposeInMainWorld("electronAPI", {
   getWindowSize: () => ipcRenderer.invoke("get-window-size"),
   resetWindowSizeConstraints: () => ipcRenderer.invoke("reset-window-size-constraints"),
   setAlwaysOnTop: (flag) => ipcRenderer.invoke("set-always-on-top", flag),
+  // Window control methods for custom menu bar
+  minimizeWindow: () => ipcRenderer.invoke("minimize-window"),
+  maximizeWindow: () => ipcRenderer.invoke("maximize-window"),
+  closeWindow: () => ipcRenderer.invoke("close-window"),
+  isWindowMaximized: () => ipcRenderer.invoke("is-window-maximized"),
 });
 

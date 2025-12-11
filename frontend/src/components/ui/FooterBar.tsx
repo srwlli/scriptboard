@@ -1,89 +1,65 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { FavoritesModal } from "../ClassicLayout/FavoritesModal";
 
 /**
- * Reusable footer/status bar component matching original scriptboard.py layout.
- * 
+ * Footer/status bar component with window controls.
+ *
  * Displays:
- * - Status message (left)
- * - Size label (toggleable, left)
- * - Char count (left)
- * - Lock Size checkbox (right)
- * - On Top checkbox (right)
- * 
- * @example
- * ```tsx
- * <FooterBar
- *   statusMessage="Ready"
- *   charCount={1234}
- *   showSize={true}
- *   onLockSizeChange={(locked) => setLockSize(locked)}
- *   onOnTopChange={(onTop) => setOnTop(onTop)}
- * />
- * ```
+ * - Favorites button (left)
+ * - Lock Size checkbox (right) - controls window resizability
+ * - On Top checkbox (right) - controls always-on-top
+ *
+ * Manages its own state and calls Electron APIs directly.
  */
-
-interface FooterBarProps {
-  statusMessage?: string;
-  charCount?: number;
-  showSize?: boolean;
-  lockSize?: boolean;
-  onTop?: boolean;
-  onLockSizeChange?: (locked: boolean) => void;
-  onOnTopChange?: (onTop: boolean) => void;
-  className?: string;
-}
-
-export function FooterBar({
-  statusMessage = "",
-  charCount = 0,
-  showSize = false,
-  lockSize = false,
-  onTop = false,
-  onLockSizeChange,
-  onOnTopChange,
-  className = "",
-}: FooterBarProps) {
-  const [windowSize, setWindowSize] = useState({ width: 0, height: 0 });
+export function FooterBar() {
+  const [lockSize, setLockSize] = useState(false);
+  const [onTop, setOnTop] = useState(false);
+  const [isElectron, setIsElectron] = useState(false);
 
   useEffect(() => {
-    const updateSize = () => {
-      setWindowSize({
-        width: window.innerWidth,
-        height: window.innerHeight,
-      });
-    };
-
-    updateSize();
-    window.addEventListener("resize", updateSize);
-    return () => window.removeEventListener("resize", updateSize);
+    if (typeof window !== "undefined" && (window as any).electronAPI) {
+      setIsElectron(true);
+    }
   }, []);
 
+  const handleLockSizeChange = async (locked: boolean) => {
+    setLockSize(locked);
+    if (isElectron) {
+      try {
+        await (window as any).electronAPI.setWindowResizable(!locked);
+      } catch (error) {
+        console.error("Failed to set window resizable:", error);
+      }
+    }
+  };
+
+  const handleOnTopChange = async (alwaysOnTop: boolean) => {
+    setOnTop(alwaysOnTop);
+    if (isElectron) {
+      try {
+        await (window as any).electronAPI.setAlwaysOnTop(alwaysOnTop);
+      } catch (error) {
+        console.error("Failed to set always on top:", error);
+      }
+    }
+  };
+
   return (
-    <footer
-      className={`border-t border-border bg-background px-3 py-2 flex items-center justify-between ${className}`}
-    >
-      {/* Left side: Status, Size, Char count */}
-      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-        {statusMessage && (
-          <span className="px-2">{statusMessage}</span>
-        )}
-        {showSize && windowSize.width > 0 && (
-          <span className="px-2">
-            {windowSize.width} x {windowSize.height}
-          </span>
-        )}
-        <span className="px-2">Chars: {charCount.toLocaleString()}</span>
+    <footer className="border-t border-border bg-background px-3 py-2 flex items-center justify-between">
+      {/* Left side: Favorites */}
+      <div className="flex items-center">
+        <FavoritesModal />
       </div>
 
-      {/* Right side: Lock Size, On Top checkboxes */}
-      <div className="flex items-center gap-2">
+      {/* Right side: On Top, Lock Size checkboxes */}
+      <div className="flex items-center gap-4">
         <label className="flex items-center gap-1.5 text-sm text-muted-foreground cursor-pointer">
           <input
             type="checkbox"
             checked={onTop}
-            onChange={(e) => onOnTopChange?.(e.target.checked)}
+            onChange={(e) => handleOnTopChange(e.target.checked)}
             className="w-4 h-4 cursor-pointer"
           />
           <span>On Top</span>
@@ -92,7 +68,7 @@ export function FooterBar({
           <input
             type="checkbox"
             checked={lockSize}
-            onChange={(e) => onLockSizeChange?.(e.target.checked)}
+            onChange={(e) => handleLockSizeChange(e.target.checked)}
             className="w-4 h-4 cursor-pointer"
           />
           <span>Lock Size</span>
@@ -101,4 +77,3 @@ export function FooterBar({
     </footer>
   );
 }
-

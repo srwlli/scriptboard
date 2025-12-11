@@ -1,10 +1,5 @@
 "use client";
 
-import { Header } from "@/components/Header";
-import { FavoritesPanel } from "@/components/FavoritesPanel";
-import { PromptPanel } from "@/components/PromptPanel";
-import { AttachmentsPanel } from "@/components/AttachmentsPanel";
-import { ResponsesPanel } from "@/components/ResponsesPanel";
 import { SessionManagerPanel } from "@/components/SessionManagerPanel";
 import { PreviewPanel } from "@/components/PreviewPanel";
 import { BatchQueuePanel } from "@/components/BatchQueuePanel";
@@ -13,44 +8,43 @@ import { ProfileSelector } from "@/components/ProfileSelector";
 import { KeymapEditor } from "@/components/KeymapEditor";
 import { GitIntegrationPanel } from "@/components/GitIntegrationPanel";
 import { KeyLogPanel } from "@/components/KeyLogPanel";
+import { UserFeedbackPanel } from "@/components/UserFeedbackPanel";
 import { useScriptboardHotkeys } from "@/lib/hotkeys";
 
 /**
- * Modern layout page with grid-based design.
- * 
+ * View Components page with grid-based design.
+ *
  * Features:
- * - 3-column grid layout
- * - All Phase-2 features visible
+ * - 3-column grid layout for panels
  * - Batch Queue, Git Integration, Logging Console
  * - Profile Selector, Keymap Editor
+ * - User Feedback, Key Log panels
  */
 export default function ModernPage() {
   // Enable keyboard shortcuts
   useScriptboardHotkeys();
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
+    <div className="h-full bg-background">
       <ProfileSelector />
+
+      {/* Panels - Grid layout */}
       <main className="container mx-auto px-4 py-6">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           {/* Left Column */}
           <div className="space-y-4">
-            <FavoritesPanel />
-            <PromptPanel />
-            <AttachmentsPanel />
+            <SessionManagerPanel />
+            <BatchQueuePanel />
           </div>
 
           {/* Middle Column */}
           <div className="space-y-4">
-            <ResponsesPanel />
-            <BatchQueuePanel />
             <GitIntegrationPanel />
-            <SessionManagerPanel />
+            <PreviewPanel />
           </div>
 
           {/* Right Column */}
           <div className="space-y-4">
-            <PreviewPanel />
+            <UserFeedbackPanel />
             <KeyLogPanel />
             <KeymapEditor />
             <LoggingConsolePanel />

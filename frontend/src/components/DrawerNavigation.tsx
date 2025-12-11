@@ -18,7 +18,7 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   { href: "/", label: "Home", icon: Home },
-  { href: "/new-page", label: "New Page", icon: Layout },
+  { href: "/view-components", label: "View Components", icon: Layout },
   { href: "/settings", label: "Settings", icon: Settings },
 ];
 
