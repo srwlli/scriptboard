@@ -1,0 +1,455 @@
+{
+  "META_DOCUMENTATION": {
+    "feature_name": "search-icon-and-folder-header",
+    "schema_version": "1.0.0",
+    "version": "1.0.0",
+    "status": "complete",
+    "generated_by": "AI Assistant",
+    "has_context": false,
+    "has_analysis": false,
+    "created_at": "2025-01-11T00:00:00"
+  },
+  "UNIVERSAL_PLANNING_STRUCTURE": {
+    "0_preparation": {
+      "foundation_docs_available": [
+        "README.md (root)"
+      ],
+      "foundation_docs_missing": [
+        "API.md",
+        "ARCHITECTURE.md",
+        "COMPONENTS.md",
+        "SCHEMA.md",
+        "USER-GUIDE.md"
+      ],
+      "coding_standards_available": [
+        "BEHAVIOR-STANDARDS.md",
+        "UI-STANDARDS.md",
+        "UX-PATTERNS.md",
+        "COMPONENT-INDEX.md"
+      ],
+      "reference_components": [
+        "FavoritesModal.tsx - Current implementation with search input and footer button"
+      ],
+      "technology_stack": {
+        "frontend": "Next.js, React, TypeScript, TailwindCSS, lucide-react",
+        "backend": "FastAPI (not affected by this change)"
+      },
+      "project_structure": {
+        "frontend_path": "frontend/src/",
+        "components_path": "frontend/src/components/",
+        "main_component": "frontend/src/components/ClassicLayout/FavoritesModal.tsx"
+      }
+    },
+    "1_executive_summary": {
+      "feature_name": "search-icon-and-folder-header",
+      "description": "Move the search function to an icon that opens the search feature and move the add folder button to the modal header",
+      "goal": "Improve UI/UX by making the search feature more discoverable through an icon button and consolidating modal actions in the header for better visual hierarchy",
+      "scope": "Frontend-only changes to FavoritesModal component. Replace search input with icon button that expands search, and move Add Favorite button from footer to header.",
+      "out_of_scope": [
+        "Backend API changes",
+        "Search functionality changes (only UI presentation)",
+        "Other modal components",
+        "Accessibility improvements beyond current standards"
+      ],
+      "estimated_complexity": "low",
+      "estimated_duration": "2-4 hours"
+    },
+    "2_risk_assessment": {
+      "technical_risks": [
+        {
+          "risk": "Search icon button may not be immediately obvious to users",
+          "severity": "low",
+          "mitigation": "Use standard search icon (lucide-react Search), add tooltip, ensure icon is clearly visible"
+        },
+        {
+          "risk": "Expanding search input may cause layout shift",
+          "severity": "low",
+          "mitigation": "Use smooth transitions, reserve space in header, test on different screen sizes"
+        },
+        {
+          "risk": "Header may become crowded with both search icon and add button",
+          "severity": "low",
+          "mitigation": "Use compact button styles, proper spacing, responsive design"
+        }
+      ],
+      "security_risks": [],
+      "user_experience_risks": [
+        {
+          "risk": "Users may not discover the search icon",
+          "severity": "low",
+          "mitigation": "Use recognizable search icon, add hover tooltip, maintain keyboard shortcut if applicable"
+        },
+        {
+          "risk": "Moving add button to header may reduce discoverability",
+          "severity": "low",
+          "mitigation": "Use clear icon and label, maintain visual prominence, ensure it's visible in favorites tab"
+        }
+      ]
+    },
+    "3_current_state_analysis": {
+      "files_to_create": [],
+      "files_to_modify": [
+        {
+          "path": "frontend/src/components/ClassicLayout/FavoritesModal.tsx",
+          "purpose": "Replace search input with icon button that expands search, move Add Favorite button from footer to header"
+        }
+      ],
+      "directories_to_create": [],
+      "current_implementation": {
+        "search_location": "Modal header - inline input field (lines 293-320)",
+        "add_button_location": "Modal footer - full width button (lines 431-444)",
+        "search_state": "Always visible input field",
+        "add_button_visibility": "Only visible in favorites tab"
+      }
+    },
+    "4_key_features": {
+      "features": [
+        {
+          "id": "F1",
+          "name": "Search Icon Button",
+          "description": "Replace search input with a search icon button that expands to show search input when clicked",
+          "priority": "high"
+        },
+        {
+          "id": "F2",
+          "name": "Expandable Search Input",
+          "description": "Search input appears when search icon is clicked, with smooth transition animation",
+          "priority": "high"
+        },
+        {
+          "id": "F3",
+          "name": "Add Button in Header",
+          "description": "Move Add Favorite Folder button from footer to modal header, positioned after tabs and search",
+          "priority": "high"
+        },
+        {
+          "id": "F4",
+          "name": "Header Layout Optimization",
+          "description": "Reorganize header to accommodate search icon, expandable search, and add button with proper spacing",
+          "priority": "medium"
+        }
+      ]
+    },
+    "5_task_id_system": {
+      "workorder": {
+        "id": "WO-SEARCH-ICON-AND-FOLDER-HEADER-001",
+        "name": "Search Icon And Folder Header",
+        "feature_dir": "coderef/working/search-icon-and-folder-header"
+      },
+      "tasks": [
+        {
+          "id": "UI-001",
+          "workorder_id": "WO-SEARCH-ICON-AND-FOLDER-HEADER-001",
+          "feature_id": "F1",
+          "description": "Add state for search input visibility (isSearchExpanded)",
+          "type": "implementation",
+          "estimated_time": "15 minutes"
+        },
+        {
+          "id": "UI-002",
+          "workorder_id": "WO-SEARCH-ICON-AND-FOLDER-HEADER-001",
+          "feature_id": "F1",
+          "description": "Replace search input field with search icon button in header",
+          "type": "implementation",
+          "estimated_time": "30 minutes"
+        },
+        {
+          "id": "UI-003",
+          "workorder_id": "WO-SEARCH-ICON-AND-FOLDER-HEADER-001",
+          "feature_id": "F2",
+          "description": "Implement expandable search input that appears when icon is clicked",
+          "type": "implementation",
+          "estimated_time": "45 minutes"
+        },
+        {
+          "id": "UI-004",
+          "workorder_id": "WO-SEARCH-ICON-AND-FOLDER-HEADER-001",
+          "feature_id": "F2",
+          "description": "Add smooth transition animation for search input expansion",
+          "type": "implementation",
+          "estimated_time": "30 minutes"
+        },
+        {
+          "id": "UI-005",
+          "workorder_id": "WO-SEARCH-ICON-AND-FOLDER-HEADER-001",
+          "feature_id": "F2",
+          "description": "Auto-focus search input when expanded, close on blur or Escape key",
+          "type": "implementation",
+          "estimated_time": "30 minutes"
+        },
+        {
+          "id": "UI-006",
+          "workorder_id": "WO-SEARCH-ICON-AND-FOLDER-HEADER-001",
+          "feature_id": "F3",
+          "description": "Move Add Favorite Folder button from footer to header",
+          "type": "implementation",
+          "estimated_time": "30 minutes"
+        },
+        {
+          "id": "UI-007",
+          "workorder_id": "WO-SEARCH-ICON-AND-FOLDER-HEADER-001",
+          "feature_id": "F3",
+          "description": "Style add button as compact icon button in header (only show in favorites tab)",
+          "type": "implementation",
+          "estimated_time": "30 minutes"
+        },
+        {
+          "id": "UI-008",
+          "workorder_id": "WO-SEARCH-ICON-AND-FOLDER-HEADER-001",
+          "feature_id": "F4",
+          "description": "Reorganize header layout: Tabs | Search Icon | [Expanded Search] | Add Button | Close",
+          "type": "implementation",
+          "estimated_time": "30 minutes"
+        },
+        {
+          "id": "UI-009",
+          "workorder_id": "WO-SEARCH-ICON-AND-FOLDER-HEADER-001",
+          "feature_id": "F4",
+          "description": "Remove footer section with Add Favorite button",
+          "type": "implementation",
+          "estimated_time": "15 minutes"
+        },
+        {
+          "id": "TEST-001",
+          "workorder_id": "WO-SEARCH-ICON-AND-FOLDER-HEADER-001",
+          "feature_id": "F1",
+          "description": "Test search icon button click expands search input",
+          "type": "testing",
+          "estimated_time": "15 minutes"
+        },
+        {
+          "id": "TEST-002",
+          "workorder_id": "WO-SEARCH-ICON-AND-FOLDER-HEADER-001",
+          "feature_id": "F2",
+          "description": "Test search input auto-focus and keyboard interactions",
+          "type": "testing",
+          "estimated_time": "15 minutes"
+        },
+        {
+          "id": "TEST-003",
+          "workorder_id": "WO-SEARCH-ICON-AND-FOLDER-HEADER-001",
+          "feature_id": "F3",
+          "description": "Test add button appears in header only in favorites tab",
+          "type": "testing",
+          "estimated_time": "15 minutes"
+        },
+        {
+          "id": "TEST-004",
+          "workorder_id": "WO-SEARCH-ICON-AND-FOLDER-HEADER-001",
+          "feature_id": "F4",
+          "description": "Test header layout on different screen sizes and modal states",
+          "type": "testing",
+          "estimated_time": "15 minutes"
+        }
+      ]
+    },
+    "6_implementation_phases": {
+      "phases": [
+        {
+          "phase": 1,
+          "name": "Search Icon Implementation",
+          "description": "Replace search input with icon button and implement expandable search",
+          "tasks": [
+            "UI-001",
+            "UI-002",
+            "UI-003",
+            "UI-004",
+            "UI-005"
+          ],
+          "deliverables": [
+            "Search icon button in header",
+            "Expandable search input with animation",
+            "Auto-focus and keyboard handling"
+          ],
+          "dependencies": [],
+          "estimated_duration": "2.5 hours"
+        },
+        {
+          "phase": 2,
+          "name": "Add Button Relocation",
+          "description": "Move Add Favorite button from footer to header",
+          "tasks": [
+            "UI-006",
+            "UI-007",
+            "UI-009"
+          ],
+          "deliverables": [
+            "Add button in header",
+            "Compact button styling",
+            "Footer section removed"
+          ],
+          "dependencies": ["phase_1"],
+          "estimated_duration": "1.25 hours"
+        },
+        {
+          "phase": 3,
+          "name": "Header Layout Optimization",
+          "description": "Finalize header layout and spacing",
+          "tasks": [
+            "UI-008"
+          ],
+          "deliverables": [
+            "Optimized header layout",
+            "Proper spacing and alignment"
+          ],
+          "dependencies": ["phase_1", "phase_2"],
+          "estimated_duration": "30 minutes"
+        },
+        {
+          "phase": 4,
+          "name": "Testing and Validation",
+          "description": "Test all functionality and UI interactions",
+          "tasks": [
+            "TEST-001",
+            "TEST-002",
+            "TEST-003",
+            "TEST-004"
+          ],
+          "deliverables": [
+            "All tests passing",
+            "UI verified on different screen sizes"
+          ],
+          "dependencies": ["phase_3"],
+          "estimated_duration": "1 hour"
+        }
+      ]
+    },
+    "7_testing_strategy": {
+      "unit_tests": {
+        "scope": "Component state management and interactions",
+        "files": [
+          "frontend/__tests__/FavoritesModal.test.tsx (if exists, or create)"
+        ],
+        "test_cases": [
+          "Search icon button toggles search input visibility",
+          "Search input auto-focuses when expanded",
+          "Escape key closes search input",
+          "Add button visibility based on active tab"
+        ],
+        "coverage_target": "70%"
+      },
+      "integration_tests": {
+        "scope": "User interactions and UI flow",
+        "files": [],
+        "test_cases": [
+          "Click search icon expands search input",
+          "Type in search input filters results",
+          "Click add button opens folder picker",
+          "Header layout adapts to expanded search"
+        ],
+        "coverage_target": "Manual testing"
+      },
+      "e2e_tests": {
+        "scope": "Complete user workflow",
+        "test_scenarios": [
+          "Open modal → Click search icon → Search expands → Type query → Results filter",
+          "Open modal → Favorites tab → Add button visible in header → Click add → Folder picker opens",
+          "Open modal → Recents tab → Add button hidden",
+          "Open modal → Expand search → Click outside → Search collapses"
+        ],
+        "manual_steps": true
+      },
+      "test_environment": {
+        "os": "Windows, macOS, Linux",
+        "browser": "Chrome, Firefox, Safari (for web version)",
+        "electron": "Desktop app version"
+      }
+    },
+    "8_success_criteria": {
+      "functional_criteria": [
+        {
+          "criterion": "Search icon button is visible in modal header",
+          "measurement": "Search icon appears in header, clickable",
+          "priority": "high"
+        },
+        {
+          "criterion": "Clicking search icon expands search input",
+          "measurement": "Search input appears with smooth animation",
+          "priority": "high"
+        },
+        {
+          "criterion": "Search input auto-focuses when expanded",
+          "measurement": "Cursor appears in input field automatically",
+          "priority": "high"
+        },
+        {
+          "criterion": "Add Favorite button appears in header (favorites tab only)",
+          "measurement": "Button visible in header when favorites tab active",
+          "priority": "high"
+        },
+        {
+          "criterion": "Add Favorite button removed from footer",
+          "measurement": "Footer section no longer contains add button",
+          "priority": "high"
+        },
+        {
+          "criterion": "Header layout accommodates all elements without crowding",
+          "measurement": "Visual inspection - proper spacing and alignment",
+          "priority": "medium"
+        }
+      ],
+      "non_functional_criteria": [
+        {
+          "criterion": "Smooth transition animation for search expansion",
+          "measurement": "No jarring layout shifts, animation duration < 300ms",
+          "priority": "medium"
+        },
+        {
+          "criterion": "Responsive design works on different screen sizes",
+          "measurement": "Header layout adapts properly on mobile and desktop",
+          "priority": "medium"
+        },
+        {
+          "criterion": "Keyboard navigation works correctly",
+          "measurement": "Tab order logical, Escape closes search, Enter submits",
+          "priority": "medium"
+        }
+      ],
+      "acceptance_criteria": [
+        "Search function accessible via icon button in header",
+        "Search input expands smoothly when icon clicked",
+        "Add Favorite button moved to header, removed from footer",
+        "Header layout clean and organized",
+        "All existing functionality preserved",
+        "UI matches design standards (lucide-react icons, TailwindCSS styling)"
+      ]
+    },
+    "9_implementation_checklist": {
+      "phase_1_checklist": [
+        "[ ] Add isSearchExpanded state variable",
+        "[ ] Replace search input with Search icon button",
+        "[ ] Implement conditional rendering of search input based on isSearchExpanded",
+        "[ ] Add onClick handler to search icon to toggle isSearchExpanded",
+        "[ ] Add transition classes for smooth expansion animation",
+        "[ ] Auto-focus search input when expanded",
+        "[ ] Handle Escape key to collapse search",
+        "[ ] Handle blur event to optionally collapse search (or keep open while typing)"
+      ],
+      "phase_2_checklist": [
+        "[ ] Remove Add Favorite button from footer section",
+        "[ ] Add Add Favorite button to header after search area",
+        "[ ] Style add button as compact icon button (Plus icon + text or icon only)",
+        "[ ] Ensure add button only shows when activeTab === 'favorites'",
+        "[ ] Test add button functionality from new location"
+      ],
+      "phase_3_checklist": [
+        "[ ] Review header layout: Tabs | Search Icon | [Expanded Search] | Add Button | Close",
+        "[ ] Adjust spacing and gap values for optimal layout",
+        "[ ] Ensure responsive behavior on smaller screens",
+        "[ ] Verify alignment of all header elements"
+      ],
+      "phase_4_checklist": [
+        "[ ] Test search icon click expands/collapses search",
+        "[ ] Test search input auto-focus",
+        "[ ] Test Escape key closes search",
+        "[ ] Test search filtering still works",
+        "[ ] Test add button appears only in favorites tab",
+        "[ ] Test add button functionality from header",
+        "[ ] Test header layout on different screen sizes",
+        "[ ] Verify no console errors",
+        "[ ] Check accessibility (keyboard navigation, ARIA labels)"
+      ]
+    }
+  }
+}
+

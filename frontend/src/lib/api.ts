@@ -27,17 +27,17 @@ class ApiClient {
   ): Promise<T> {
     const url = `${this.baseUrl}${endpoint}`;
     const method = options.method || "GET";
-    
+
     // Only set Content-Type for requests that have a body
-    const headers: HeadersInit = {
-      ...options.headers,
+    const headers: Record<string, string> = {
+      ...(options.headers as Record<string, string>),
     };
-    
+
     // Only add Content-Type for POST, PUT, PATCH requests
     if (["POST", "PUT", "PATCH"].includes(method.toUpperCase())) {
       headers["Content-Type"] = "application/json";
     }
-    
+
     let response: Response;
     try {
       // For GET requests, ensure no body is sent
@@ -45,12 +45,12 @@ class ApiClient {
         method,
         headers,
       };
-      
+
       // Only include body for non-GET requests
       if (method.toUpperCase() !== "GET" && options.body) {
         fetchOptions.body = options.body;
       }
-      
+
       // Include other options (like credentials, cache, etc.) but exclude body for GET
       const { body, ...otherOptions } = options;
       if (method.toUpperCase() !== "GET") {
@@ -61,7 +61,7 @@ class ApiClient {
         if (otherOptions.cache) fetchOptions.cache = otherOptions.cache;
         if (otherOptions.mode) fetchOptions.mode = otherOptions.mode;
       }
-      
+
       response = await fetch(url, fetchOptions);
     } catch (error) {
       // Network error (e.g., backend not running, CORS issue)
@@ -72,12 +72,12 @@ class ApiClient {
     if (!response.ok) {
       let errorData: any;
       let errorMessage: string;
-      
+
       // Log the request details for debugging
       if (process.env.NODE_ENV === 'development') {
         console.error(`API Error: ${method} ${url} - Status: ${response.status}`);
       }
-      
+
       try {
         const contentType = response.headers.get("content-type");
         if (contentType && contentType.includes("application/json")) {
@@ -91,7 +91,7 @@ class ApiClient {
         // Failed to parse response
         errorData = null;
       }
-      
+
       // Handle various error response formats
       try {
         if (errorData?.error?.message) {
@@ -112,17 +112,17 @@ class ApiClient {
         // Fallback if anything goes wrong parsing the error
         errorMessage = `HTTP ${response.status}: ${response.statusText}`;
       }
-      
+
       // Ensure errorMessage is never empty or undefined
       if (!errorMessage || errorMessage.trim() === "") {
         errorMessage = `HTTP ${response.status}: ${response.statusText}`;
       }
-      
+
       // Add more context for 405 errors
       if (response.status === 405) {
         errorMessage = `${errorMessage} (Endpoint: ${method} ${endpoint})`;
       }
-      
+
       throw new Error(errorMessage);
     }
 
@@ -307,7 +307,7 @@ class ApiClient {
   }
 
   async getConfig() {
-    return this.request<{ favorites?: Array<{ label: string; path: string }>; llm_urls?: Array<{ label: string; url: string }>; keymap?: Record<string, string>; [key: string]: any }>("/config");
+    return this.request<{ favorites?: Array<{ label: string; path: string }>; llm_urls?: Array<{ label: string; url: string }>; keymap?: Record<string, string>;[key: string]: any }>("/config");
   }
 
   async addFavorite(label: string, path: string) {
@@ -322,6 +322,8 @@ class ApiClient {
       method: "DELETE",
     });
   }
+
+
 
   // Batch processing (Phase-2)
   async enqueueBatch(prompt: string, models: string[]) {
@@ -384,7 +386,10 @@ class ApiClient {
       body: JSON.stringify({ name, events }),
     });
   }
+  // SSE stream URL for live event streaming during recording
+  getRecordingStreamUrl(): string {
+    return `${this.baseUrl}/macros/record/stream`;
+  }
 }
 
 export const api = new ApiClient(API_BASE_URL);
-

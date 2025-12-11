@@ -1,0 +1,615 @@
+{
+  "META_DOCUMENTATION": {
+    "feature_name": "menu-bar-refactor",
+    "schema_version": "1.0.0",
+    "version": "1.0.0",
+    "status": "complete",
+    "generated_by": "AI Assistant",
+    "has_context": true,
+    "has_analysis": true
+  },
+  "UNIVERSAL_PLANNING_STRUCTURE": {
+    "0_preparation": {
+      "foundation_docs": {
+        "available": [
+          "README.md (root)"
+        ],
+        "missing": [
+          "API.md",
+          "ARCHITECTURE.md",
+          "COMPONENTS.md"
+        ]
+      },
+      "coding_standards": {
+        "available": [
+          "coderef/standards/BEHAVIOR-STANDARDS.md",
+          "coderef/standards/UI-STANDARDS.md",
+          "coderef/standards/UX-PATTERNS.md",
+          "coderef/standards/COMPONENT-INDEX.md"
+        ],
+        "missing": [
+          "COMPONENT-PATTERN.md"
+        ]
+      },
+      "reference_components": {
+        "primary": "Header.tsx - Current header component to be replaced/integrated with menu bar",
+        "secondary": [
+          "shell/main.js - Electron window configuration",
+          "shell/preload.js - Electron IPC API exposure",
+          "FavoritesModal.tsx - Modal pattern for menu items"
+        ]
+      },
+      "key_patterns_identified": [
+        "React functional components with hooks pattern",
+        "Electron API detection via window.electronAPI",
+        "IPC handlers in main.js, exposed via preload.js",
+        "BrowserWindow configuration in main.js",
+        "Window controls require Electron IPC handlers"
+      ]
+    },
+    "1_executive_summary": {
+      "purpose": "Implement a custom menu bar (File, Settings, Help) that replaces the OS title bar, creating a frameless window experience with integrated window controls (minimize, maximize, close) in the menu bar for a modern, unified desktop application interface.",
+      "value_proposition": "Provides a cleaner, more integrated desktop app experience by removing the default OS title bar, consolidates window controls and application menus in one unified bar, matches modern app design patterns (VS Code, Discord, Slack), and improves visual consistency across platforms.",
+      "real_world_analogy": "Like VS Code or Discord - the top bar combines the application menus (File, Edit, View) with window controls (minimize, maximize, close) all in one seamless bar, without the separate OS title bar taking up space.",
+      "use_case": "User launches app → frameless window opens with custom menu bar at top → menu bar shows File, Settings, Help menus on left, window controls (minimize, maximize, close) on right → user can drag window by clicking and dragging the menu bar area → clicking window controls minimizes/maximizes/closes window → clicking File menu shows Exit option.",
+      "output": "Modified shell/main.js with frameless window configuration, new IPC handlers for window controls, updated preload.js with window control APIs, new MenuBar component with File/Settings/Help menus and window controls, draggable menu bar area, browser-compatible implementation."
+    },
+    "2_risk_assessment": {
+      "overall_risk": "medium",
+      "complexity": "medium",
+      "scope": "Medium - 8-10 files, 4-5 components affected",
+      "risk_factors": {
+        "file_system": {
+          "level": "none",
+          "reason": "No file I/O operations, only UI and Electron configuration changes"
+        },
+        "dependencies": {
+          "level": "low",
+          "reason": "Uses existing Electron APIs and React components - no new external dependencies"
+        },
+        "performance": {
+          "level": "none",
+          "concerns": [],
+          "reason": "Menu bar is lightweight UI component, frameless window has minimal performance impact"
+        },
+        "security": {
+          "level": "low",
+          "threats": [
+            "Window dragging could be exploited if not properly scoped"
+          ],
+          "mitigation": "Only allow dragging on menu bar area, not on interactive elements"
+        },
+        "breaking_changes": {
+          "level": "minor",
+          "reason": "Changes window appearance and behavior - users will need to adapt to new interface, but functionality remains the same"
+        }
+      },
+      "mitigation_strategies": [
+        "Test frameless window on all target platforms (Windows, Mac, Linux)",
+        "Ensure window controls work correctly in all window states (normal, maximized, minimized)",
+        "Implement proper drag region to prevent accidental window movement",
+        "Graceful degradation in browser environment (hide window controls)",
+        "Test window state persistence across app restarts"
+      ]
+    },
+    "3_current_state_analysis": {
+      "affected_files": [
+        "MODIFIED: shell/main.js - Add frame: false to BrowserWindow configuration, add IPC handlers for minimizeWindow, maximizeWindow, closeWindow, isWindowMaximized",
+        "MODIFIED: shell/preload.js - Expose window control methods (minimizeWindow, maximizeWindow, closeWindow, isWindowMaximized) via contextBridge",
+        "NEW: frontend/src/components/MenuBar.tsx - Custom menu bar component with File, Settings, Help menus and window controls",
+        "NEW: frontend/src/components/ui/MenuDropdown.tsx - Reusable dropdown menu component for menu items",
+        "NEW: frontend/src/components/ui/WindowControls.tsx - Window control buttons component (minimize, maximize, close)",
+        "MODIFIED: frontend/src/components/Header.tsx - Replace or integrate MenuBar component, remove drawer button or integrate it",
+        "MODIFIED: frontend/app/page.tsx - Ensure menu bar is positioned correctly at top of layout",
+        "MODIFIED: frontend/app/layout.tsx - Add CSS for frameless window drag region if needed"
+      ],
+      "dependencies": {
+        "existing_internal": [
+          "shell/main.js - Electron main process window configuration",
+          "shell/preload.js - Electron IPC API exposure",
+          "frontend/src/components/Header.tsx - Header component to integrate menu bar",
+          "frontend/src/lib/api.ts - API client for menu actions (if needed)"
+        ],
+        "existing_external": [
+          "electron - Electron framework for desktop app",
+          "react - React hooks and components",
+          "next/navigation - Next.js routing",
+          "lucide-react - Icons for menu items and window controls"
+        ],
+        "new_external": [],
+        "new_internal": [
+          "frontend/src/components/MenuBar.tsx - New menu bar component",
+          "frontend/src/components/ui/MenuDropdown.tsx - New dropdown menu component",
+          "frontend/src/components/ui/WindowControls.tsx - New window controls component"
+        ]
+      },
+      "architecture_context": "Operates at Electron main process (window configuration) and React presentation layer (menu bar UI). Frameless window configuration happens in Electron main process (main.js). Window controls communicate via IPC from renderer to main process. Menu bar component integrates into Header/root layout. Must handle both Electron (with IPC) and browser (graceful degradation) environments. Menu bar must be draggable for window movement when title bar is removed."
+    },
+    "4_key_features": {
+      "primary_features": [
+        "Frameless window configuration in Electron (frame: false in BrowserWindow)",
+        "Custom menu bar with File, Settings, Help menus positioned at top of window",
+        "Window controls (minimize, maximize/fullscreen, close) integrated into menu bar on right side",
+        "Menu bar draggable area for window movement (when title bar is removed)",
+        "File menu with Exit/Quit option (closes app in Electron, shows message in browser)",
+        "Settings menu (placeholder for future settings panel)",
+        "Help menu with Open All LLMs, Keyboard Shortcuts, and About options"
+      ],
+      "secondary_features": [
+        "Window controls styled to match OS conventions (Windows, Mac, Linux)",
+        "Window maximize/restore state tracking and icon updates",
+        "Menu bar styling matches application theme (light/dark mode support)",
+        "Keyboard navigation support for menus (Alt key to focus, arrow keys to navigate)",
+        "Menu dropdowns close on outside click or Escape key",
+        "Window controls disabled/hidden in browser environment"
+      ],
+      "edge_case_handling": [
+        "Handle window state changes (maximize/restore) and update maximize button icon accordingly",
+        "Handle rapid window control clicks (prevent double-clicks from causing issues)",
+        "Handle menu bar drag when window is maximized (prevent accidental restore)",
+        "Handle browser environment where window controls are not applicable (hide or disable)",
+        "Handle Electron API unavailable (graceful degradation, show message or hide controls)"
+      ],
+      "configuration_options": [
+        "Optional: Configuration to show/hide specific menu items",
+        "Optional: Configuration to customize window control button styling per OS"
+      ]
+    },
+    "5_task_id_system": {
+      "workorder": {
+        "id": "WO-MENU-BAR-REFACTOR-001",
+        "name": "Menu Bar Refactor",
+        "feature_dir": "coderef/working/menu-bar-refactor"
+      },
+      "tasks": [
+        {
+          "id": "SETUP-001",
+          "workorder_id": "WO-MENU-BAR-REFACTOR-001",
+          "description": "Review Electron BrowserWindow API documentation for frameless window configuration and window control methods",
+          "complexity": "low",
+          "effort_level": 1
+        },
+        {
+          "id": "ELECTRON-001",
+          "workorder_id": "WO-MENU-BAR-REFACTOR-001",
+          "description": "Modify shell/main.js BrowserWindow configuration to add frame: false option for frameless window",
+          "complexity": "low",
+          "effort_level": 1
+        },
+        {
+          "id": "ELECTRON-002",
+          "workorder_id": "WO-MENU-BAR-REFACTOR-001",
+          "description": "Add IPC handler 'minimize-window' in shell/main.js that calls mainWindow.minimize()",
+          "complexity": "low",
+          "effort_level": 1
+        },
+        {
+          "id": "ELECTRON-003",
+          "workorder_id": "WO-MENU-BAR-REFACTOR-001",
+          "description": "Add IPC handler 'maximize-window' in shell/main.js that toggles mainWindow.isMaximized() state (maximize if not maximized, restore if maximized)",
+          "complexity": "low",
+          "effort_level": 1
+        },
+        {
+          "id": "ELECTRON-004",
+          "workorder_id": "WO-MENU-BAR-REFACTOR-001",
+          "description": "Add IPC handler 'close-window' in shell/main.js that calls mainWindow.close()",
+          "complexity": "low",
+          "effort_level": 1
+        },
+        {
+          "id": "ELECTRON-005",
+          "workorder_id": "WO-MENU-BAR-REFACTOR-001",
+          "description": "Add IPC handler 'is-window-maximized' in shell/main.js that returns mainWindow.isMaximized() state",
+          "complexity": "low",
+          "effort_level": 1
+        },
+        {
+          "id": "ELECTRON-006",
+          "workorder_id": "WO-MENU-BAR-REFACTOR-001",
+          "description": "Update shell/preload.js to expose minimizeWindow, maximizeWindow, closeWindow, isWindowMaximized methods via contextBridge to electronAPI",
+          "complexity": "low",
+          "effort_level": 1
+        },
+        {
+          "id": "UI-001",
+          "workorder_id": "WO-MENU-BAR-REFACTOR-001",
+          "description": "Create MenuDropdown.tsx component in frontend/src/components/ui/ with dropdown menu functionality (open/close, keyboard navigation, outside click handling, Escape key to close)",
+          "complexity": "medium",
+          "effort_level": 2
+        },
+        {
+          "id": "UI-002",
+          "workorder_id": "WO-MENU-BAR-REFACTOR-001",
+          "description": "Create WindowControls.tsx component in frontend/src/components/ui/ with Minimize, Maximize/Restore, and Close buttons that call Electron IPC methods",
+          "complexity": "medium",
+          "effort_level": 2
+        },
+        {
+          "id": "UI-003",
+          "workorder_id": "WO-MENU-BAR-REFACTOR-001",
+          "description": "Create MenuBar.tsx component in frontend/src/components/ with horizontal menu bar layout, File/Settings/Help menu buttons on left, WindowControls on right, and draggable area styling",
+          "complexity": "medium",
+          "effort_level": 3
+        },
+        {
+          "id": "UI-004",
+          "workorder_id": "WO-MENU-BAR-REFACTOR-001",
+          "description": "Implement File menu in MenuBar with Exit/Quit menu item that calls electronAPI.closeWindow() in Electron or shows browser message",
+          "complexity": "low",
+          "effort_level": 1
+        },
+        {
+          "id": "UI-005",
+          "workorder_id": "WO-MENU-BAR-REFACTOR-001",
+          "description": "Implement Settings menu in MenuBar (placeholder - shows 'Settings' menu item that can be extended later)",
+          "complexity": "low",
+          "effort_level": 1
+        },
+        {
+          "id": "UI-006",
+          "workorder_id": "WO-MENU-BAR-REFACTOR-001",
+          "description": "Implement Help menu in MenuBar with 'Open All LLMs' action that reads LLM URLs from config and opens each in new window/tab",
+          "complexity": "low",
+          "effort_level": 2
+        },
+        {
+          "id": "UI-007",
+          "workorder_id": "WO-MENU-BAR-REFACTOR-001",
+          "description": "Implement Help menu 'Keyboard Shortcuts' action (placeholder - shows message or opens modal for future implementation)",
+          "complexity": "low",
+          "effort_level": 1
+        },
+        {
+          "id": "UI-008",
+          "workorder_id": "WO-MENU-BAR-REFACTOR-001",
+          "description": "Implement Help menu 'About' action that displays application name, version, and description in modal or alert",
+          "complexity": "low",
+          "effort_level": 1
+        },
+        {
+          "id": "UI-009",
+          "workorder_id": "WO-MENU-BAR-REFACTOR-001",
+          "description": "Add draggable region styling to MenuBar component using CSS -webkit-app-region: drag on menu bar area (excluding buttons and interactive elements)",
+          "complexity": "medium",
+          "effort_level": 2
+        },
+        {
+          "id": "UI-010",
+          "workorder_id": "WO-MENU-BAR-REFACTOR-001",
+          "description": "Implement window maximize state tracking in WindowControls component using electronAPI.isWindowMaximized() and updating maximize button icon (Maximize2 vs Square icon from lucide-react)",
+          "complexity": "medium",
+          "effort_level": 2
+        },
+        {
+          "id": "INTEGRATION-001",
+          "workorder_id": "WO-MENU-BAR-REFACTOR-001",
+          "description": "Replace Header component content with MenuBar component in frontend/src/components/Header.tsx, or integrate MenuBar into Header",
+          "complexity": "low",
+          "effort_level": 2
+        },
+        {
+          "id": "INTEGRATION-002",
+          "workorder_id": "WO-MENU-BAR-REFACTOR-001",
+          "description": "Ensure MenuBar works in browser environment - hide or disable WindowControls when electronAPI is not available",
+          "complexity": "low",
+          "effort_level": 1
+        },
+        {
+          "id": "INTEGRATION-003",
+          "workorder_id": "WO-MENU-BAR-REFACTOR-001",
+          "description": "Update app/page.tsx and app/layout.tsx to ensure MenuBar is positioned at very top of window (no margin/padding at top)",
+          "complexity": "low",
+          "effort_level": 1
+        },
+        {
+          "id": "TEST-001",
+          "workorder_id": "WO-MENU-BAR-REFACTOR-001",
+          "description": "Test frameless window opens correctly in Electron without OS title bar",
+          "complexity": "low",
+          "effort_level": 1
+        },
+        {
+          "id": "TEST-002",
+          "workorder_id": "WO-MENU-BAR-REFACTOR-001",
+          "description": "Test window controls (minimize, maximize, close) work correctly via IPC",
+          "complexity": "low",
+          "effort_level": 1
+        },
+        {
+          "id": "TEST-003",
+          "workorder_id": "WO-MENU-BAR-REFACTOR-001",
+          "description": "Test menu bar is draggable for window movement",
+          "complexity": "low",
+          "effort_level": 1
+        },
+        {
+          "id": "TEST-004",
+          "workorder_id": "WO-MENU-BAR-REFACTOR-001",
+          "description": "Test maximize button icon updates correctly when window is maximized/restored",
+          "complexity": "low",
+          "effort_level": 1
+        },
+        {
+          "id": "TEST-005",
+          "workorder_id": "WO-MENU-BAR-REFACTOR-001",
+          "description": "Test menu bar works in browser environment (window controls hidden/disabled)",
+          "complexity": "low",
+          "effort_level": 1
+        },
+        {
+          "id": "TEST-006",
+          "workorder_id": "WO-MENU-BAR-REFACTOR-001",
+          "description": "Test File menu Exit and Help menu actions work correctly",
+          "complexity": "low",
+          "effort_level": 1
+        }
+      ]
+    },
+    "6_implementation_phases": {
+      "phases": [
+        {
+          "phase": 1,
+          "name": "Electron Frameless Window Setup",
+          "description": "Configure Electron for frameless window and add window control IPC handlers",
+          "complexity": "low",
+          "effort_level": 2,
+          "tasks": [
+            "SETUP-001",
+            "ELECTRON-001",
+            "ELECTRON-002",
+            "ELECTRON-003",
+            "ELECTRON-004",
+            "ELECTRON-005",
+            "ELECTRON-006"
+          ],
+          "completion_criteria": "Frameless window configured, all window control IPC handlers implemented and exposed via preload.js",
+          "dependencies": []
+        },
+        {
+          "phase": 2,
+          "name": "Menu Bar Component Development",
+          "description": "Create menu bar components (MenuBar, MenuDropdown, WindowControls) with all functionality",
+          "complexity": "medium",
+          "effort_level": 3,
+          "tasks": [
+            "UI-001",
+            "UI-002",
+            "UI-003",
+            "UI-004",
+            "UI-005",
+            "UI-006",
+            "UI-007",
+            "UI-008",
+            "UI-009",
+            "UI-010"
+          ],
+          "completion_criteria": "MenuBar component created with File/Settings/Help menus, WindowControls component with minimize/maximize/close buttons, draggable region implemented, window state tracking working",
+          "dependencies": ["Phase 1"]
+        },
+        {
+          "phase": 3,
+          "name": "Integration and Layout",
+          "description": "Integrate menu bar into Header and ensure proper layout positioning",
+          "complexity": "low",
+          "effort_level": 2,
+          "tasks": [
+            "INTEGRATION-001",
+            "INTEGRATION-002",
+            "INTEGRATION-003"
+          ],
+          "completion_criteria": "MenuBar integrated into Header, positioned at top of window, works in both Electron and browser environments",
+          "dependencies": ["Phase 1", "Phase 2"]
+        },
+        {
+          "phase": 4,
+          "name": "Testing and Validation",
+          "description": "Test all functionality including frameless window, window controls, menu actions, and browser compatibility",
+          "complexity": "medium",
+          "effort_level": 2,
+          "tasks": [
+            "TEST-001",
+            "TEST-002",
+            "TEST-003",
+            "TEST-004",
+            "TEST-005",
+            "TEST-006"
+          ],
+          "completion_criteria": "All tests pass, frameless window works correctly, window controls functional, menu bar draggable, browser compatibility verified",
+          "dependencies": ["Phase 1", "Phase 2", "Phase 3"]
+        }
+      ]
+    },
+    "7_testing_strategy": {
+      "unit_tests": {
+        "scope": "Component-level testing for MenuBar, MenuDropdown, and WindowControls",
+        "tests": [
+          "Test MenuBar renders all menu buttons and WindowControls",
+          "Test MenuDropdown opens and closes on click",
+          "Test WindowControls buttons render correctly",
+          "Test WindowControls calls Electron IPC methods when clicked",
+          "Test maximize button icon updates based on window state"
+        ],
+        "tools": "Jest, React Testing Library",
+        "coverage_target": "80% coverage for MenuBar, MenuDropdown, and WindowControls components"
+      },
+      "integration_tests": {
+        "scope": "End-to-end menu actions and window control functionality",
+        "tests": [
+          "Test File menu Exit action triggers Electron IPC closeWindow or shows browser message",
+          "Test Help menu 'Open All LLMs' opens all configured URLs",
+          "Test window controls minimize/maximize/close window via IPC",
+          "Test menu bar draggable region allows window movement",
+          "Test window maximize state updates maximize button icon"
+        ],
+        "tools": "Jest, React Testing Library with user events, Electron test utilities",
+        "focus": "Menu actions and window controls trigger correct IPC calls"
+      },
+      "edge_case_testing": [
+        {
+          "scenario": "Window controls in browser environment",
+          "setup": "Run in browser without Electron API",
+          "expected_behavior": "WindowControls are hidden or disabled, menu bar still functions",
+          "verification": "Check WindowControls are not visible or are disabled in browser"
+        },
+        {
+          "scenario": "Rapid window control clicks",
+          "setup": "Click minimize/maximize/close buttons rapidly multiple times",
+          "expected_behavior": "Window responds correctly without errors or double-actions",
+          "verification": "Window state changes correctly, no IPC errors in console"
+        },
+        {
+          "scenario": "Dragging window when maximized",
+          "setup": "Maximize window, then try to drag menu bar",
+          "expected_behavior": "Window restores to normal size, then can be dragged, or dragging is disabled when maximized",
+          "verification": "Window behavior matches OS conventions (Windows: double-click to restore, Mac: drag to restore)"
+        },
+        {
+          "scenario": "Window state persistence",
+          "setup": "Maximize window, close app, reopen app",
+          "expected_behavior": "Window opens in previous state (maximized or normal) if Electron supports it",
+          "verification": "Window opens in expected state after app restart"
+        },
+        {
+          "scenario": "Menu bar drag on interactive elements",
+          "setup": "Try to drag window by clicking on menu buttons or window controls",
+          "expected_behavior": "Dragging does not work on interactive elements, only on menu bar background area",
+          "verification": "Window only moves when dragging on non-interactive menu bar area"
+        },
+        {
+          "scenario": "Frameless window on different platforms",
+          "setup": "Test on Windows, Mac, and Linux (if available)",
+          "expected_behavior": "Frameless window works correctly on all platforms, window controls styled appropriately",
+          "verification": "Visual inspection and functionality test on each platform"
+        }
+      ]
+    },
+    "8_success_criteria": {
+      "functional_requirements": [
+        {
+          "requirement": "Frameless window",
+          "metric": "Window opens without OS title bar in Electron",
+          "target": "Window has no title bar, custom menu bar is visible at top",
+          "validation": "Visual inspection - no OS title bar visible, menu bar at top of window"
+        },
+        {
+          "requirement": "Window controls functionality",
+          "metric": "Minimize, maximize, close buttons work correctly",
+          "target": "Clicking minimize minimizes window, maximize toggles maximize/restore, close closes window",
+          "validation": "Test each button, verify window state changes correctly"
+        },
+        {
+          "requirement": "Menu bar draggable",
+          "metric": "Menu bar area allows window dragging",
+          "target": "Clicking and dragging menu bar background moves window",
+          "validation": "Drag menu bar, verify window moves (excluding interactive elements)"
+        },
+        {
+          "requirement": "Maximize button state",
+          "metric": "Maximize button icon updates based on window state",
+          "target": "Maximize icon shows when window is normal, Restore icon shows when maximized",
+          "validation": "Maximize window, verify icon changes, restore and verify icon changes back"
+        },
+        {
+          "requirement": "File menu Exit",
+          "metric": "Exit menu item closes app in Electron",
+          "target": "Clicking File > Exit closes the application window",
+          "validation": "Click File > Exit, verify window closes"
+        },
+        {
+          "requirement": "Help menu Open All LLMs",
+          "metric": "Opens all configured LLM URLs",
+          "target": "Clicking Help > Open All LLMs opens each URL from config.llm_urls in new tab/window",
+          "validation": "Click Help > Open All LLMs, verify all URLs open in browser tabs"
+        },
+        {
+          "requirement": "Browser compatibility",
+          "metric": "Menu bar works in browser without window controls",
+          "target": "In browser, menu bar displays, window controls are hidden or disabled",
+          "validation": "Load app in browser, verify menu bar visible, window controls not visible"
+        }
+      ],
+      "quality_requirements": [
+        {
+          "requirement": "Code style compliance",
+          "metric": "Linter passes with zero warnings",
+          "target": "ESLint returns exit code 0",
+          "validation": "Run 'npm run lint' in frontend directory"
+        },
+        {
+          "requirement": "Type safety",
+          "metric": "TypeScript compilation succeeds",
+          "target": "TypeScript compiler returns zero errors",
+          "validation": "Run 'npx tsc --noEmit' in frontend directory"
+        },
+        {
+          "requirement": "Test coverage",
+          "metric": "Test coverage for new components",
+          "target": "> 80% line coverage for MenuBar, MenuDropdown, and WindowControls components",
+          "validation": "Run 'npm test -- --coverage' and check coverage report"
+        },
+        {
+          "requirement": "Accessibility",
+          "metric": "Menu items have proper ARIA labels and keyboard support",
+          "target": "All menu buttons have aria-label, menu items have role='menuitem', keyboard navigation works",
+          "validation": "Inspect DOM elements, verify ARIA attributes, test keyboard navigation"
+        }
+      ],
+      "performance_requirements": [],
+      "security_requirements": []
+    },
+    "9_implementation_checklist": {
+      "pre_implementation": [
+        "☐ Review complete plan for gaps or ambiguities",
+        "☐ Get stakeholder approval (if required)",
+        "☐ Commit finalized plan to main branch with message 'pre-menu-bar-refactor execution commit' and push",
+        "☐ Set up development environment"
+      ],
+      "phase_1_electron_frameless_window_setup": [
+        "☐ SETUP-001: Review Electron BrowserWindow API documentation",
+        "☐ ELECTRON-001: Configure frameless window in main.js",
+        "☐ ELECTRON-002: Add minimize-window IPC handler",
+        "☐ ELECTRON-003: Add maximize-window IPC handler",
+        "☐ ELECTRON-004: Add close-window IPC handler",
+        "☐ ELECTRON-005: Add is-window-maximized IPC handler",
+        "☐ ELECTRON-006: Expose window control methods in preload.js"
+      ],
+      "phase_2_menu_bar_component_development": [
+        "☐ UI-001: Create MenuDropdown component",
+        "☐ UI-002: Create WindowControls component",
+        "☐ UI-003: Create MenuBar component",
+        "☐ UI-004: Implement File menu with Exit",
+        "☐ UI-005: Implement Settings menu (placeholder)",
+        "☐ UI-006: Implement Help menu Open All LLMs",
+        "☐ UI-007: Implement Help menu Keyboard Shortcuts",
+        "☐ UI-008: Implement Help menu About",
+        "☐ UI-009: Add draggable region styling",
+        "☐ UI-010: Implement window state tracking"
+      ],
+      "phase_3_integration_and_layout": [
+        "☐ INTEGRATION-001: Integrate MenuBar into Header",
+        "☐ INTEGRATION-002: Test browser compatibility",
+        "☐ INTEGRATION-003: Update layout positioning"
+      ],
+      "phase_4_testing_and_validation": [
+        "☐ TEST-001: Test frameless window",
+        "☐ TEST-002: Test window controls",
+        "☐ TEST-003: Test menu bar draggable",
+        "☐ TEST-004: Test maximize button state",
+        "☐ TEST-005: Test browser compatibility",
+        "☐ TEST-006: Test menu actions"
+      ],
+      "finalization": [
+        "☐ All tests passing",
+        "☐ Code review completed and approved",
+        "☐ Linter passes with zero warnings",
+        "☐ TypeScript compilation succeeds",
+        "☐ Manual testing: Frameless window works in Electron",
+        "☐ Manual testing: Window controls functional",
+        "☐ Manual testing: Menu bar draggable",
+        "☐ Manual testing: Browser compatibility verified",
+        "☐ Commit completed implementation to main branch with message 'post-menu-bar-refactor execution commit' and push"
+      ]
+    }
+  }
+}

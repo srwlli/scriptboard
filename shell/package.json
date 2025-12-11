@@ -17,10 +17,8 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "dependencies": {
-    "electron": "^28.0.0"
-  },
   "devDependencies": {
+    "electron": "^28.0.0",
     "electron-builder": "^24.9.1"
   },
   "build": {
@@ -33,13 +31,13 @@
       "main.js",
       "preload.js",
       "../frontend/.next/**/*",
-      "../frontend/public/**/*",
-      "../backend/**/*",
-      "!../backend/venv/**/*",
-      "!../backend/__pycache__/**/*",
-      "!../backend/tests/**/*",
-      "!../backend/sessions/**/*",
-      "!../backend/logs/**/*"
+      "../frontend/public/**/*"
+    ],
+    "extraResources": [
+      {
+        "from": "../backend/dist/scriptboard-backend.exe",
+        "to": "backend/scriptboard-backend.exe"
+      }
     ],
     "win": {
       "target": [
@@ -48,7 +46,8 @@
           "arch": ["x64"]
         }
       ],
-      "icon": "build/icon.ico"
+      "icon": "build/icon.ico",
+      "signAndEditExecutable": false
     },
     "mac": {
       "target": [

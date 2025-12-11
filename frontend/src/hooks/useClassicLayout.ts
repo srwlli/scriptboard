@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { api } from "@/lib/api";
 import { useSessionRefresh } from "./useSessionRefresh";
+import { useBackendConnection } from "./useBackendConnection";
 
 /**
  * Custom hook for managing classic layout state.
@@ -19,25 +20,37 @@ export function useClassicLayout() {
   const [lockSize, setLockSize] = useState(false);
   const [onTop, setOnTop] = useState(false);
   const [charCount, setCharCount] = useState(0);
+  const { isConnected } = useBackendConnection();
 
   // Load character count from session
   const loadCharCount = useCallback(async () => {
+    // Don't attempt if backend is disconnected
+    if (!isConnected) {
+      return;
+    }
+
     try {
       const session = await api.getSession();
       setCharCount(session.total_chars || 0);
     } catch (error) {
+      // Silently fail - backend might not be running yet
       if (process.env.NODE_ENV === 'development') {
-        console.error("Failed to load char count:", error);
+        console.warn("Failed to load char count (backend may not be running):", error);
       }
+      // Set to 0 as fallback
+      setCharCount(0);
     }
-  }, []);
+  }, [isConnected]);
 
   useEffect(() => {
-    loadCharCount();
-    // Poll for updates
-    const interval = setInterval(loadCharCount, 2000);
-    return () => clearInterval(interval);
-  }, [loadCharCount]);
+    if (isConnected) {
+      loadCharCount();
+      // Poll for updates only when connected
+      const interval = setInterval(loadCharCount, 2000);
+      return () => clearInterval(interval);
+    }
+    // If disconnected, don't poll
+  }, [loadCharCount, isConnected]);
 
   // Listen for session refresh events
   useSessionRefresh(() => {
@@ -73,7 +86,7 @@ export function useClassicLayout() {
           if (size && size.width && size.height && !size.error) {
             await electronAPI.setWindowSize(size.width, size.height);
             await electronAPI.setWindowResizable(false);
-            showStatus("Size locked");
+            // showStatus("Size locked"); // Removed feedback message
           }
         } else {
           // Unlock: First explicitly reset constraints, then enable resizing
@@ -84,13 +97,13 @@ export function useClassicLayout() {
           // Small delay to ensure constraints are applied
           await new Promise(resolve => setTimeout(resolve, 50));
           await electronAPI.setWindowResizable(true);
-          showStatus("Size unlocked");
+          // showStatus("Size unlocked"); // Removed feedback message
         }
       } catch (error) {
         if (process.env.NODE_ENV === 'development') {
           console.error("Failed to toggle lock size:", error);
         }
-        showStatus("Failed to toggle lock size");
+        // showStatus("Failed to toggle lock size"); // Removed feedback message
       }
     } else {
       // Browser: Apply CSS max-width to container
@@ -99,13 +112,13 @@ export function useClassicLayout() {
         if (container) {
           const rect = (container as HTMLElement).getBoundingClientRect();
           (container as HTMLElement).style.maxWidth = `${rect.width}px`;
-          showStatus("Size locked (CSS only)");
+          // showStatus("Size locked (CSS only)"); // Removed feedback message
         }
       } else if (typeof document !== "undefined") {
         const container = document.querySelector(".classic-layout-container");
         if (container) {
           (container as HTMLElement).style.maxWidth = "";
-          showStatus("Size unlocked");
+          // showStatus("Size unlocked"); // Removed feedback message
         }
       }
     }
@@ -120,18 +133,18 @@ export function useClassicLayout() {
       try {
         setOnTop(onTopValue);
         await electronAPI.setAlwaysOnTop(onTopValue);
-        showStatus(onTopValue ? "Always on top enabled" : "Always on top disabled");
+        // showStatus(onTopValue ? "Always on top enabled" : "Always on top disabled"); // Removed feedback message
       } catch (error) {
         if (process.env.NODE_ENV === 'development') {
           console.error("Failed to toggle always on top:", error);
         }
-        showStatus("Failed to toggle always on top");
+        // showStatus("Failed to toggle always on top"); // Removed feedback message
         setOnTop(false);
       }
     } else {
       // Browser: Not supported, show message
       if (onTopValue) {
-        showStatus("Always on top requires Electron. Please use the desktop app.");
+        // showStatus("Always on top requires Electron. Please use the desktop app."); // Removed feedback message
         setOnTop(false);
       } else {
         setOnTop(false);

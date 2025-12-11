@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__docs-mcp__create_plan",
+      "Bash(git add:*)",
+      "Bash(npm run build:*)",
+      "Bash(npx vercel:*)",
+      "Bash(mv:*)",
+      "Bash(mkdir:*)",
+      "Bash(pyinstaller:*)",
+      "Bash(npm run package:win:*)"
+    ]
+  }
+}

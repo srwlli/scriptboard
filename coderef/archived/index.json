@@ -1,0 +1,21 @@
+{
+  "archived_features": [
+    {
+      "feature_name": "Search Icon And Folder Header",
+      "folder_name": "search-icon-and-folder-header",
+      "archived_at": "2025-12-11T02:21:45.118252+00:00"
+    },
+    {
+      "feature_name": "Key Logger Mouse Tracking",
+      "folder_name": "key-logger-mouse-tracking",
+      "archived_at": "2025-12-11T02:22:15.712015+00:00"
+    },
+    {
+      "feature_name": "Key Logger",
+      "folder_name": "Key-Logger",
+      "archived_at": "2025-12-11T02:22:18.385517+00:00"
+    }
+  ],
+  "total_archived": 3,
+  "last_updated": "2025-12-11T02:22:18.385517+00:00"
+}

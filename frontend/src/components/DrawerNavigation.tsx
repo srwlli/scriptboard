@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Layout, Settings } from "lucide-react";
+import { Home, Layout, Settings, LucideIcon } from "lucide-react";
 import { Drawer } from "./ui/Drawer";
 
 export interface DrawerNavigationProps {
@@ -13,7 +13,7 @@ export interface DrawerNavigationProps {
 interface NavItem {
   href: string;
   label: string;
-  icon: React.ComponentType<{ size?: number; className?: string }>;
+  icon: LucideIcon;
 }
 
 const navItems: NavItem[] = [

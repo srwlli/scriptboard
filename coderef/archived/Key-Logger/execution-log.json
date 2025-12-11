@@ -1,0 +1,205 @@
+[
+  {
+    "timestamp": "2025-12-10T20:04:57.024506",
+    "workorder_id": "WO-KEY-LOGGER-001",
+    "feature_name": "Key-Logger",
+    "task_count": 39,
+    "tasks": [
+      {
+        "content": "PHASE-1--001: [ ] Add pynput and pyperclip to requirements.txt",
+        "activeForm": "PHASE-1--001: [ing ] Add pynput and pyperclip to requirements.txt",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-1--002: [ ] Create backend/key_logger.py with KeyLogger class",
+        "activeForm": "PHASE-1--002: [ing ] Create backend/key_logger.py with KeyLogger class",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-1--003: [ ] Implement Windows keyboard hook using pynput",
+        "activeForm": "PHASE-1--003: [ing ] Implement Windows keyboard hook using pynput",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-1--004: [ ] Implement clipboard monitoring with Win32 events",
+        "activeForm": "PHASE-1--004: [ing ] Implement clipboard monitoring with Win32 events",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-1--005: [ ] Add polling fallback for clipboard (100ms interval)",
+        "activeForm": "PHASE-1--005: [ing ] Add polling fallback for clipboard (100ms interval)",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-1--006: [ ] Implement timestamp tracking and ts_delta_ms computation",
+        "activeForm": "PHASE-1--006: [ing ] Implement timestamp tracking and ts_delta_ms computation",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-1--007: [ ] Add idle gap clamping (max 5 seconds between events)",
+        "activeForm": "PHASE-1--007: [ing ] Add idle gap clamping (max 5 seconds between events)",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-1--008: [ ] Define event data structures (KeyDown, KeyUp, ClipboardSet, Delay)",
+        "activeForm": "PHASE-1--008: [ing ] Define event data structures (KeyDown, KeyUp, ClipboardSet, Delay)",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-2--001: [ ] Add MacroEvent Pydantic model to schemas.py",
+        "activeForm": "PHASE-2--001: [ing ] Add MacroEvent Pydantic model to schemas.py",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-2--002: [ ] Add Macro Pydantic model to schemas.py",
+        "activeForm": "PHASE-2--002: [ing ] Add Macro Pydantic model to schemas.py",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-2--003: [ ] Add MacroSavePayload model to schemas.py",
+        "activeForm": "PHASE-2--003: [ing ] Add MacroSavePayload model to schemas.py",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-2--004: [ ] Add MacroRecordResponse model to schemas.py",
+        "activeForm": "PHASE-2--004: [ing ] Add MacroRecordResponse model to schemas.py",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-2--005: [ ] Create get_macros_dir() helper function",
+        "activeForm": "PHASE-2--005: [ing ] Create get_macros_dir() helper function",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-2--006: [ ] Implement POST /macros/record/start endpoint",
+        "activeForm": "PHASE-2--006: [ing ] Implement POST /macros/record/start endpoint",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-2--007: [ ] Implement POST /macros/record/stop endpoint",
+        "activeForm": "PHASE-2--007: [ing ] Implement POST /macros/record/stop endpoint",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-2--008: [ ] Implement POST /macros/save endpoint with name validation",
+        "activeForm": "PHASE-2--008: [ing ] Implement POST /macros/save endpoint with name validation",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-2--009: [ ] Add atomic JSON file write for macro storage",
+        "activeForm": "PHASE-2--009: [ing ] Add atomic JSON file write for macro storage",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-2--010: [ ] Add error handling for invalid inputs",
+        "activeForm": "PHASE-2--010: [ing ] Add error handling for invalid inputs",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-3--001: [ ] Add startRecording() method to ApiClient",
+        "activeForm": "PHASE-3--001: [ing ] Add startRecording() method to ApiClient",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-3--002: [ ] Add stopRecording() method to ApiClient",
+        "activeForm": "PHASE-3--002: [ing ] Add stopRecording() method to ApiClient",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-3--003: [ ] Add saveMacro() method to ApiClient",
+        "activeForm": "PHASE-3--003: [ing ] Add saveMacro() method to ApiClient",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-3--004: [ ] Create KeyLogPanel.tsx component",
+        "activeForm": "PHASE-3--004: [ing ] Create KeyLogPanel.tsx component",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-3--005: [ ] Add Record button with startRecording() call",
+        "activeForm": "PHASE-3--005: [ing ] Add Record button with startRecording() call",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-3--006: [ ] Add Stop button with stopRecording() call",
+        "activeForm": "PHASE-3--006: [ing ] Add Stop button with stopRecording() call",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-3--007: [ ] Add Save button with name input and saveMacro() call",
+        "activeForm": "PHASE-3--007: [ing ] Add Save button with name input and saveMacro() call",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-3--008: [ ] Add status display (Idle/Recording)",
+        "activeForm": "PHASE-3--008: [ing ] Add status display (Idle/Recording)",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-3--009: [ ] Disable Save button until name provided",
+        "activeForm": "PHASE-3--009: [ing ] Disable Save button until name provided",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-3--010: [ ] Integrate KeyLogPanel on new-page/page.tsx",
+        "activeForm": "PHASE-3--010: [ing ] Integrate KeyLogPanel on new-page/page.tsx",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-4--001: [ ] Write unit tests for keyboard event capture",
+        "activeForm": "PHASE-4--001: [ing ] Write unit tests for keyboard event capture",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-4--002: [ ] Write unit tests for clipboard monitoring",
+        "activeForm": "PHASE-4--002: [ing ] Write unit tests for clipboard monitoring",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-4--003: [ ] Write unit tests for timestamp computation",
+        "activeForm": "PHASE-4--003: [ing ] Write unit tests for timestamp computation",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-4--004: [ ] Write integration test for POST /macros/record/start",
+        "activeForm": "PHASE-4--004: [ing ] Write integration test for POST /macros/record/start",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-4--005: [ ] Write integration test for POST /macros/record/stop",
+        "activeForm": "PHASE-4--005: [ing ] Write integration test for POST /macros/record/stop",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-4--006: [ ] Write integration test for POST /macros/save",
+        "activeForm": "PHASE-4--006: [ing ] Write integration test for POST /macros/save",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-4--007: [ ] Write test for macro file creation",
+        "activeForm": "PHASE-4--007: [ing ] Write test for macro file creation",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-4--008: [ ] Write test for JSON structure validation",
+        "activeForm": "PHASE-4--008: [ing ] Write test for JSON structure validation",
+        "status": "pending"
+      },
+      {
+        "content": "[ ] Perform manual E2E test: complete flow",
+        "activeForm": "[ ] Perform manual E2E test: completeing flow",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-4--010: [ ] Verify macro file saved correctly",
+        "activeForm": "PHASE-4--010: [ing ] Verify macro file saved correctly",
+        "status": "pending"
+      },
+      {
+        "content": "[ ] Check test coverage (target: 80%+)",
+        "activeForm": "[ ] Check test coverage (target: 80%+)ing",
+        "status": "pending"
+      }
+    ]
+  }
+]

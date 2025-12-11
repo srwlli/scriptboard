@@ -1,0 +1,205 @@
+[
+  {
+    "timestamp": "2025-12-10T21:56:56.324764",
+    "workorder_id": "WO-MENU-BAR-REFACTOR-001",
+    "feature_name": "menu-bar-refactor",
+    "task_count": 39,
+    "tasks": [
+      {
+        "content": "PRE-IMPL-001: Review complete plan for gaps or ambiguities",
+        "activeForm": "PRE-IMPL-001: Reviewing complete plan for gaps or ambiguities",
+        "status": "pending"
+      },
+      {
+        "content": "PRE-IMPL-002: Get stakeholder approval (if required)",
+        "activeForm": "PRE-IMPL-002: Geting stakeholder approval (if required)",
+        "status": "pending"
+      },
+      {
+        "content": "PRE-IMPL-003: Commit finalized plan to main branch with message 'pre-menu-bar-refactor execution commit' and push",
+        "activeForm": "PRE-IMPL-003: Commiting finalized plan to main branch with message 'pre-menu-bar-refactor execution commit' and push",
+        "status": "pending"
+      },
+      {
+        "content": "PRE-IMPL-004: Set up development environment",
+        "activeForm": "PRE-IMPL-004: Seting up development environment",
+        "status": "pending"
+      },
+      {
+        "content": "SETUP-001: Review Electron BrowserWindow API documentation",
+        "activeForm": "SETUP-001: Reviewing Electron BrowserWindow API documentation",
+        "status": "pending"
+      },
+      {
+        "content": "ELECTRON-001: Configure frameless window in main.js",
+        "activeForm": "ELECTRON-001: Configureing frameless window in main.js",
+        "status": "pending"
+      },
+      {
+        "content": "ELECTRON-002: Add minimize-window IPC handler",
+        "activeForm": "ELECTRON-002: Adding minimize-window IPC handler",
+        "status": "pending"
+      },
+      {
+        "content": "ELECTRON-003: Add maximize-window IPC handler",
+        "activeForm": "ELECTRON-003: Adding maximize-window IPC handler",
+        "status": "pending"
+      },
+      {
+        "content": "ELECTRON-004: Add close-window IPC handler",
+        "activeForm": "ELECTRON-004: Adding close-window IPC handler",
+        "status": "pending"
+      },
+      {
+        "content": "ELECTRON-005: Add is-window-maximized IPC handler",
+        "activeForm": "ELECTRON-005: Adding is-window-maximized IPC handler",
+        "status": "pending"
+      },
+      {
+        "content": "ELECTRON-006: Expose window control methods in preload.js",
+        "activeForm": "ELECTRON-006: Exposeing window control methods in preload.js",
+        "status": "pending"
+      },
+      {
+        "content": "UI-001: Create MenuDropdown component",
+        "activeForm": "UI-001: Creating MenuDropdown component",
+        "status": "pending"
+      },
+      {
+        "content": "UI-002: Create WindowControls component",
+        "activeForm": "UI-002: Creating WindowControls component",
+        "status": "pending"
+      },
+      {
+        "content": "UI-003: Create MenuBar component",
+        "activeForm": "UI-003: Creating MenuBar component",
+        "status": "pending"
+      },
+      {
+        "content": "UI-004: Implement File menu with Exit",
+        "activeForm": "UI-004: Implementing File menu with Exit",
+        "status": "pending"
+      },
+      {
+        "content": "UI-005: Implement Settings menu (placeholder)",
+        "activeForm": "UI-005: Implementing Settings menu (placeholder)",
+        "status": "pending"
+      },
+      {
+        "content": "UI-006: Implement Help menu Open All LLMs",
+        "activeForm": "UI-006: Implementing Help menu Open All LLMs",
+        "status": "pending"
+      },
+      {
+        "content": "UI-007: Implement Help menu Keyboard Shortcuts",
+        "activeForm": "UI-007: Implementing Help menu Keyboard Shortcuts",
+        "status": "pending"
+      },
+      {
+        "content": "UI-008: Implement Help menu About",
+        "activeForm": "UI-008: Implementing Help menu About",
+        "status": "pending"
+      },
+      {
+        "content": "UI-009: Add draggable region styling",
+        "activeForm": "UI-009: Adding draggable region styling",
+        "status": "pending"
+      },
+      {
+        "content": "UI-010: Implement window state tracking",
+        "activeForm": "UI-010: Implementing window state tracking",
+        "status": "pending"
+      },
+      {
+        "content": "INTEGRATION-001: Integrate MenuBar into Header",
+        "activeForm": "INTEGRATION-001: Integrateing MenuBar into Header",
+        "status": "pending"
+      },
+      {
+        "content": "INTEGRATION-002: Test browser compatibility",
+        "activeForm": "INTEGRATION-002: Testing browser compatibility",
+        "status": "pending"
+      },
+      {
+        "content": "INTEGRATION-003: Update layout positioning",
+        "activeForm": "INTEGRATION-003: Updating layout positioning",
+        "status": "pending"
+      },
+      {
+        "content": "TEST-001: Test frameless window",
+        "activeForm": "TEST-001: Testing frameless window",
+        "status": "pending"
+      },
+      {
+        "content": "TEST-002: Test window controls",
+        "activeForm": "TEST-002: Testing window controls",
+        "status": "pending"
+      },
+      {
+        "content": "TEST-003: Test menu bar draggable",
+        "activeForm": "TEST-003: Testing menu bar draggable",
+        "status": "pending"
+      },
+      {
+        "content": "TEST-004: Test maximize button state",
+        "activeForm": "TEST-004: Testing maximize button state",
+        "status": "pending"
+      },
+      {
+        "content": "TEST-005: Test browser compatibility",
+        "activeForm": "TEST-005: Testing browser compatibility",
+        "status": "pending"
+      },
+      {
+        "content": "TEST-006: Test menu actions",
+        "activeForm": "TEST-006: Testing menu actions",
+        "status": "pending"
+      },
+      {
+        "content": "FINALIZA-001: All tests passing",
+        "activeForm": "FINALIZA-001: Alling tests passing",
+        "status": "pending"
+      },
+      {
+        "content": "FINALIZA-002: Code review completed and approved",
+        "activeForm": "FINALIZA-002: Codeing review completed and approved",
+        "status": "pending"
+      },
+      {
+        "content": "FINALIZA-003: Linter passes with zero warnings",
+        "activeForm": "FINALIZA-003: Lintering passes with zero warnings",
+        "status": "pending"
+      },
+      {
+        "content": "FINALIZA-004: TypeScript compilation succeeds",
+        "activeForm": "FINALIZA-004: TypeScripting compilation succeeds",
+        "status": "pending"
+      },
+      {
+        "content": "Manual testing: Frameless window works in Electron",
+        "activeForm": "Manual testing: Framelessing window works in Electron",
+        "status": "pending"
+      },
+      {
+        "content": "Manual testing: Window controls functional",
+        "activeForm": "Manual testing: Windowing controls functional",
+        "status": "pending"
+      },
+      {
+        "content": "Manual testing: Menu bar draggable",
+        "activeForm": "Manual testing: Menuing bar draggable",
+        "status": "pending"
+      },
+      {
+        "content": "Manual testing: Browser compatibility verified",
+        "activeForm": "Manual testing: Browsering compatibility verified",
+        "status": "pending"
+      },
+      {
+        "content": "FINALIZA-009: Commit completed implementation to main branch with message 'post-menu-bar-refactor execution commit' and push",
+        "activeForm": "FINALIZA-009: Commiting completed implementation to main branch with message 'post-menu-bar-refactor execution commit' and push",
+        "status": "pending"
+      }
+    ]
+  }
+]

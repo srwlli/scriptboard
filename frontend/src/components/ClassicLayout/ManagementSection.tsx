@@ -44,7 +44,7 @@ export function ManagementSection() {
       const response = await api.exportLlmFriendly();
       const text = response.text;
       // Ensure document is focused before writing to clipboard
-      if (typeof window !== "undefined" && document.hasFocus) {
+      if (typeof window !== "undefined" && document.hasFocus()) {
         window.focus();
         await new Promise((resolve) => setTimeout(resolve, 100));
       }
@@ -69,7 +69,7 @@ export function ManagementSection() {
   const handleSaveClipboardToDir = async () => {
     try {
       // Ensure document is focused before accessing clipboard
-      if (typeof window !== "undefined" && document.hasFocus) {
+      if (typeof window !== "undefined" && document.hasFocus()) {
         window.focus();
         await new Promise((resolve) => setTimeout(resolve, 100));
       }

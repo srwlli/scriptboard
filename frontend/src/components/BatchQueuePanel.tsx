@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { api } from "@/lib/api";
+import { useBackendConnection } from "@/hooks/useBackendConnection";
 
 interface BatchJob {
   id: string;
@@ -17,33 +18,59 @@ export function BatchQueuePanel() {
   const [showEnqueue, setShowEnqueue] = useState(false);
   const [enqueuePrompt, setEnqueuePrompt] = useState("");
   const [selectedModels, setSelectedModels] = useState<string[]>([]);
-  const [availableModels] = useState<string[]>([
-    "gpt-4",
-    "gpt-3.5-turbo",
-    "claude-3-opus",
-    "claude-3-sonnet",
-    "claude-3-haiku",
-  ]);
 
+  const { isConnected } = useBackendConnection();
+  const [availableModels, setAvailableModels] = useState<string[]>([]);
+
+  // Load models on connect
   useEffect(() => {
-    loadJobs();
-    // Poll for job updates every 2 seconds
-    const interval = setInterval(loadJobs, 2000);
-    return () => clearInterval(interval);
-  }, []);
+    const fetchModels = async () => {
+      try {
+        // Fetch Models
+        const providersData = await api.getLLMProviders() as any;
+        if (providersData && providersData.providers) {
+          const models = providersData.providers.flatMap((p: any) => p.models);
+          setAvailableModels(models);
+        }
+      } catch (error) {
+        console.error("Failed to fetch models:", error);
+        // Fallback for models
+        if (availableModels.length === 0) {
+          setAvailableModels([
+            "gpt-4",
+            "gpt-3.5-turbo",
+            "claude-3-opus",
+            "claude-3-sonnet",
+            "claude-3-haiku",
+          ]);
+        }
+      }
+    };
+
+    if (isConnected) {
+      fetchModels();
+    }
+  }, [isConnected]);
 
   const loadJobs = async () => {
+    if (!isConnected) return;
     try {
       const data = await api.getBatchJobs();
       setJobs((data.jobs || []) as BatchJob[]);
     } catch (error) {
-      // Silently fail if backend is not available - don't spam console
       if (process.env.NODE_ENV === 'development') {
-        // Only log in development
         console.error("Failed to load batch jobs:", error);
       }
     }
   };
+
+  useEffect(() => {
+    if (isConnected) {
+      loadJobs();
+      const interval = setInterval(loadJobs, 2000);
+      return () => clearInterval(interval);
+    }
+  }, [isConnected]);
 
   const handleEnqueue = async () => {
     if (!enqueuePrompt.trim() || selectedModels.length === 0) {
@@ -65,6 +92,8 @@ export function BatchQueuePanel() {
       setLoading(false);
     }
   };
+
+
 
   const handleCancel = async (jobId: string) => {
     try {
@@ -104,6 +133,8 @@ export function BatchQueuePanel() {
           {showEnqueue ? "Cancel" : "New Batch"}
         </button>
       </div>
+
+
 
       {showEnqueue && (
         <div className="mb-4 p-3 border border-border rounded-md bg-muted/30">

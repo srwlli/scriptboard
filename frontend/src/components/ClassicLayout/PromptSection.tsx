@@ -143,7 +143,7 @@ export function PromptSection() {
   const handleSetPrompt = async () => {
     try {
       // Ensure document is focused before accessing clipboard
-      if (typeof window !== "undefined" && document.hasFocus) {
+      if (typeof window !== "undefined" && document.hasFocus()) {
         window.focus();
         // Small delay to ensure focus
         await new Promise((resolve) => setTimeout(resolve, 100));

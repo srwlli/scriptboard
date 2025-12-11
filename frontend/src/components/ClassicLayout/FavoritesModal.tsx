@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Folder, Star, Plus, Search, Clock, X, Trash2 } from "lucide-react";
 import { api } from "@/lib/api";
 import { useRecentFolders } from "@/hooks/useRecentFolders";
@@ -17,13 +17,13 @@ interface RecentFolder {
 
 /**
  * Favorites modal component with tabs for favorites and recent folders.
- * 
+ *
  * Features:
  * - Single folder icon button in header
  * - Modal dialog with:
  *   - Tabs: Favorites | Recents
- *   - Search input in header
- *   - Add favorite button
+ *   - Search icon that expands to search input
+ *   - Add favorite button in header (favorites tab only)
  * - Click outside to close
  * - Escape key to close
  * - Prevents body scroll when open
@@ -31,6 +31,7 @@ interface RecentFolder {
 export function FavoritesModal() {
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [isSearchExpanded, setIsSearchExpanded] = useState(false);
   const [activeTab, setActiveTab] = useState<"favorites" | "recents">("favorites");
   const [favorites, setFavorites] = useState<Favorite[]>([]);
   const [isLoadingFavorites, setIsLoadingFavorites] = useState(false);
@@ -40,6 +41,7 @@ export function FavoritesModal() {
   const [selectedFolderPath, setSelectedFolderPath] = useState("");
   const [newFavoriteLabel, setNewFavoriteLabel] = useState("");
   const { recentFolders, addRecentFolder } = useRecentFolders();
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
   // Check for Electron API availability and load favorites
   useEffect(() => {
@@ -75,19 +77,33 @@ export function FavoritesModal() {
     recent.path.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  // Close on Escape key
+  // Close search on Escape, or close modal if search is not expanded
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === "Escape" && isOpen) {
-        setIsOpen(false);
-        setSearchQuery("");
-        setActiveTab("favorites");
+        if (isSearchExpanded) {
+          // First close the search
+          setIsSearchExpanded(false);
+          setSearchQuery("");
+        } else {
+          // Then close the modal
+          setIsOpen(false);
+          setSearchQuery("");
+          setActiveTab("favorites");
+        }
       }
     };
 
     document.addEventListener("keydown", handleEscape);
     return () => document.removeEventListener("keydown", handleEscape);
-  }, [isOpen]);
+  }, [isOpen, isSearchExpanded]);
+
+  // Auto-focus search input when expanded
+  useEffect(() => {
+    if (isSearchExpanded && searchInputRef.current) {
+      searchInputRef.current.focus();
+    }
+  }, [isSearchExpanded]);
 
   // Prevent body scroll when modal is open
   useEffect(() => {
@@ -224,6 +240,21 @@ export function FavoritesModal() {
   const handleTabChange = (tab: "favorites" | "recents") => {
     setActiveTab(tab);
     setSearchQuery(""); // Clear search when switching tabs
+    setIsSearchExpanded(false); // Collapse search when switching tabs
+  };
+
+  const handleToggleSearch = () => {
+    setIsSearchExpanded(!isSearchExpanded);
+    if (isSearchExpanded) {
+      setSearchQuery(""); // Clear search when collapsing
+    }
+  };
+
+  const handleSearchBlur = () => {
+    // Only collapse if search query is empty
+    if (!searchQuery) {
+      setIsSearchExpanded(false);
+    }
   };
 
   return (
@@ -254,8 +285,8 @@ export function FavoritesModal() {
             className="bg-background border border-border rounded-md shadow-xl w-full max-w-2xl h-[85vh] max-h-[85vh] flex flex-col mx-4"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Modal Header - Tabs, Search, Close */}
-            <div className="px-6 py-3 border-b border-border flex items-center gap-3">
+            {/* Modal Header - Tabs, Search Icon, Add Button, Close */}
+            <div className="px-6 py-3 border-b border-border flex items-center gap-2">
               {/* Tabs */}
               <div className="flex items-center gap-1">
                 <button
@@ -290,34 +321,64 @@ export function FavoritesModal() {
                 </button>
               </div>
 
-              {/* Search Input */}
-              <div className="flex-1 relative">
-                <Search
-                  size={14}
-                  className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground"
-                />
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder={
-                    activeTab === "favorites"
-                      ? "Search favorites..."
-                      : "Search recent folders..."
-                  }
-                  className="w-full pl-8 pr-7 py-1.5 bg-background border border-border rounded-md text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary text-sm"
-                  autoFocus
-                />
-                {searchQuery && (
+              {/* Spacer */}
+              <div className="flex-1" />
+
+              {/* Search Icon / Expandable Search Input */}
+              <div className="flex items-center">
+                {isSearchExpanded ? (
+                  <div className="relative flex items-center animate-in slide-in-from-right-2 duration-200">
+                    <Search
+                      size={14}
+                      className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground"
+                    />
+                    <input
+                      ref={searchInputRef}
+                      type="text"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      onBlur={handleSearchBlur}
+                      placeholder={
+                        activeTab === "favorites"
+                          ? "Search favorites..."
+                          : "Search recent..."
+                      }
+                      className="w-48 pl-8 pr-7 py-1.5 bg-background border border-border rounded-md text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary text-sm"
+                    />
+                    {searchQuery && (
+                      <button
+                        onClick={() => setSearchQuery("")}
+                        className="absolute right-1.5 top-1/2 -translate-y-1/2 p-0.5 hover:bg-accent rounded"
+                        aria-label="Clear search"
+                      >
+                        <X size={12} className="text-muted-foreground" />
+                      </button>
+                    )}
+                  </div>
+                ) : (
                   <button
-                    onClick={() => setSearchQuery("")}
-                    className="absolute right-1.5 top-1/2 -translate-y-1/2 p-0.5 hover:bg-accent rounded"
-                    aria-label="Clear search"
+                    onClick={handleToggleSearch}
+                    className="p-1.5 rounded hover:bg-accent transition-colors text-muted-foreground hover:text-foreground"
+                    aria-label="Search"
+                    title="Search"
                   >
-                    <X size={12} className="text-muted-foreground" />
+                    <Search size={16} />
                   </button>
                 )}
               </div>
+
+              {/* Add Favorite Button (only in favorites tab) */}
+              {activeTab === "favorites" && (
+                <button
+                  onClick={handleAddFavorite}
+                  disabled={isAddingFavorite || !isElectron}
+                  className="p-1.5 rounded hover:bg-accent transition-colors text-muted-foreground hover:text-foreground disabled:opacity-50 disabled:cursor-not-allowed"
+                  aria-label="Add favorite folder"
+                  title="Add favorite folder"
+                >
+                  <Plus size={16} />
+                </button>
+              )}
 
               {/* Close Button */}
               <button
@@ -325,11 +386,12 @@ export function FavoritesModal() {
                   setIsOpen(false);
                   setSearchQuery("");
                   setActiveTab("favorites");
+                  setIsSearchExpanded(false);
                 }}
-                className="text-muted-foreground hover:text-foreground transition-colors p-1 rounded hover:bg-accent flex-shrink-0"
+                className="text-muted-foreground hover:text-foreground transition-colors p-1.5 rounded hover:bg-accent flex-shrink-0"
                 aria-label="Close modal"
               >
-                <X size={18} />
+                <X size={16} />
               </button>
             </div>
 
@@ -428,20 +490,6 @@ export function FavoritesModal() {
               )}
             </div>
 
-            {/* Footer - Add Favorite Button (only show in Favorites tab) */}
-            {activeTab === "favorites" && (
-              <div className="px-6 py-4 border-t border-border">
-                <button
-                  onClick={handleAddFavorite}
-                  disabled={isAddingFavorite || !isElectron}
-                  className="w-full px-4 py-2.5 rounded-md bg-secondary text-foreground hover:bg-accent transition-colors flex items-center justify-center gap-2 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-                  role="menuitem"
-                >
-                  <Plus size={16} />
-                  <span>{isAddingFavorite ? "Adding..." : "Add Favorite Folder"}</span>
-                </button>
-              </div>
-            )}
           </div>
         </div>
       )}

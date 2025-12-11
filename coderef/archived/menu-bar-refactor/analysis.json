@@ -1,0 +1,92 @@
+{
+  "foundation_docs": {
+    "available": [
+      "README.md (root)"
+    ],
+    "missing": [
+      "API.md",
+      "ARCHITECTURE.md",
+      "COMPONENTS.md",
+      "SCHEMA.md",
+      "USER-GUIDE.md"
+    ]
+  },
+  "foundation_doc_content": {
+    "README.md": {
+      "location": "root",
+      "preview": "# Scriptboard\n\nModern workspace for managing LLM prompts, attachments, and responses. Migrated from Tkinter to a modern architecture with Python Core, FastAPI Backend, Next.js Frontend, and Electron Shell.\n\n> \ud83d\udcdd See [CHANGELOG.md](CHANGELOG.md) for version history and release notes.\n\n## Features\n\n- **Prompt Management**: Load prompts from files, paste from clipboard, use preloaded prompts\n- **Attachment Handling**: Attach files or paste text snippets, view attachment lists\n- **Response Collection",
+      "headers": [
+        "Scriptboard",
+        "Features",
+        "Architecture",
+        "Installation",
+        "Prerequisites",
+        "Backend Setup",
+        "Windows",
+        "Linux/Mac",
+        "Frontend Setup",
+        "Electron Shell Setup"
+      ],
+      "size": 3584
+    }
+  },
+  "inventory_data": {
+    "available": [],
+    "missing": [
+      "Run /quick-inventory to generate inventory data"
+    ]
+  },
+  "coding_standards": {
+    "available": [
+      "BEHAVIOR-STANDARDS.md",
+      "UI-STANDARDS.md",
+      "UX-PATTERNS.md",
+      "COMPONENT-INDEX.md"
+    ],
+    "missing": [
+      "COMPONENT-PATTERN.md"
+    ]
+  },
+  "reference_components": {
+    "primary": null,
+    "secondary": [],
+    "note": "Reference component matching requires feature name - not yet implemented"
+  },
+  "key_patterns_identified": [
+    "Error handling: try-catch blocks found in 24 files"
+  ],
+  "technology_stack": {
+    "language": "unknown",
+    "framework": "unknown",
+    "database": "unknown",
+    "testing": "unknown",
+    "build": "unknown"
+  },
+  "project_structure": {
+    "main_directories": [
+      "frontend",
+      "shell",
+      "frontend\\__tests__",
+      "frontend\\src\\components"
+    ],
+    "file_counts": {
+      "frontend\\__tests__": 18,
+      "frontend\\src\\components": 17,
+      "frontend": 12,
+      "shell": 10,
+      "frontend\\src\\components\\ClassicLayout": 9,
+      "backend": 8,
+      "frontend\\src\\components\\ui": 8,
+      "coderef\\archived\\new-page": 8,
+      "frontend\\e2e": 7,
+      "coderef\\archived\\Key-Logger": 7
+    },
+    "organization_pattern": "unknown"
+  },
+  "gaps_and_risks": [
+    "Missing foundation docs: API.md, ARCHITECTURE.md, COMPONENTS.md",
+    "Missing coding standards: COMPONENT-PATTERN.md",
+    "No test directory found (tests/, test/, or __tests__/)",
+    "No CI configuration found (.github/workflows/, .gitlab-ci.yml, etc.)"
+  ]
+}

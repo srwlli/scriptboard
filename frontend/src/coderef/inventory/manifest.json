@@ -1,0 +1,614 @@
+{
+  "project_name": "src",
+  "project_path": "C:\\Users\\willh\\Desktop\\clipboard_compannion\\next\\frontend\\src",
+  "generated_at": "2025-12-11T03:48:31.537241",
+  "analysis_depth": "standard",
+  "metrics": {
+    "total_files": 43,
+    "total_size": 189340,
+    "total_lines": 5700,
+    "file_categories": {
+      "core": 0,
+      "source": 41,
+      "template": 0,
+      "config": 0,
+      "test": 0,
+      "docs": 2,
+      "unknown": 0
+    },
+    "risk_distribution": {
+      "low": 36,
+      "medium": 4,
+      "high": 3,
+      "critical": 0
+    },
+    "language_breakdown": {
+      "TypeScript": 40,
+      "Markdown": 2,
+      "CSS": 1
+    }
+  },
+  "files": [
+    {
+      "path": "components/BatchQueuePanel.tsx",
+      "name": "BatchQueuePanel.tsx",
+      "extension": ".tsx",
+      "size": 7282,
+      "lines": 214,
+      "last_modified": "2025-12-10T23:16:33.381349",
+      "category": "source",
+      "risk_level": "low",
+      "dependencies": [
+        "@/hooks",
+        "@/lib",
+        "react"
+      ]
+    },
+    {
+      "path": "components/ConnectionStatus.tsx",
+      "name": "ConnectionStatus.tsx",
+      "extension": ".tsx",
+      "size": 1341,
+      "lines": 45,
+      "last_modified": "2025-12-10T23:16:33.383186",
+      "category": "source",
+      "risk_level": "low",
+      "dependencies": [
+        "@/hooks",
+        "lucide-react"
+      ]
+    },
+    {
+      "path": "components/DrawerNavigation.tsx",
+      "name": "DrawerNavigation.tsx",
+      "extension": ".tsx",
+      "size": 2640,
+      "lines": 86,
+      "last_modified": "2025-12-11T00:24:57.884240",
+      "category": "source",
+      "risk_level": "low",
+      "dependencies": [
+        "lucide-react",
+        "next"
+      ]
+    },
+    {
+      "path": "components/ErrorBoundary.tsx",
+      "name": "ErrorBoundary.tsx",
+      "extension": ".tsx",
+      "size": 1489,
+      "lines": 52,
+      "last_modified": "2025-12-10T23:03:44.091731",
+      "category": "source",
+      "risk_level": "low",
+      "dependencies": [
+        "react"
+      ]
+    },
+    {
+      "path": "components/GitIntegrationPanel.tsx",
+      "name": "GitIntegrationPanel.tsx",
+      "extension": ".tsx",
+      "size": 4503,
+      "lines": 137,
+      "last_modified": "2025-12-10T00:07:14.887668",
+      "category": "source",
+      "risk_level": "low",
+      "dependencies": [
+        "@/lib",
+        "react"
+      ]
+    },
+    {
+      "path": "components/KeyLogPanel.tsx",
+      "name": "KeyLogPanel.tsx",
+      "extension": ".tsx",
+      "size": 7328,
+      "lines": 164,
+      "last_modified": "2025-12-10T22:45:23.516145",
+      "category": "source",
+      "risk_level": "high",
+      "dependencies": [
+        "@/lib",
+        "react"
+      ]
+    },
+    {
+      "path": "components/KeymapEditor.tsx",
+      "name": "KeymapEditor.tsx",
+      "extension": ".tsx",
+      "size": 5002,
+      "lines": 144,
+      "last_modified": "2025-12-10T00:07:14.888001",
+      "category": "source",
+      "risk_level": "high",
+      "dependencies": [
+        "@/lib",
+        "react"
+      ]
+    },
+    {
+      "path": "components/LoggingConsolePanel.tsx",
+      "name": "LoggingConsolePanel.tsx",
+      "extension": ".tsx",
+      "size": 1908,
+      "lines": 82,
+      "last_modified": "2025-12-10T21:23:58.758221",
+      "category": "source",
+      "risk_level": "low",
+      "dependencies": [
+        "react"
+      ]
+    },
+    {
+      "path": "components/MenuBar.tsx",
+      "name": "MenuBar.tsx",
+      "extension": ".tsx",
+      "size": 5796,
+      "lines": 190,
+      "last_modified": "2025-12-11T00:32:16.032620",
+      "category": "source",
+      "risk_level": "low",
+      "dependencies": [
+        "lucide-react",
+        "next",
+        "react"
+      ]
+    },
+    {
+      "path": "components/PreviewPanel.tsx",
+      "name": "PreviewPanel.tsx",
+      "extension": ".tsx",
+      "size": 2010,
+      "lines": 69,
+      "last_modified": "2025-12-09T23:27:59.033140",
+      "category": "source",
+      "risk_level": "low",
+      "dependencies": [
+        "@/lib",
+        "react"
+      ]
+    },
+    {
+      "path": "components/ProfileSelector.tsx",
+      "name": "ProfileSelector.tsx",
+      "extension": ".tsx",
+      "size": 2236,
+      "lines": 76,
+      "last_modified": "2025-12-10T00:01:15.949819",
+      "category": "source",
+      "risk_level": "low",
+      "dependencies": [
+        "@/lib",
+        "react"
+      ]
+    },
+    {
+      "path": "components/ResponseDiffViewer.tsx",
+      "name": "ResponseDiffViewer.tsx",
+      "extension": ".tsx",
+      "size": 8181,
+      "lines": 227,
+      "last_modified": "2025-12-10T00:01:15.872267",
+      "category": "source",
+      "risk_level": "low",
+      "dependencies": [
+        "@/lib",
+        "react"
+      ]
+    },
+    {
+      "path": "components/SessionManagerPanel.tsx",
+      "name": "SessionManagerPanel.tsx",
+      "extension": ".tsx",
+      "size": 4656,
+      "lines": 141,
+      "last_modified": "2025-12-10T00:01:15.949819",
+      "category": "source",
+      "risk_level": "low",
+      "dependencies": [
+        "@/lib",
+        "react"
+      ]
+    },
+    {
+      "path": "components/ThemeProvider.tsx",
+      "name": "ThemeProvider.tsx",
+      "extension": ".tsx",
+      "size": 582,
+      "lines": 20,
+      "last_modified": "2025-12-10T03:47:49.570071",
+      "category": "source",
+      "risk_level": "low",
+      "dependencies": [
+        "react"
+      ]
+    },
+    {
+      "path": "components/ThemeToggle.tsx",
+      "name": "ThemeToggle.tsx",
+      "extension": ".tsx",
+      "size": 1249,
+      "lines": 40,
+      "last_modified": "2025-12-10T03:47:49.570071",
+      "category": "source",
+      "risk_level": "low",
+      "dependencies": [
+        "react"
+      ]
+    },
+    {
+      "path": "components/UserFeedbackPanel.tsx",
+      "name": "UserFeedbackPanel.tsx",
+      "extension": ".tsx",
+      "size": 1806,
+      "lines": 52,
+      "last_modified": "2025-12-10T23:56:41.198090",
+      "category": "source",
+      "risk_level": "low",
+      "dependencies": [
+        "@/hooks",
+        "react"
+      ]
+    },
+    {
+      "path": "components/ClassicLayout/AttachmentsSection.tsx",
+      "name": "AttachmentsSection.tsx",
+      "extension": ".tsx",
+      "size": 7027,
+      "lines": 211,
+      "last_modified": "2025-12-10T14:50:18.244514",
+      "category": "source",
+      "risk_level": "low",
+      "dependencies": [
+        "@/components",
+        "@/hooks",
+        "@/lib",
+        "react"
+      ]
+    },
+    {
+      "path": "components/ClassicLayout/FavoritesDropdownMockup.tsx",
+      "name": "FavoritesDropdownMockup.tsx",
+      "extension": ".tsx",
+      "size": 15021,
+      "lines": 397,
+      "last_modified": "2025-12-10T16:51:39.056312",
+      "category": "source",
+      "risk_level": "medium",
+      "dependencies": [
+        "@/hooks",
+        "@/lib",
+        "lucide-react",
+        "react"
+      ]
+    },
+    {
+      "path": "components/ClassicLayout/FavoritesModal.tsx",
+      "name": "FavoritesModal.tsx",
+      "extension": ".tsx",
+      "size": 22811,
+      "lines": 587,
+      "last_modified": "2025-12-10T21:16:24.142170",
+      "category": "source",
+      "risk_level": "medium",
+      "dependencies": [
+        "@/hooks",
+        "@/lib",
+        "lucide-react",
+        "react"
+      ]
+    },
+    {
+      "path": "components/ClassicLayout/FavoritesSection.tsx",
+      "name": "FavoritesSection.tsx",
+      "extension": ".tsx",
+      "size": 474,
+      "lines": 21,
+      "last_modified": "2025-12-10T16:29:48.240713",
+      "category": "source",
+      "risk_level": "low",
+      "dependencies": [
+        "@/components"
+      ]
+    },
+    {
+      "path": "components/ClassicLayout/ManagementSection.tsx",
+      "name": "ManagementSection.tsx",
+      "extension": ".tsx",
+      "size": 6746,
+      "lines": 196,
+      "last_modified": "2025-12-10T14:50:18.244006",
+      "category": "source",
+      "risk_level": "low",
+      "dependencies": [
+        "@/components",
+        "@/lib",
+        "react"
+      ]
+    },
+    {
+      "path": "components/ClassicLayout/PromptSection.tsx",
+      "name": "PromptSection.tsx",
+      "extension": ".tsx",
+      "size": 16760,
+      "lines": 462,
+      "last_modified": "2025-12-10T14:53:56.919810",
+      "category": "source",
+      "risk_level": "medium",
+      "dependencies": [
+        "@/components",
+        "@/hooks",
+        "@/lib",
+        "lucide-react",
+        "react"
+      ]
+    },
+    {
+      "path": "components/ClassicLayout/README.md",
+      "name": "README.md",
+      "extension": ".md",
+      "size": 2835,
+      "lines": 95,
+      "last_modified": "2025-12-10T02:16:26.514112",
+      "category": "docs",
+      "risk_level": "low",
+      "dependencies": []
+    },
+    {
+      "path": "components/ClassicLayout/ResponsesSection.tsx",
+      "name": "ResponsesSection.tsx",
+      "extension": ".tsx",
+      "size": 5182,
+      "lines": 164,
+      "last_modified": "2025-12-10T14:50:18.244514",
+      "category": "source",
+      "risk_level": "low",
+      "dependencies": [
+        "@/components",
+        "@/hooks",
+        "@/lib",
+        "react"
+      ]
+    },
+    {
+      "path": "components/ClassicLayout/ToggleablePreview.tsx",
+      "name": "ToggleablePreview.tsx",
+      "extension": ".tsx",
+      "size": 1157,
+      "lines": 40,
+      "last_modified": "2025-12-10T03:54:31.630331",
+      "category": "source",
+      "risk_level": "low",
+      "dependencies": [
+        "@/components",
+        "@/lib",
+        "react"
+      ]
+    },
+    {
+      "path": "components/ui/Drawer.tsx",
+      "name": "Drawer.tsx",
+      "extension": ".tsx",
+      "size": 1972,
+      "lines": 75,
+      "last_modified": "2025-12-10T03:27:30.465699",
+      "category": "source",
+      "risk_level": "low",
+      "dependencies": [
+        "react"
+      ]
+    },
+    {
+      "path": "components/ui/FooterBar.tsx",
+      "name": "FooterBar.tsx",
+      "extension": ".tsx",
+      "size": 2479,
+      "lines": 79,
+      "last_modified": "2025-12-11T00:45:43.474891",
+      "category": "source",
+      "risk_level": "low",
+      "dependencies": [
+        "react"
+      ]
+    },
+    {
+      "path": "components/ui/index.ts",
+      "name": "index.ts",
+      "extension": ".ts",
+      "size": 571,
+      "lines": 18,
+      "last_modified": "2025-12-10T19:25:35.427495",
+      "category": "source",
+      "risk_level": "low",
+      "dependencies": [
+        "@/components"
+      ]
+    },
+    {
+      "path": "components/ui/LogDisplay.tsx",
+      "name": "LogDisplay.tsx",
+      "extension": ".tsx",
+      "size": 4329,
+      "lines": 133,
+      "last_modified": "2025-12-10T21:20:13.567603",
+      "category": "source",
+      "risk_level": "low",
+      "dependencies": [
+        "react"
+      ]
+    },
+    {
+      "path": "components/ui/MenuDropdown.tsx",
+      "name": "MenuDropdown.tsx",
+      "extension": ".tsx",
+      "size": 4860,
+      "lines": 157,
+      "last_modified": "2025-12-10T21:58:14.276413",
+      "category": "source",
+      "risk_level": "low",
+      "dependencies": [
+        "lucide-react",
+        "react"
+      ]
+    },
+    {
+      "path": "components/ui/README.md",
+      "name": "README.md",
+      "extension": ".md",
+      "size": 2823,
+      "lines": 114,
+      "last_modified": "2025-12-10T02:16:26.512089",
+      "category": "docs",
+      "risk_level": "low",
+      "dependencies": []
+    },
+    {
+      "path": "components/ui/SectionButtonRow.tsx",
+      "name": "SectionButtonRow.tsx",
+      "extension": ".tsx",
+      "size": 2101,
+      "lines": 65,
+      "last_modified": "2025-12-10T03:54:16.428018",
+      "category": "source",
+      "risk_level": "low",
+      "dependencies": []
+    },
+    {
+      "path": "components/ui/SectionDivider.tsx",
+      "name": "SectionDivider.tsx",
+      "extension": ".tsx",
+      "size": 551,
+      "lines": 27,
+      "last_modified": "2025-12-10T03:54:16.428018",
+      "category": "source",
+      "risk_level": "low",
+      "dependencies": []
+    },
+    {
+      "path": "components/ui/StatusLabel.tsx",
+      "name": "StatusLabel.tsx",
+      "extension": ".tsx",
+      "size": 712,
+      "lines": 33,
+      "last_modified": "2025-12-10T03:54:16.428018",
+      "category": "source",
+      "risk_level": "low",
+      "dependencies": []
+    },
+    {
+      "path": "components/ui/WindowControls.tsx",
+      "name": "WindowControls.tsx",
+      "extension": ".tsx",
+      "size": 3285,
+      "lines": 111,
+      "last_modified": "2025-12-10T21:58:31.906272",
+      "category": "source",
+      "risk_level": "low",
+      "dependencies": [
+        "lucide-react",
+        "react"
+      ]
+    },
+    {
+      "path": "hooks/useBackendConnection.ts",
+      "name": "useBackendConnection.ts",
+      "extension": ".ts",
+      "size": 4074,
+      "lines": 135,
+      "last_modified": "2025-12-10T23:16:33.381349",
+      "category": "source",
+      "risk_level": "low",
+      "dependencies": [
+        "@/lib",
+        "react"
+      ]
+    },
+    {
+      "path": "hooks/useClassicLayout.ts",
+      "name": "useClassicLayout.ts",
+      "extension": ".ts",
+      "size": 6142,
+      "lines": 169,
+      "last_modified": "2025-12-10T23:16:33.381349",
+      "category": "source",
+      "risk_level": "low",
+      "dependencies": [
+        "@/lib",
+        "react"
+      ]
+    },
+    {
+      "path": "hooks/useRecentFolders.ts",
+      "name": "useRecentFolders.ts",
+      "extension": ".ts",
+      "size": 2759,
+      "lines": 98,
+      "last_modified": "2025-12-10T16:48:28.633796",
+      "category": "source",
+      "risk_level": "low",
+      "dependencies": [
+        "react"
+      ]
+    },
+    {
+      "path": "hooks/useSessionRefresh.ts",
+      "name": "useSessionRefresh.ts",
+      "extension": ".ts",
+      "size": 723,
+      "lines": 28,
+      "last_modified": "2025-12-10T02:27:25.961309",
+      "category": "source",
+      "risk_level": "low",
+      "dependencies": [
+        "react"
+      ]
+    },
+    {
+      "path": "lib/api.ts",
+      "name": "api.ts",
+      "extension": ".ts",
+      "size": 12058,
+      "lines": 393,
+      "last_modified": "2025-12-10T22:37:10.483652",
+      "category": "source",
+      "risk_level": "medium",
+      "dependencies": []
+    },
+    {
+      "path": "lib/hotkeys.ts",
+      "name": "hotkeys.ts",
+      "extension": ".ts",
+      "size": 2769,
+      "lines": 108,
+      "last_modified": "2025-12-09T23:31:11.676043",
+      "category": "source",
+      "risk_level": "high",
+      "dependencies": [
+        "react-hotkeys-hook"
+      ]
+    },
+    {
+      "path": "styles/globals.css",
+      "name": "globals.css",
+      "extension": ".css",
+      "size": 1055,
+      "lines": 43,
+      "last_modified": "2025-12-09T23:27:58.973604",
+      "category": "source",
+      "risk_level": "low",
+      "dependencies": []
+    },
+    {
+      "path": "types/jest-dom.d.ts",
+      "name": "jest-dom.d.ts",
+      "extension": ".ts",
+      "size": 55,
+      "lines": 2,
+      "last_modified": "2025-12-10T00:03:11.468595",
+      "category": "source",
+      "risk_level": "low",
+      "dependencies": []
+    }
+  ]
+}

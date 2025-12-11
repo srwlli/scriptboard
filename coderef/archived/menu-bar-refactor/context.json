@@ -1,0 +1,29 @@
+{
+  "feature_name": "menu-bar-refactor",
+  "description": "Implement a custom menu bar (File, Settings, Help) that replaces the OS title bar, with window controls (minimize, maximize, close) integrated into the menu bar. This creates a frameless window experience in Electron while maintaining browser compatibility.",
+  "goal": "Create a unified menu bar that combines application menus and window controls, removing the default OS title bar to provide a cleaner, more integrated desktop application experience that matches modern app design patterns.",
+  "requirements": [
+    "Remove OS title bar (implement frameless window in Electron)",
+    "Create custom menu bar with File, Settings, Help menus",
+    "Integrate window controls (minimize, maximize/fullscreen, close) into menu bar (right side)",
+    "Window controls should work via Electron IPC (minimizeWindow, maximizeWindow, closeWindow)",
+    "Menu bar should work in browser environment (window controls disabled or hidden)",
+    "Menu bar styling should match application theme",
+    "Menu bar should be draggable for window movement in Electron"
+  ],
+  "out_of_scope": [],
+  "constraints": [
+    "Must work in browser environment (window controls not applicable)",
+    "Window controls require Electron IPC - graceful degradation in browser",
+    "Frameless window requires Electron configuration changes",
+    "Menu bar must be draggable for window movement when title bar is removed",
+    "Window controls should match OS styling conventions (Windows, Mac, Linux)"
+  ],
+  "decisions": {},
+  "success_criteria": {},
+  "_metadata": {
+    "workorder_id": "WO-MENU-BAR-REFACTOR-001",
+    "workorder_assigned_at": "2025-12-11T02:43:45.872956+00:00",
+    "workorder_assigned_by": "gather_context"
+  }
+}

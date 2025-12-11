@@ -15,7 +15,7 @@ from typing import Optional
 
 from fastapi import FastAPI, HTTPException, Request, status
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse, RedirectResponse
+from fastapi.responses import JSONResponse, RedirectResponse, StreamingResponse
 from fastapi.exceptions import RequestValidationError
 
 from core import ScriptboardCore
@@ -1436,6 +1436,9 @@ async def remove_favorite(index: int):
     return {"status": "ok"}
 
 
+
+
+
 # --------------------------------------------------------------------------- #
 # Macro / Key Logger Endpoints (Key-Logger feature)
 # --------------------------------------------------------------------------- #
@@ -1510,6 +1513,77 @@ async def stop_macro_recording():
             detail=f"Failed to stop recording: {str(e)}"
         )
 
+
+
+
+@app.get("/macros/record/stream")
+async def stream_macro_events():
+    """
+    SSE endpoint for streaming macro events in real-time during recording.
+
+    Yields events as JSON every 100ms while recording is active.
+    Sends 'done' event when recording stops.
+    """
+    if key_logger is None:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Key logger not available (pynput/pyperclip not installed)"
+        )
+
+    async def event_generator():
+        """Async generator that yields SSE events."""
+        last_event_count = 0
+        started = False
+        wait_count = 0
+        max_wait = 30  # Wait up to 3 seconds for recording to start
+
+        while True:
+            is_rec = key_logger.is_recording()
+
+            # Wait for recording to start (handles race condition)
+            if not started and not is_rec:
+                wait_count += 1
+                if wait_count >= max_wait:
+                    # Recording never started, send done
+                    yield f"data: {json.dumps({'type': 'done', 'reason': 'timeout'})}\n\n"
+                    break
+                await asyncio.sleep(0.1)
+                continue
+
+            # Recording has started at least once
+            if is_rec:
+                started = True
+
+            # Check if recording stopped (after it started)
+            if started and not is_rec:
+                # Send done event and close stream
+                yield f"data: {json.dumps({'type': 'done'})}\n\n"
+                break
+
+            # Get current events
+            events = key_logger.get_events()
+            current_count = len(events)
+
+            # If there are new events, send them
+            if current_count > last_event_count:
+                new_events = events[last_event_count:]
+                for event in new_events:
+                    event_data = event.to_dict()
+                    yield f"data: {json.dumps(event_data)}\n\n"
+                last_event_count = current_count
+
+            # Wait 100ms before checking again
+            await asyncio.sleep(0.1)
+
+    return StreamingResponse(
+        event_generator(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "X-Accel-Buffering": "no",  # Disable nginx buffering
+        }
+    )
 
 @app.post("/macros/save")
 async def save_macro(payload: MacroSavePayload):

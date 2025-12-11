@@ -1,0 +1,462 @@
+{
+  "META_DOCUMENTATION": {
+    "feature_name": "settings-feedback-logging",
+    "schema_version": "1.0.0",
+    "version": "1.0.0",
+    "status": "complete",
+    "generated_by": "AI Assistant",
+    "has_context": false,
+    "has_analysis": false
+  },
+  "UNIVERSAL_PLANNING_STRUCTURE": {
+    "0_preparation": {
+      "foundation_docs": {
+        "available": [
+          "coderef/standards/UI-STANDARDS.md",
+          "coderef/standards/UX-PATTERNS.md",
+          "coderef/standards/BEHAVIOR-STANDARDS.md"
+        ],
+        "missing": []
+      },
+      "coding_standards": {
+        "available": [
+          "coderef/standards/BEHAVIOR-STANDARDS.md",
+          "coderef/standards/UI-STANDARDS.md"
+        ],
+        "missing": []
+      },
+      "reference_components": {
+        "primary": "LoggingConsolePanel.tsx - Existing logging console component to extend",
+        "secondary": [
+          "useClassicLayout.ts - Hook that manages settings state",
+          "LogDisplay.tsx - Shared log display component"
+        ]
+      },
+      "key_patterns_identified": [
+        "LoggingConsolePanel uses console.* interception pattern",
+        "LogDisplay component handles UI rendering with filtering",
+        "Settings feedback currently commented out in useClassicLayout.ts",
+        "React hooks pattern for state management"
+      ]
+    },
+    "1_executive_summary": {
+      "purpose": "Route app settings feedback (Lock Size, On Top) from footer status messages to the logging console with a dedicated 'settings' category, providing better visibility and organization of application state changes.",
+      "value_proposition": "Centralizes all application feedback in one location, enables filtering by category, captures window dimensions when size is locked, and removes clutter from the footer status bar.",
+      "real_world_analogy": "Like moving notification badges from scattered locations to a unified notification center where you can filter by type (settings, errors, warnings) and see everything in one organized view.",
+      "use_case": "User toggles 'Lock Size' checkbox → window dimensions captured → 'Size locked: 1200 x 800' message appears in logging console under 'Settings' filter → User can filter logs to see only settings-related messages.",
+      "output": "Modified LoggingConsolePanel.tsx with 'settings' log level, updated useClassicLayout.ts to log settings messages, LogDisplay component updated with settings filter option, window dimension capture in lock size handler."
+    },
+    "2_risk_assessment": {
+      "overall_risk": "low",
+      "complexity": "low",
+      "scope": "Small - 3 files, 2 components affected",
+      "risk_factors": {
+        "file_system": {
+          "level": "none",
+          "reason": "No file I/O operations"
+        },
+        "dependencies": {
+          "level": "none",
+          "reason": "Uses only existing React hooks and components, no new external dependencies"
+        },
+        "performance": {
+          "level": "none",
+          "concerns": [],
+          "reason": "Minimal overhead - just adding log entries to existing array"
+        },
+        "security": {
+          "level": "none",
+          "threats": [],
+          "reason": "No user input, no sensitive data exposure"
+        },
+        "breaking_changes": {
+          "level": "none",
+          "reason": "Purely additive - existing functionality unchanged, only adds new log level"
+        }
+      },
+      "mitigation_strategies": []
+    },
+    "3_current_state_analysis": {
+      "affected_files": [
+        "MODIFIED: frontend/src/components/LoggingConsolePanel.tsx - Add 'settings' log level and filter option",
+        "MODIFIED: frontend/src/components/ui/LogDisplay.tsx - Add 'settings' to log level type and filter dropdown",
+        "MODIFIED: frontend/src/hooks/useClassicLayout.ts - Replace commented showStatus() calls with console logging for settings messages"
+      ],
+      "dependencies": {
+        "existing_internal": [
+          "frontend/src/components/LoggingConsolePanel.tsx - Logging console component",
+          "frontend/src/components/ui/LogDisplay.tsx - Shared log display UI component",
+          "frontend/src/hooks/useClassicLayout.ts - Settings state management hook"
+        ],
+        "existing_external": [
+          "react - React hooks (useState, useEffect, useCallback)",
+          "lucide-react - Icons (if needed for settings icon)"
+        ],
+        "new_external": [],
+        "new_internal": []
+      },
+      "architecture_context": "Operates at the presentation layer (React components). Follows existing console interception pattern in LoggingConsolePanel. Uses React hooks for state management. Integrates with existing LogDisplay component which handles filtering and rendering. Settings messages are logged via console methods that are already intercepted."
+    },
+    "4_key_features": {
+      "primary_features": [
+        "Add 'settings' log level to LoggingConsolePanel alongside existing info, warn, error, debug levels",
+        "Route Lock Size toggle feedback to logging console with window dimensions (e.g., 'Size locked: 1200 x 800')",
+        "Route On Top toggle feedback to logging console (e.g., 'Always on top enabled', 'Always on top disabled')",
+        "Add 'Settings' filter option to LogDisplay component dropdown"
+      ],
+      "secondary_features": [
+        "Capture and display window dimensions when size is locked (both Electron and browser modes)",
+        "Color-code settings logs distinctively (e.g., green or purple) for visual identification",
+        "Settings logs appear in chronological order with other log types"
+      ],
+      "edge_case_handling": [
+        "Handle cases where window size cannot be retrieved (log error message instead)",
+        "Handle browser mode where Electron API is unavailable (log appropriate message)",
+        "Handle unlock operations (log 'Size unlocked' without dimensions)"
+      ],
+      "configuration_options": []
+    },
+    "5_task_id_system": {
+      "workorder": {
+        "id": "WO-SETTINGS-FEEDBACK-LOGGING-001",
+        "name": "Settings Feedback Logging",
+        "feature_dir": "coderef/working/settings-feedback-logging"
+      },
+      "tasks": [
+        {
+          "id": "SETUP-001",
+          "workorder_id": "WO-SETTINGS-FEEDBACK-LOGGING-001",
+          "description": "Review LogDisplay component structure to understand log level type definition and filter implementation",
+          "complexity": "low",
+          "effort_level": 1
+        },
+        {
+          "id": "UI-001",
+          "workorder_id": "WO-SETTINGS-FEEDBACK-LOGGING-001",
+          "description": "Add 'settings' to LogEntry level type in LogDisplay.tsx (extend type from 'info' | 'warn' | 'error' | 'debug' to include 'settings')",
+          "complexity": "low",
+          "effort_level": 1
+        },
+        {
+          "id": "UI-002",
+          "workorder_id": "WO-SETTINGS-FEEDBACK-LOGGING-001",
+          "description": "Add 'Settings' option to filter dropdown in LogDisplay.tsx filter select element",
+          "complexity": "low",
+          "effort_level": 1
+        },
+        {
+          "id": "UI-003",
+          "workorder_id": "WO-SETTINGS-FEEDBACK-LOGGING-001",
+          "description": "Add color styling for 'settings' log level in getLevelColor function (e.g., green 'text-green-500' or purple 'text-purple-500')",
+          "complexity": "low",
+          "effort_level": 1
+        },
+        {
+          "id": "UI-004",
+          "workorder_id": "WO-SETTINGS-FEEDBACK-LOGGING-001",
+          "description": "Update LoggingConsolePanel.tsx to handle 'settings' level in addLog function and console interception",
+          "complexity": "low",
+          "effort_level": 1
+        },
+        {
+          "id": "LOGIC-001",
+          "workorder_id": "WO-SETTINGS-FEEDBACK-LOGGING-001",
+          "description": "In useClassicLayout.ts handleLockSizeToggle, replace commented showStatus('Size locked') with console.log('Size locked: ${size.width} x ${size.height}') when size is successfully locked in Electron mode",
+          "complexity": "low",
+          "effort_level": 1
+        },
+        {
+          "id": "LOGIC-002",
+          "workorder_id": "WO-SETTINGS-FEEDBACK-LOGGING-001",
+          "description": "In useClassicLayout.ts handleLockSizeToggle, replace commented showStatus('Size unlocked') with console.log('Size unlocked') when size is unlocked in Electron mode",
+          "complexity": "low",
+          "effort_level": 1
+        },
+        {
+          "id": "LOGIC-003",
+          "workorder_id": "WO-SETTINGS-FEEDBACK-LOGGING-001",
+          "description": "In useClassicLayout.ts handleLockSizeToggle, replace commented showStatus('Size locked (CSS only)') with console.log('Size locked: ${rect.width} x ${rect.height} (CSS only)') when size is locked in browser mode",
+          "complexity": "low",
+          "effort_level": 1
+        },
+        {
+          "id": "LOGIC-004",
+          "workorder_id": "WO-SETTINGS-FEEDBACK-LOGGING-001",
+          "description": "In useClassicLayout.ts handleLockSizeToggle, replace commented showStatus('Size unlocked') with console.log('Size unlocked') when size is unlocked in browser mode",
+          "complexity": "low",
+          "effort_level": 1
+        },
+        {
+          "id": "LOGIC-005",
+          "workorder_id": "WO-SETTINGS-FEEDBACK-LOGGING-001",
+          "description": "In useClassicLayout.ts handleLockSizeToggle, replace commented showStatus('Failed to toggle lock size') with console.error('Failed to toggle lock size:', error) in catch block",
+          "complexity": "low",
+          "effort_level": 1
+        },
+        {
+          "id": "LOGIC-006",
+          "workorder_id": "WO-SETTINGS-FEEDBACK-LOGGING-001",
+          "description": "In useClassicLayout.ts handleOnTopToggle, replace commented showStatus('Always on top enabled/disabled') with console.log(onTopValue ? 'Always on top enabled' : 'Always on top disabled') when successfully toggled in Electron mode",
+          "complexity": "low",
+          "effort_level": 1
+        },
+        {
+          "id": "LOGIC-007",
+          "workorder_id": "WO-SETTINGS-FEEDBACK-LOGGING-001",
+          "description": "In useClassicLayout.ts handleOnTopToggle, replace commented showStatus('Failed to toggle always on top') with console.error('Failed to toggle always on top:', error) in catch block",
+          "complexity": "low",
+          "effort_level": 1
+        },
+        {
+          "id": "LOGIC-008",
+          "workorder_id": "WO-SETTINGS-FEEDBACK-LOGGING-001",
+          "description": "In useClassicLayout.ts handleOnTopToggle, replace commented showStatus('Always on top requires Electron...') with console.warn('Always on top requires Electron. Please use the desktop app.') when attempted in browser mode",
+          "complexity": "low",
+          "effort_level": 1
+        },
+        {
+          "id": "LOGIC-009",
+          "workorder_id": "WO-SETTINGS-FEEDBACK-LOGGING-001",
+          "description": "Create helper function logSettings(message: string) in useClassicLayout.ts that calls console.log with '[SETTINGS]' prefix, or use custom event dispatch pattern if preferred",
+          "complexity": "low",
+          "effort_level": 2
+        },
+        {
+          "id": "TEST-001",
+          "workorder_id": "WO-SETTINGS-FEEDBACK-LOGGING-001",
+          "description": "Test that 'Settings' filter option appears in LogDisplay dropdown and filters logs correctly",
+          "complexity": "low",
+          "effort_level": 1
+        },
+        {
+          "id": "TEST-002",
+          "workorder_id": "WO-SETTINGS-FEEDBACK-LOGGING-001",
+          "description": "Test that Lock Size toggle logs 'Size locked: WIDTH x HEIGHT' with actual dimensions in Electron mode",
+          "complexity": "low",
+          "effort_level": 1
+        },
+        {
+          "id": "TEST-003",
+          "workorder_id": "WO-SETTINGS-FEEDBACK-LOGGING-001",
+          "description": "Test that On Top toggle logs appropriate enabled/disabled messages in Electron mode",
+          "complexity": "low",
+          "effort_level": 1
+        },
+        {
+          "id": "TEST-004",
+          "workorder_id": "WO-SETTINGS-FEEDBACK-LOGGING-001",
+          "description": "Test that settings logs appear with correct color styling in LogDisplay",
+          "complexity": "low",
+          "effort_level": 1
+        }
+      ]
+    },
+    "6_implementation_phases": {
+      "phases": [
+        {
+          "phase": 1,
+          "name": "UI Component Updates",
+          "description": "Add 'settings' log level support to LogDisplay and LoggingConsolePanel components",
+          "complexity": "low",
+          "effort_level": 1,
+          "tasks": [
+            "SETUP-001",
+            "UI-001",
+            "UI-002",
+            "UI-003",
+            "UI-004"
+          ],
+          "completion_criteria": "LogDisplay component supports 'settings' log level with filter option and color styling, LoggingConsolePanel intercepts settings logs",
+          "dependencies": []
+        },
+        {
+          "phase": 2,
+          "name": "Settings Logging Implementation",
+          "description": "Replace commented showStatus() calls with console logging in useClassicLayout hook",
+          "complexity": "low",
+          "effort_level": 1,
+          "tasks": [
+            "LOGIC-001",
+            "LOGIC-002",
+            "LOGIC-003",
+            "LOGIC-004",
+            "LOGIC-005",
+            "LOGIC-006",
+            "LOGIC-007",
+            "LOGIC-008",
+            "LOGIC-009"
+          ],
+          "completion_criteria": "All settings feedback messages are logged to console with appropriate level and include window dimensions when available",
+          "dependencies": ["Phase 1"]
+        },
+        {
+          "phase": 3,
+          "name": "Testing and Validation",
+          "description": "Verify settings logs appear correctly in logging console with proper filtering and styling",
+          "complexity": "low",
+          "effort_level": 1,
+          "tasks": [
+            "TEST-001",
+            "TEST-002",
+            "TEST-003",
+            "TEST-004"
+          ],
+          "completion_criteria": "All tests pass, settings logs appear correctly in console, filtering works as expected",
+          "dependencies": ["Phase 1", "Phase 2"]
+        }
+      ]
+    },
+    "7_testing_strategy": {
+      "unit_tests": {
+        "scope": "Component-level testing for LogDisplay and LoggingConsolePanel",
+        "tests": [
+          "Test LogDisplay renders 'Settings' filter option",
+          "Test LogDisplay filters logs by 'settings' level correctly",
+          "Test LogDisplay applies correct color styling to settings logs",
+          "Test LoggingConsolePanel intercepts console.log calls and adds to logs array"
+        ],
+        "tools": "Jest, React Testing Library",
+        "coverage_target": "80% coverage for modified components"
+      },
+      "integration_tests": {
+        "scope": "End-to-end flow of settings toggles to logging console",
+        "tests": [
+          "Test Lock Size toggle → console.log → LoggingConsolePanel displays message",
+          "Test On Top toggle → console.log → LoggingConsolePanel displays message",
+          "Test filter dropdown → select 'Settings' → only settings logs visible"
+        ],
+        "tools": "Jest, React Testing Library with user events",
+        "focus": "Component interaction and state flow"
+      },
+      "edge_case_testing": [
+        {
+          "scenario": "Window size retrieval fails in Electron mode",
+          "setup": "Mock electronAPI.getWindowSize() to return error",
+          "expected_behavior": "Error logged to console.error, no settings log created",
+          "verification": "Check console.error was called with error message"
+        },
+        {
+          "scenario": "Lock Size toggled in browser mode (no Electron API)",
+          "setup": "Run in browser environment without electronAPI",
+          "expected_behavior": "CSS-only lock message logged with container dimensions",
+          "verification": "Check console.log contains 'Size locked: WIDTH x HEIGHT (CSS only)'"
+        },
+        {
+          "scenario": "On Top toggled in browser mode",
+          "setup": "Run in browser environment without electronAPI",
+          "expected_behavior": "Warning logged that Electron is required",
+          "verification": "Check console.warn contains 'Always on top requires Electron'"
+        },
+        {
+          "scenario": "Filter set to 'Settings' with no settings logs",
+          "setup": "Clear logs, set filter to 'Settings'",
+          "expected_behavior": "Display 'No logs' message",
+          "verification": "Check UI shows empty state message"
+        },
+        {
+          "scenario": "Multiple settings toggles in quick succession",
+          "setup": "Toggle Lock Size and On Top rapidly",
+          "expected_behavior": "All messages appear in chronological order",
+          "verification": "Check log timestamps are sequential"
+        }
+      ]
+    },
+    "8_success_criteria": {
+      "functional_requirements": [
+        {
+          "requirement": "Settings log level support",
+          "metric": "LogDisplay component accepts and displays 'settings' log level",
+          "target": "TypeScript compilation succeeds, 'Settings' appears in filter dropdown",
+          "validation": "Run TypeScript compiler, manually verify dropdown contains 'Settings' option"
+        },
+        {
+          "requirement": "Lock Size logging with dimensions",
+          "metric": "Lock Size toggle logs window dimensions",
+          "target": "Console contains 'Size locked: WIDTH x HEIGHT' message when toggled in Electron mode",
+          "validation": "Toggle Lock Size checkbox, verify message appears in LoggingConsolePanel with actual dimensions"
+        },
+        {
+          "requirement": "On Top logging",
+          "metric": "On Top toggle logs enabled/disabled status",
+          "target": "Console contains 'Always on top enabled' or 'Always on top disabled' when toggled",
+          "validation": "Toggle On Top checkbox, verify appropriate message appears in LoggingConsolePanel"
+        },
+        {
+          "requirement": "Settings filter functionality",
+          "metric": "Filter dropdown filters logs by 'settings' level",
+          "target": "Selecting 'Settings' filter shows only settings logs, hiding other log types",
+          "validation": "Create mixed logs (info, error, settings), select 'Settings' filter, verify only settings logs visible"
+        },
+        {
+          "requirement": "Settings log color styling",
+          "metric": "Settings logs display with distinct color",
+          "target": "Settings logs render with green or purple color class applied",
+          "validation": "Visual inspection of settings logs in LoggingConsolePanel"
+        }
+      ],
+      "quality_requirements": [
+        {
+          "requirement": "Code style compliance",
+          "metric": "Linter passes with zero warnings",
+          "target": "ESLint returns exit code 0",
+          "validation": "Run 'npm run lint' in frontend directory"
+        },
+        {
+          "requirement": "Type safety",
+          "metric": "TypeScript compilation succeeds",
+          "target": "TypeScript compiler returns zero errors",
+          "validation": "Run 'npx tsc --noEmit' in frontend directory"
+        },
+        {
+          "requirement": "Test coverage",
+          "metric": "Test coverage for modified components",
+          "target": "> 80% line coverage for LogDisplay and LoggingConsolePanel modifications",
+          "validation": "Run 'npm test -- --coverage' and check coverage report"
+        }
+      ],
+      "performance_requirements": [],
+      "security_requirements": []
+    },
+    "9_implementation_checklist": {
+      "pre_implementation": [
+        "☐ Review complete plan for gaps or ambiguities",
+        "☐ Get stakeholder approval (if required)",
+        "☐ Commit finalized plan to main branch with message 'pre-settings-feedback-logging execution commit' and push",
+        "☐ Set up development environment"
+      ],
+      "phase_1_ui_component_updates": [
+        "☐ SETUP-001: Review LogDisplay component structure",
+        "☐ UI-001: Add 'settings' to LogEntry level type",
+        "☐ UI-002: Add 'Settings' option to filter dropdown",
+        "☐ UI-003: Add color styling for 'settings' log level",
+        "☐ UI-004: Update LoggingConsolePanel to handle 'settings' level"
+      ],
+      "phase_2_settings_logging_implementation": [
+        "☐ LOGIC-001: Log Lock Size with dimensions (Electron mode)",
+        "☐ LOGIC-002: Log Size unlocked (Electron mode)",
+        "☐ LOGIC-003: Log Lock Size with dimensions (Browser mode)",
+        "☐ LOGIC-004: Log Size unlocked (Browser mode)",
+        "☐ LOGIC-005: Log Lock Size errors",
+        "☐ LOGIC-006: Log On Top enabled/disabled",
+        "☐ LOGIC-007: Log On Top errors",
+        "☐ LOGIC-008: Log On Top browser warning",
+        "☐ LOGIC-009: Create helper function for settings logging (optional)"
+      ],
+      "phase_3_testing_and_validation": [
+        "☐ TEST-001: Test Settings filter functionality",
+        "☐ TEST-002: Test Lock Size logging with dimensions",
+        "☐ TEST-003: Test On Top logging",
+        "☐ TEST-004: Test settings log color styling"
+      ],
+      "finalization": [
+        "☐ All tests passing",
+        "☐ Code review completed and approved",
+        "☐ Linter passes with zero warnings",
+        "☐ TypeScript compilation succeeds",
+        "☐ Manual testing: Toggle settings, verify logs appear in console",
+        "☐ Commit completed implementation to main branch with message 'post-settings-feedback-logging execution commit' and push"
+      ]
+    }
+  }
+}
+

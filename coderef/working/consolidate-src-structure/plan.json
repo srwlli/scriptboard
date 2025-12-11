@@ -1,0 +1,218 @@
+{
+  "META_DOCUMENTATION": {
+    "feature_name": "consolidate-src-structure",
+    "schema_version": "1.0.0",
+    "version": "1.0.0",
+    "status": "complete",
+    "generated_by": "AI Assistant",
+    "has_context": false,
+    "has_analysis": false
+  },
+  "UNIVERSAL_PLANNING_STRUCTURE": {
+    "0_preparation": {
+      "foundation_docs": ["frontend/INVENTORY.md"],
+      "coding_standards": "Next.js App Router conventions",
+      "reference_components": ["frontend/src/components/", "frontend/app/"]
+    },
+    "1_executive_summary": {
+      "description": "Consolidate Next.js frontend structure by moving app/ directory under src/ for consistent project organization",
+      "goal": "Single src/ directory containing all frontend code (app, components, hooks, lib, styles, types)",
+      "scope": "Frontend directory restructure only - no functional changes",
+      "estimated_complexity": "low"
+    },
+    "2_risk_assessment": {
+      "overall_risk": "low",
+      "risks": [
+        {
+          "risk": "Import path breakage",
+          "probability": "medium",
+          "impact": "low",
+          "mitigation": "Verify tsconfig paths and test all imports after move"
+        },
+        {
+          "risk": "Next.js routing breaks",
+          "probability": "low",
+          "impact": "high",
+          "mitigation": "Ensure next.config.js recognizes src/app as app directory"
+        }
+      ]
+    },
+    "3_current_state_analysis": {
+      "current_structure": {
+        "frontend/app/": "Next.js App Router pages (layout.tsx, page.tsx, routes)",
+        "frontend/src/": "Components, hooks, lib, styles, types",
+        "frontend/src/app/": "Empty directory (to be populated)"
+      },
+      "files_to_modify": [
+        { "path": "frontend/next.config.js", "purpose": "May need srcDir config if not auto-detected" },
+        { "path": "frontend/tsconfig.json", "purpose": "Verify path aliases still work" }
+      ],
+      "files_to_create": [],
+      "files_to_move": [
+        { "from": "frontend/app/layout.tsx", "to": "frontend/src/app/layout.tsx" },
+        { "from": "frontend/app/page.tsx", "to": "frontend/src/app/page.tsx" },
+        { "from": "frontend/app/settings/", "to": "frontend/src/app/settings/" },
+        { "from": "frontend/app/view-components/", "to": "frontend/src/app/view-components/" }
+      ],
+      "files_to_delete": [
+        { "path": "frontend/app/", "purpose": "Empty after move" }
+      ]
+    },
+    "4_key_features": {
+      "features": [
+        {
+          "name": "Directory Consolidation",
+          "description": "Move all app/ contents into src/app/",
+          "requirements": ["Maintain all existing routes", "Preserve file contents"]
+        },
+        {
+          "name": "Config Verification",
+          "description": "Ensure Next.js and TypeScript configs work with new structure",
+          "requirements": ["App router functions correctly", "Import aliases resolve"]
+        }
+      ]
+    },
+    "5_task_id_system": {
+      "workorder": {
+        "id": "WO-CONSOLIDATE-SRC-STRUCTURE-001",
+        "name": "Consolidate Src Structure",
+        "feature_dir": "coderef/working/consolidate-src-structure"
+      },
+      "tasks": [
+        {
+          "id": "MOVE-001",
+          "workorder_id": "WO-CONSOLIDATE-SRC-STRUCTURE-001",
+          "description": "Move frontend/app/layout.tsx to frontend/src/app/layout.tsx",
+          "type": "file-move",
+          "priority": "high",
+          "estimated_effort": "5min"
+        },
+        {
+          "id": "MOVE-002",
+          "workorder_id": "WO-CONSOLIDATE-SRC-STRUCTURE-001",
+          "description": "Move frontend/app/page.tsx to frontend/src/app/page.tsx",
+          "type": "file-move",
+          "priority": "high",
+          "estimated_effort": "5min"
+        },
+        {
+          "id": "MOVE-003",
+          "workorder_id": "WO-CONSOLIDATE-SRC-STRUCTURE-001",
+          "description": "Move frontend/app/settings/ directory to frontend/src/app/settings/",
+          "type": "directory-move",
+          "priority": "high",
+          "estimated_effort": "5min"
+        },
+        {
+          "id": "MOVE-004",
+          "workorder_id": "WO-CONSOLIDATE-SRC-STRUCTURE-001",
+          "description": "Move frontend/app/view-components/ directory to frontend/src/app/view-components/",
+          "type": "directory-move",
+          "priority": "high",
+          "estimated_effort": "5min"
+        },
+        {
+          "id": "CLEANUP-001",
+          "workorder_id": "WO-CONSOLIDATE-SRC-STRUCTURE-001",
+          "description": "Delete empty frontend/app/ directory",
+          "type": "cleanup",
+          "priority": "medium",
+          "estimated_effort": "2min"
+        },
+        {
+          "id": "VERIFY-001",
+          "workorder_id": "WO-CONSOLIDATE-SRC-STRUCTURE-001",
+          "description": "Verify tsconfig.json paths work with new structure",
+          "type": "verification",
+          "priority": "high",
+          "estimated_effort": "5min"
+        },
+        {
+          "id": "VERIFY-002",
+          "workorder_id": "WO-CONSOLIDATE-SRC-STRUCTURE-001",
+          "description": "Test app builds and routes work correctly",
+          "type": "verification",
+          "priority": "high",
+          "estimated_effort": "10min"
+        },
+        {
+          "id": "DOC-001",
+          "workorder_id": "WO-CONSOLIDATE-SRC-STRUCTURE-001",
+          "description": "Update frontend/INVENTORY.md with new structure",
+          "type": "documentation",
+          "priority": "low",
+          "estimated_effort": "5min"
+        }
+      ]
+    },
+    "6_implementation_phases": {
+      "phases": [
+        {
+          "phase": 1,
+          "name": "File Migration",
+          "description": "Move all app/ contents to src/app/",
+          "tasks": ["MOVE-001", "MOVE-002", "MOVE-003", "MOVE-004"],
+          "deliverables": ["All routes moved to src/app/"]
+        },
+        {
+          "phase": 2,
+          "name": "Cleanup",
+          "description": "Remove old directory",
+          "tasks": ["CLEANUP-001"],
+          "deliverables": ["Empty app/ directory removed"]
+        },
+        {
+          "phase": 3,
+          "name": "Verification",
+          "description": "Verify everything works",
+          "tasks": ["VERIFY-001", "VERIFY-002"],
+          "deliverables": ["Build succeeds", "All routes accessible"]
+        },
+        {
+          "phase": 4,
+          "name": "Documentation",
+          "description": "Update documentation",
+          "tasks": ["DOC-001"],
+          "deliverables": ["INVENTORY.md updated"]
+        }
+      ]
+    },
+    "7_testing_strategy": {
+      "manual_tests": [
+        "Navigate to / (home page)",
+        "Navigate to /settings",
+        "Navigate to /view-components",
+        "Verify MenuBar navigation works",
+        "Verify FooterBar controls work",
+        "Run npm run build to check for errors"
+      ]
+    },
+    "8_success_criteria": {
+      "criteria": [
+        "All pages accessible at same URLs",
+        "No build errors",
+        "No broken imports",
+        "Clean directory structure under src/"
+      ]
+    },
+    "9_implementation_checklist": {
+      "phase_1": [
+        "[ ] Move layout.tsx",
+        "[ ] Move page.tsx",
+        "[ ] Move settings/",
+        "[ ] Move view-components/"
+      ],
+      "phase_2": [
+        "[ ] Delete frontend/app/"
+      ],
+      "phase_3": [
+        "[ ] Verify tsconfig paths",
+        "[ ] Test build",
+        "[ ] Test all routes"
+      ],
+      "phase_4": [
+        "[ ] Update INVENTORY.md"
+      ]
+    }
+  }
+}

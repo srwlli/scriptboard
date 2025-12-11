@@ -29,26 +29,15 @@ export default function ModernPage() {
 
       {/* Panels - Grid layout */}
       <main className="container mx-auto px-4 py-6">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-          {/* Left Column */}
-          <div className="space-y-4">
-            <SessionManagerPanel />
-            <BatchQueuePanel />
-          </div>
-
-          {/* Middle Column */}
-          <div className="space-y-4">
-            <GitIntegrationPanel />
-            <PreviewPanel />
-          </div>
-
-          {/* Right Column */}
-          <div className="space-y-4">
-            <UserFeedbackPanel />
-            <KeyLogPanel />
-            <KeymapEditor />
-            <LoggingConsolePanel />
-          </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <SessionManagerPanel />
+          <BatchQueuePanel />
+          <GitIntegrationPanel />
+          <PreviewPanel />
+          <UserFeedbackPanel />
+          <KeyLogPanel />
+          <KeymapEditor />
+          <LoggingConsolePanel />
         </div>
       </main>
     </div>

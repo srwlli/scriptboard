@@ -101,7 +101,7 @@ export function AttachmentsSection() {
   const handlePasteCode = async () => {
     try {
       // Ensure document is focused before accessing clipboard
-      if (typeof window !== "undefined" && document.hasFocus) {
+      if (typeof window !== "undefined" && document.hasFocus()) {
         window.focus();
         await new Promise((resolve) => setTimeout(resolve, 100));
       }

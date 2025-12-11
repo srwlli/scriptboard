@@ -1,0 +1,140 @@
+[
+  {
+    "timestamp": "2025-12-10T21:14:49.012967",
+    "workorder_id": "WO-SEARCH-ICON-AND-FOLDER-HEADER-001",
+    "feature_name": "search-icon-and-folder-header",
+    "task_count": 26,
+    "tasks": [
+      {
+        "content": "PHASE-1--001: [ ] Add isSearchExpanded state variable",
+        "activeForm": "PHASE-1--001: [ing ] Add isSearchExpanded state variable",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-1--002: [ ] Replace search input with Search icon button",
+        "activeForm": "PHASE-1--002: [ing ] Replace search input with Search icon button",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-1--003: [ ] Implement conditional rendering of search input based on isSearchExpanded",
+        "activeForm": "PHASE-1--003: [ing ] Implement conditional rendering of search input based on isSearchExpanded",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-1--004: [ ] Add onClick handler to search icon to toggle isSearchExpanded",
+        "activeForm": "PHASE-1--004: [ing ] Add onClick handler to search icon to toggle isSearchExpanded",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-1--005: [ ] Add transition classes for smooth expansion animation",
+        "activeForm": "PHASE-1--005: [ing ] Add transition classes for smooth expansion animation",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-1--006: [ ] Auto-focus search input when expanded",
+        "activeForm": "PHASE-1--006: [ing ] Auto-focus search input when expanded",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-1--007: [ ] Handle Escape key to collapse search",
+        "activeForm": "PHASE-1--007: [ing ] Handle Escape key to collapse search",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-1--008: [ ] Handle blur event to optionally collapse search (or keep open while typing)",
+        "activeForm": "PHASE-1--008: [ing ] Handle blur event to optionally collapse search (or keep open while typing)",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-2--001: [ ] Remove Add Favorite button from footer section",
+        "activeForm": "PHASE-2--001: [ing ] Remove Add Favorite button from footer section",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-2--002: [ ] Add Add Favorite button to header after search area",
+        "activeForm": "PHASE-2--002: [ing ] Add Add Favorite button to header after search area",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-2--003: [ ] Style add button as compact icon button (Plus icon + text or icon only)",
+        "activeForm": "PHASE-2--003: [ing ] Style add button as compact icon button (Plus icon + text or icon only)",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-2--004: [ ] Ensure add button only shows when activeTab === 'favorites'",
+        "activeForm": "PHASE-2--004: [ing ] Ensure add button only shows when activeTab === 'favorites'",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-2--005: [ ] Test add button functionality from new location",
+        "activeForm": "PHASE-2--005: [ing ] Test add button functionality from new location",
+        "status": "pending"
+      },
+      {
+        "content": "[ ] Review header layout: Tabs | Search Icon | [Expanded Search] | Add Button | Close",
+        "activeForm": "[ ] Review header layout: Tabsing | Search Icon | [Expanded Search] | Add Button | Close",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-3--002: [ ] Adjust spacing and gap values for optimal layout",
+        "activeForm": "PHASE-3--002: [ing ] Adjust spacing and gap values for optimal layout",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-3--003: [ ] Ensure responsive behavior on smaller screens",
+        "activeForm": "PHASE-3--003: [ing ] Ensure responsive behavior on smaller screens",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-3--004: [ ] Verify alignment of all header elements",
+        "activeForm": "PHASE-3--004: [ing ] Verify alignment of all header elements",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-4--001: [ ] Test search icon click expands/collapses search",
+        "activeForm": "PHASE-4--001: [ing ] Test search icon click expands/collapses search",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-4--002: [ ] Test search input auto-focus",
+        "activeForm": "PHASE-4--002: [ing ] Test search input auto-focus",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-4--003: [ ] Test Escape key closes search",
+        "activeForm": "PHASE-4--003: [ing ] Test Escape key closes search",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-4--004: [ ] Test search filtering still works",
+        "activeForm": "PHASE-4--004: [ing ] Test search filtering still works",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-4--005: [ ] Test add button appears only in favorites tab",
+        "activeForm": "PHASE-4--005: [ing ] Test add button appears only in favorites tab",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-4--006: [ ] Test add button functionality from header",
+        "activeForm": "PHASE-4--006: [ing ] Test add button functionality from header",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-4--007: [ ] Test header layout on different screen sizes",
+        "activeForm": "PHASE-4--007: [ing ] Test header layout on different screen sizes",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-4--008: [ ] Verify no console errors",
+        "activeForm": "PHASE-4--008: [ing ] Verify no console errors",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-4--009: [ ] Check accessibility (keyboard navigation, ARIA labels)",
+        "activeForm": "PHASE-4--009: [ing ] Check accessibility (keyboard navigation, ARIA labels)",
+        "status": "pending"
+      }
+    ]
+  }
+]

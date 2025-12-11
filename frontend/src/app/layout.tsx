@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import "../src/styles/globals.css";
+import "../styles/globals.css";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { MenuBar } from "@/components/MenuBar";
