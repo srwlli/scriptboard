@@ -1,0 +1,160 @@
+[
+  {
+    "timestamp": "2025-12-11T15:38:47.618790",
+    "workorder_id": "WO-SONNER-NOTIFICATIONS-001",
+    "feature_name": "sonner-notifications",
+    "task_count": 30,
+    "tasks": [
+      {
+        "content": "Install sonner package: npm install sonner",
+        "activeForm": "Install sonner package: npming install sonner",
+        "status": "pending"
+      },
+      {
+        "content": "Import Toaster in layout.tsx: import { Toaster } from 'sonner'",
+        "activeForm": "Import Toaster in layout.tsx: importing { Toaster } from 'sonner'",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-1--003: Add <Toaster position='bottom-right' richColors /> to layout.tsx body",
+        "activeForm": "PHASE-1--003: Adding <Toaster position='bottom-right' richColors /> to layout.tsx body",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-1--004: Verify Toaster appears in application",
+        "activeForm": "PHASE-1--004: Verifying Toaster appears in application",
+        "status": "pending"
+      },
+      {
+        "content": "Add toast import: import { toast } from 'sonner'",
+        "activeForm": "Add toast import: importing { toast } from 'sonner'",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-2--002: Replace clipboard empty alerts (4 instances)",
+        "activeForm": "PHASE-2--002: Replaceing clipboard empty alerts (4 instances)",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-2--003: Replace file read error alerts (2 instances)",
+        "activeForm": "PHASE-2--003: Replaceing file read error alerts (2 instances)",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-2--004: Replace 'Failed to load prompt file' alert",
+        "activeForm": "PHASE-2--004: Replaceing 'Failed to load prompt file' alert",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-2--005: Replace clipboard permission alerts (4 instances)",
+        "activeForm": "PHASE-2--005: Replaceing clipboard permission alerts (4 instances)",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-2--006: Replace 'Failed to read clipboard' alerts (3 instances)",
+        "activeForm": "PHASE-2--006: Replaceing 'Failed to read clipboard' alerts (3 instances)",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-3--001: Replace 'No prompt to view' alerts (2 instances)",
+        "activeForm": "PHASE-3--001: Replaceing 'No prompt to view' alerts (2 instances)",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-3--002: Replace 'Failed to load preloaded prompt' alert",
+        "activeForm": "PHASE-3--002: Replaceing 'Failed to load preloaded prompt' alert",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-3--003: Replace 'Failed to add prompt' alert",
+        "activeForm": "PHASE-3--003: Replaceing 'Failed to add prompt' alert",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-3--004: Replace 'File too large to attach' alert",
+        "activeForm": "PHASE-3--004: Replaceing 'File too large to attach' alert",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-3--005: Replace 'No attachments to view' alerts (2 instances)",
+        "activeForm": "PHASE-3--005: Replaceing 'No attachments to view' alerts (2 instances)",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-3--006: Replace 'No LLM URLs configured' alert",
+        "activeForm": "PHASE-3--006: Replaceing 'No LLM URLs configured' alert",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-3--007: Replace 'No responses to view' alert",
+        "activeForm": "PHASE-3--007: Replaceing 'No responses to view' alert",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-3--008: Replace 'Copied to clipboard' success alert",
+        "activeForm": "PHASE-3--008: Replaceing 'Copied to clipboard' success alert",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-3--009: Replace 'Failed to copy to clipboard' alert",
+        "activeForm": "PHASE-3--009: Replaceing 'Failed to copy to clipboard' alert",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-3--010: Replace 'Failed to save clipboard' alert",
+        "activeForm": "PHASE-3--010: Replaceing 'Failed to save clipboard' alert",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-3--011: Replace 'No content to preview' alert",
+        "activeForm": "PHASE-3--011: Replaceing 'No content to preview' alert",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-3--012: Replace 'Cleared all' success alert",
+        "activeForm": "PHASE-3--012: Replaceing 'Cleared all' success alert",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-3--013: Replace 'Failed to clear all' alert",
+        "activeForm": "PHASE-3--013: Replaceing 'Failed to clear all' alert",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-3--014: Replace 'Save to...' placeholder alert",
+        "activeForm": "PHASE-3--014: Replaceing 'Save to...' placeholder alert",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-4--001: Search for 'alert(' in PromptingWorkflowStandalone.tsx to verify all replaced",
+        "activeForm": "PHASE-4--001: Searching for 'alert(' in PromptingWorkflowStandalone.tsx to verify all replaced",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-4--002: Verify confirm() dialogs remain unchanged",
+        "activeForm": "PHASE-4--002: Verifying confirm() dialogs remain unchanged",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-4--003: Test all user flows manually",
+        "activeForm": "PHASE-4--003: Testing all user flows manually",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-4--004: Verify toast types are appropriate (success/error/info)",
+        "activeForm": "PHASE-4--004: Verifying toast types are appropriate (success/error/info)",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-4--005: Check for any console errors",
+        "activeForm": "PHASE-4--005: Checking for any console errors",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-4--006: Verify no functionality regressions",
+        "activeForm": "PHASE-4--006: Verifying no functionality regressions",
+        "status": "pending"
+      }
+    ]
+  }
+]

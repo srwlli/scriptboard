@@ -18,7 +18,8 @@
     "lucide-react": "^0.556.0",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
-    "react-hotkeys-hook": "^4.4.1"
+    "react-hotkeys-hook": "^4.4.1",
+    "sonner": "^2.0.7"
   },
   "devDependencies": {
     "@playwright/test": "^1.57.0",

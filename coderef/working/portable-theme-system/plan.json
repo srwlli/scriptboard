@@ -1,0 +1,387 @@
+{
+  "META_DOCUMENTATION": {
+    "feature_name": "portable-theme-system",
+    "schema_version": "1.0.0",
+    "version": "1.0.0",
+    "status": "complete",
+    "generated_by": "AI Assistant",
+    "has_context": false,
+    "has_analysis": false,
+    "workorder_id": "WO-PORTABLE-THEME-SYSTEM-001"
+  },
+  "UNIVERSAL_PLANNING_STRUCTURE": {
+    "0_preparation": {
+      "foundation_docs": [
+        "README.md - Project overview",
+        "frontend/src/components/ThemeToggle.tsx - Current theme toggle implementation",
+        "frontend/src/components/ThemeProvider.tsx - Current theme provider",
+        "frontend/src/styles/globals.css - CSS variable definitions"
+      ],
+      "coding_standards": [
+        "TypeScript/React best practices",
+        "Custom hooks pattern (useTheme)",
+        "Component composition",
+        "CSS custom properties (CSS variables)"
+      ],
+      "reference_components": [
+        "frontend/src/components/ThemeToggle.tsx - Current implementation to refactor",
+        "frontend/src/components/ThemeProvider.tsx - Current provider to enhance",
+        "frontend/src/app/settings/page.tsx - Usage example"
+      ],
+      "key_patterns": [
+        "localStorage for theme persistence",
+        "data-theme attribute on HTML element",
+        "CSS variables for theme colors",
+        "React hooks for state management"
+      ]
+    },
+    "1_executive_summary": {
+      "description": "Refactor the current binary theme toggle (light/dark) into a portable, extensible theme system. Create a reusable useTheme hook and ThemeSwitcher component that can be easily imported into other projects. Keep only light and dark themes for now, but architect the system to easily support adding more themes in the future.",
+      "goal": "Create a modular, portable theme system with a useTheme hook and ThemeSwitcher component that maintains current functionality (light/dark) while providing an extensible architecture for future theme additions.",
+      "scope": "Refactor theme system into portable module with hook and component. Keep existing light/dark themes. Structure for easy extension and reuse in other projects.",
+      "out_of_scope": [
+        "Adding new themes beyond light/dark (architecture supports it, but implementation deferred)",
+        "Theme preview cards or visual swatches (simple dropdown/selector for now)",
+        "Backend API integration for theme storage",
+        "System theme detection (OS preference)"
+      ],
+      "success_metrics": [
+        "useTheme hook created and functional",
+        "ThemeSwitcher component replaces ThemeToggle",
+        "Theme registry system in place for easy theme addition",
+        "All existing functionality preserved (light/dark switching works)",
+        "Code is portable and documented for use in other projects"
+      ]
+    },
+    "2_risk_assessment": {
+      "complexity": "medium",
+      "estimated_hours": 4,
+      "risks": [
+        {
+          "risk": "Breaking existing theme functionality during refactor",
+          "severity": "medium",
+          "mitigation": "Maintain backward compatibility, test thoroughly, keep existing localStorage key"
+        },
+        {
+          "risk": "TypeScript type issues when making theme system generic",
+          "severity": "low",
+          "mitigation": "Use proper union types and type guards"
+        },
+        {
+          "risk": "CSS variable conflicts when adding new themes",
+          "severity": "low",
+          "mitigation": "Use consistent naming convention, document CSS structure"
+        }
+      ],
+      "dependencies": [
+        "React hooks (useState, useEffect)",
+        "localStorage API",
+        "CSS custom properties support",
+        "TypeScript for type safety"
+      ]
+    },
+    "3_current_state_analysis": {
+      "files_to_modify": [
+        {
+          "path": "frontend/src/components/ThemeToggle.tsx",
+          "purpose": "Refactor into ThemeSwitcher component using useTheme hook",
+          "current_state": "Simple toggle button with hardcoded light/dark logic",
+          "changes_needed": "Replace with ThemeSwitcher that uses useTheme hook and theme registry"
+        },
+        {
+          "path": "frontend/src/components/ThemeProvider.tsx",
+          "purpose": "Enhance to work with theme registry system",
+          "current_state": "Simple provider that syncs theme from localStorage",
+          "changes_needed": "Update to use theme registry, support any theme ID"
+        },
+        {
+          "path": "frontend/src/app/settings/page.tsx",
+          "purpose": "Update to use new ThemeSwitcher component",
+          "current_state": "Uses ThemeToggle component",
+          "changes_needed": "Replace ThemeToggle import with ThemeSwitcher"
+        }
+      ],
+      "files_to_create": [
+        {
+          "path": "frontend/src/hooks/useTheme.ts",
+          "purpose": "Reusable hook for theme management (get current theme, set theme, available themes)"
+        },
+        {
+          "path": "frontend/src/lib/themes.ts",
+          "purpose": "Theme registry with theme definitions, types, and configuration"
+        },
+        {
+          "path": "frontend/src/components/ThemeSwitcher.tsx",
+          "purpose": "New theme switcher component using useTheme hook (replaces ThemeToggle)"
+        },
+        {
+          "path": "frontend/src/components/theme/README.md",
+          "purpose": "Documentation for using theme system in other projects"
+        }
+      ],
+      "dependencies_to_add": []
+    },
+    "4_key_features": {
+      "features": [
+        {
+          "id": "FEATURE-001",
+          "name": "Theme Registry System",
+          "description": "Centralized theme configuration with TypeScript types, theme definitions, and metadata. Supports light and dark themes initially, easily extensible for more themes."
+        },
+        {
+          "id": "FEATURE-002",
+          "name": "useTheme Hook",
+          "description": "Reusable React hook providing theme state, setter function, and available themes. Can be imported and used in any component or project."
+        },
+        {
+          "id": "FEATURE-003",
+          "name": "ThemeSwitcher Component",
+          "description": "Portable theme switcher component using useTheme hook. Replaces ThemeToggle with extensible architecture. Can be styled/customized per project."
+        },
+        {
+          "id": "FEATURE-004",
+          "name": "Enhanced ThemeProvider",
+          "description": "Updated ThemeProvider that works with theme registry, supports any theme ID, and maintains backward compatibility."
+        },
+        {
+          "id": "FEATURE-005",
+          "name": "Portability Documentation",
+          "description": "Documentation explaining how to import and use the theme system (hook + component) in other projects."
+        }
+      ]
+    },
+    "5_task_id_system": {
+      "workorder": {
+        "id": "WO-PORTABLE-THEME-SYSTEM-001",
+        "name": "Portable Theme System",
+        "feature_dir": "coderef/working/portable-theme-system"
+      },
+      "tasks": [
+        {
+          "id": "SETUP-001",
+          "workorder_id": "WO-PORTABLE-THEME-SYSTEM-001",
+          "description": "Create theme registry file (frontend/src/lib/themes.ts) with ThemeId type, Theme interface, and theme definitions for light and dark",
+          "type": "setup",
+          "estimated_time": "30 minutes",
+          "dependencies": []
+        },
+        {
+          "id": "SETUP-002",
+          "workorder_id": "WO-PORTABLE-THEME-SYSTEM-001",
+          "description": "Create useTheme hook (frontend/src/hooks/useTheme.ts) with getTheme, setTheme, availableThemes, and currentTheme state",
+          "type": "setup",
+          "estimated_time": "45 minutes",
+          "dependencies": ["SETUP-001"]
+        },
+        {
+          "id": "REFACTOR-001",
+          "workorder_id": "WO-PORTABLE-THEME-SYSTEM-001",
+          "description": "Update ThemeProvider.tsx to use theme registry instead of hardcoded light/dark types",
+          "type": "refactor",
+          "estimated_time": "20 minutes",
+          "dependencies": ["SETUP-001"]
+        },
+        {
+          "id": "REFACTOR-002",
+          "workorder_id": "WO-PORTABLE-THEME-SYSTEM-001",
+          "description": "Create ThemeSwitcher.tsx component using useTheme hook, replace toggle button with dropdown/select for theme selection",
+          "type": "refactor",
+          "estimated_time": "45 minutes",
+          "dependencies": ["SETUP-002"]
+        },
+        {
+          "id": "REFACTOR-003",
+          "workorder_id": "WO-PORTABLE-THEME-SYSTEM-001",
+          "description": "Update settings/page.tsx to import and use ThemeSwitcher instead of ThemeToggle",
+          "type": "refactor",
+          "estimated_time": "10 minutes",
+          "dependencies": ["REFACTOR-002"]
+        },
+        {
+          "id": "REFACTOR-004",
+          "workorder_id": "WO-PORTABLE-THEME-SYSTEM-001",
+          "description": "Delete old ThemeToggle.tsx file (replaced by ThemeSwitcher)",
+          "type": "refactor",
+          "estimated_time": "5 minutes",
+          "dependencies": ["REFACTOR-003"]
+        },
+        {
+          "id": "DOCS-001",
+          "workorder_id": "WO-PORTABLE-THEME-SYSTEM-001",
+          "description": "Create frontend/src/components/theme/README.md with usage examples, import instructions, and how to add new themes",
+          "type": "documentation",
+          "estimated_time": "30 minutes",
+          "dependencies": ["REFACTOR-002"]
+        },
+        {
+          "id": "TEST-001",
+          "workorder_id": "WO-PORTABLE-THEME-SYSTEM-001",
+          "description": "Test theme switching between light and dark, verify localStorage persistence, verify HTML data-theme attribute updates",
+          "type": "testing",
+          "estimated_time": "20 minutes",
+          "dependencies": ["REFACTOR-003"]
+        },
+        {
+          "id": "TEST-002",
+          "workorder_id": "WO-PORTABLE-THEME-SYSTEM-001",
+          "description": "Verify backward compatibility - existing localStorage theme values still work, no breaking changes",
+          "type": "testing",
+          "estimated_time": "15 minutes",
+          "dependencies": ["TEST-001"]
+        }
+      ]
+    },
+    "6_implementation_phases": {
+      "phases": [
+        {
+          "phase": 1,
+          "name": "Foundation - Theme Registry and Hook",
+          "description": "Create the core theme system infrastructure: theme registry with types and definitions, and useTheme hook for theme management",
+          "tasks": ["SETUP-001", "SETUP-002"],
+          "deliverables": [
+            "frontend/src/lib/themes.ts - Theme registry with ThemeId type and theme definitions",
+            "frontend/src/hooks/useTheme.ts - Reusable useTheme hook"
+          ],
+          "estimated_time": "75 minutes"
+        },
+        {
+          "phase": 2,
+          "name": "Component Refactoring",
+          "description": "Refactor existing components to use the new theme system: update ThemeProvider, create ThemeSwitcher, update settings page",
+          "tasks": ["REFACTOR-001", "REFACTOR-002", "REFACTOR-003", "REFACTOR-004"],
+          "deliverables": [
+            "Updated ThemeProvider.tsx using theme registry",
+            "New ThemeSwitcher.tsx component",
+            "Updated settings/page.tsx",
+            "Deleted ThemeToggle.tsx"
+          ],
+          "estimated_time": "80 minutes"
+        },
+        {
+          "phase": 3,
+          "name": "Documentation and Testing",
+          "description": "Create documentation for portability and test the complete system",
+          "tasks": ["DOCS-001", "TEST-001", "TEST-002"],
+          "deliverables": [
+            "frontend/src/components/theme/README.md - Usage documentation",
+            "Test results confirming functionality and backward compatibility"
+          ],
+          "estimated_time": "65 minutes"
+        }
+      ]
+    },
+    "7_testing_strategy": {
+      "unit_tests": [
+        {
+          "test": "useTheme hook returns correct initial theme from localStorage",
+          "description": "Test that useTheme hook correctly reads and returns theme from localStorage on mount"
+        },
+        {
+          "test": "useTheme hook updates localStorage when theme changes",
+          "description": "Test that calling setTheme updates localStorage with new theme value"
+        },
+        {
+          "test": "useTheme hook updates HTML data-theme attribute",
+          "description": "Test that setTheme updates document.documentElement.setAttribute('data-theme', theme)"
+        },
+        {
+          "test": "ThemeSwitcher displays current theme in dropdown",
+          "description": "Test that ThemeSwitcher component shows the currently selected theme"
+        }
+      ],
+      "integration_tests": [
+        {
+          "test": "Theme switching persists across page reloads",
+          "description": "Select a theme, reload page, verify theme is still applied"
+        },
+        {
+          "test": "Theme switching updates all UI elements",
+          "description": "Switch theme and verify background, text, borders, and other elements update correctly"
+        },
+        {
+          "test": "Backward compatibility with existing localStorage theme",
+          "description": "Set localStorage theme to 'light' or 'dark' manually, reload, verify it works"
+        }
+      ],
+      "manual_testing": [
+        "Navigate to settings page",
+        "Use ThemeSwitcher dropdown to select 'light' theme",
+        "Verify UI changes to light theme",
+        "Select 'dark' theme from dropdown",
+        "Verify UI changes to dark theme",
+        "Reload page and verify selected theme persists",
+        "Check browser DevTools - verify data-theme attribute on <html> element",
+        "Check localStorage - verify 'theme' key has correct value"
+      ],
+      "regression_tests": [
+        "Verify all existing pages still render correctly",
+        "Verify no console errors or warnings",
+        "Verify theme switching doesn't break any existing functionality"
+      ]
+    },
+    "8_success_criteria": {
+      "functional_requirements": [
+        "useTheme hook provides getTheme, setTheme, and availableThemes",
+        "ThemeSwitcher component allows selecting between light and dark themes",
+        "Theme selection persists in localStorage",
+        "Theme selection updates HTML data-theme attribute",
+        "All UI elements respond correctly to theme changes",
+        "Backward compatibility maintained (existing localStorage values work)"
+      ],
+      "non_functional_requirements": [
+        "Theme system is portable (can be imported into other projects)",
+        "Code is well-documented with usage examples",
+        "TypeScript types are properly defined",
+        "No breaking changes to existing functionality",
+        "Theme registry is easily extensible for adding new themes"
+      ],
+      "acceptance_criteria": [
+        "ThemeSwitcher component replaces ThemeToggle in settings page",
+        "useTheme hook can be imported and used in any component",
+        "Theme registry file exists with light and dark theme definitions",
+        "Documentation exists explaining how to use theme system in other projects",
+        "All tests pass",
+        "No console errors or warnings",
+        "Theme switching works smoothly without flickering"
+      ]
+    },
+    "9_implementation_checklist": {
+      "phase_1_foundation": [
+        "Create frontend/src/lib/themes.ts",
+        "Define ThemeId type as union: 'light' | 'dark'",
+        "Define Theme interface with id, name, description fields",
+        "Create themes array with light and dark theme definitions",
+        "Export getThemeById function",
+        "Create frontend/src/hooks/useTheme.ts",
+        "Implement useState for current theme",
+        "Implement useEffect to load theme from localStorage on mount",
+        "Implement setTheme function that updates state, localStorage, and HTML attribute",
+        "Export useTheme hook with { theme, setTheme, availableThemes }"
+      ],
+      "phase_2_refactoring": [
+        "Update ThemeProvider.tsx to import from themes.ts",
+        "Update ThemeProvider to use theme registry instead of hardcoded types",
+        "Create ThemeSwitcher.tsx component",
+        "Import useTheme hook in ThemeSwitcher",
+        "Create select/dropdown element with theme options",
+        "Style ThemeSwitcher to match existing UI",
+        "Update settings/page.tsx to import ThemeSwitcher",
+        "Replace <ThemeToggle /> with <ThemeSwitcher />",
+        "Delete frontend/src/components/ThemeToggle.tsx",
+        "Verify no broken imports"
+      ],
+      "phase_3_documentation": [
+        "Create frontend/src/components/theme/README.md",
+        "Document useTheme hook usage with code examples",
+        "Document ThemeSwitcher component usage",
+        "Document how to add new themes to registry",
+        "Document import paths for use in other projects",
+        "Test theme switching functionality",
+        "Test localStorage persistence",
+        "Test backward compatibility",
+        "Verify no regressions"
+      ]
+    }
+  }
+}
+

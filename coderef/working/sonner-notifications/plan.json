@@ -1,0 +1,492 @@
+{
+  "META_DOCUMENTATION": {
+    "feature_name": "sonner-notifications",
+    "schema_version": "1.0.0",
+    "version": "1.0.0",
+    "status": "complete",
+    "generated_by": "AI Assistant",
+    "has_context": false,
+    "has_analysis": false,
+    "workorder_id": "WO-SONNER-NOTIFICATIONS-001"
+  },
+  "UNIVERSAL_PLANNING_STRUCTURE": {
+    "0_preparation": {
+      "foundation_docs": [
+        "README.md - Project overview and setup",
+        "ARCHITECTURE.md - System architecture (if available)"
+      ],
+      "coding_standards": [
+        "TypeScript/React best practices",
+        "Tailwind CSS for styling",
+        "Component-based architecture"
+      ],
+      "reference_components": [
+        "frontend/src/components/PromptingWorkflowStandalone.tsx - Main component to modify",
+        "frontend/src/app/layout.tsx - Root layout for Toaster setup"
+      ],
+      "key_patterns": [
+        "Error handling with try-catch blocks",
+        "User feedback via alerts (to be replaced)",
+        "Modal dialogs for complex interactions",
+        "API integration with backend"
+      ]
+    },
+    "1_executive_summary": {
+      "description": "Migrate all alert() calls in PromptingWorkflowStandalone component to Sonner toast notifications for a better user experience. Replace browser-native alerts with modern, non-blocking toast notifications that match the application's design system.",
+      "goal": "Replace ~30 alert() calls with appropriate Sonner toast notifications (success, error, info) while maintaining all existing functionality and user feedback.",
+      "scope": "Single component migration (PromptingWorkflowStandalone.tsx) and root layout update (layout.tsx) for Toaster setup.",
+      "out_of_scope": [
+        "Replacing confirm() dialogs (keep as-is for destructive actions)",
+        "Modifying modal components (showPromptViewModal, etc.)",
+        "Changing API error handling logic",
+        "Updating other components with alerts"
+      ],
+      "success_metrics": [
+        "All 30 alert() calls replaced with appropriate toast notifications",
+        "Toaster component properly configured in layout.tsx",
+        "No functionality regressions",
+        "Improved UX with non-blocking notifications"
+      ]
+    },
+    "2_risk_assessment": {
+      "complexity": "low",
+      "estimated_hours": 2,
+      "risks": [
+        {
+          "risk": "Missing alert() calls during migration",
+          "severity": "medium",
+          "mitigation": "Use grep/search to find all alert() instances before starting"
+        },
+        {
+          "risk": "Incorrect toast type selection (success vs error vs info)",
+          "severity": "low",
+          "mitigation": "Review context of each alert() call to determine appropriate toast type"
+        },
+        {
+          "risk": "Breaking existing functionality",
+          "severity": "low",
+          "mitigation": "Maintain exact same error handling logic, only replace alert() calls"
+        }
+      ],
+      "dependencies": [
+        "sonner package installation",
+        "Access to frontend/src/components/PromptingWorkflowStandalone.tsx",
+        "Access to frontend/src/app/layout.tsx"
+      ]
+    },
+    "3_current_state_analysis": {
+      "files_to_modify": [
+        {
+          "path": "frontend/src/components/PromptingWorkflowStandalone.tsx",
+          "purpose": "Replace all alert() calls with toast notifications",
+          "current_state": "Contains ~30 alert() calls for user feedback",
+          "changes_needed": "Import toast, replace alert() with toast.success/error/info"
+        },
+        {
+          "path": "frontend/src/app/layout.tsx",
+          "purpose": "Add Toaster component for toast notifications",
+          "current_state": "Root layout without Toaster",
+          "changes_needed": "Import Toaster, add <Toaster /> component in body"
+        }
+      ],
+      "files_to_create": [],
+      "dependencies_to_add": [
+        {
+          "package": "sonner",
+          "version": "latest",
+          "purpose": "Toast notification library"
+        }
+      ]
+    },
+    "4_key_features": {
+      "features": [
+        {
+          "id": "FEATURE-001",
+          "name": "Sonner Package Installation",
+          "description": "Install sonner npm package for toast notifications"
+        },
+        {
+          "id": "FEATURE-002",
+          "name": "Toaster Setup",
+          "description": "Add Toaster component to root layout with bottom-right positioning and rich colors"
+        },
+        {
+          "id": "FEATURE-003",
+          "name": "Success Toast Migration",
+          "description": "Replace success-related alert() calls with toast.success()"
+        },
+        {
+          "id": "FEATURE-004",
+          "name": "Error Toast Migration",
+          "description": "Replace error-related alert() calls with toast.error()"
+        },
+        {
+          "id": "FEATURE-005",
+          "name": "Info Toast Migration",
+          "description": "Replace informational alert() calls with toast.info()"
+        }
+      ]
+    },
+    "5_task_id_system": {
+      "workorder": {
+        "id": "WO-SONNER-NOTIFICATIONS-001",
+        "name": "Sonner Notifications",
+        "feature_dir": "coderef/working/sonner-notifications"
+      },
+      "tasks": [
+        {
+          "id": "SETUP-001",
+          "workorder_id": "WO-SONNER-NOTIFICATIONS-001",
+          "description": "Install sonner package via npm",
+          "type": "setup",
+          "estimated_time": "5 minutes",
+          "dependencies": []
+        },
+        {
+          "id": "SETUP-002",
+          "workorder_id": "WO-SONNER-NOTIFICATIONS-001",
+          "description": "Add Toaster component to frontend/src/app/layout.tsx with position='bottom-right' and richColors props",
+          "type": "setup",
+          "estimated_time": "10 minutes",
+          "dependencies": ["SETUP-001"]
+        },
+        {
+          "id": "MIGRATE-001",
+          "workorder_id": "WO-SONNER-NOTIFICATIONS-001",
+          "description": "Add toast import to PromptingWorkflowStandalone.tsx: import { toast } from 'sonner'",
+          "type": "migration",
+          "estimated_time": "2 minutes",
+          "dependencies": ["SETUP-001"]
+        },
+        {
+          "id": "MIGRATE-002",
+          "workorder_id": "WO-SONNER-NOTIFICATIONS-001",
+          "description": "Replace clipboard empty alerts (lines 193, 378, 467, 563) with toast.error('Clipboard empty')",
+          "type": "migration",
+          "estimated_time": "5 minutes",
+          "dependencies": ["MIGRATE-001"]
+        },
+        {
+          "id": "MIGRATE-003",
+          "workorder_id": "WO-SONNER-NOTIFICATIONS-001",
+          "description": "Replace file read error alerts (lines 151, 338) with toast.error() using error message",
+          "type": "migration",
+          "estimated_time": "5 minutes",
+          "dependencies": ["MIGRATE-001"]
+        },
+        {
+          "id": "MIGRATE-004",
+          "workorder_id": "WO-SONNER-NOTIFICATIONS-001",
+          "description": "Replace 'Failed to load prompt file' (line 161) with toast.error('Failed to load prompt file')",
+          "type": "migration",
+          "estimated_time": "2 minutes",
+          "dependencies": ["MIGRATE-001"]
+        },
+        {
+          "id": "MIGRATE-005",
+          "workorder_id": "WO-SONNER-NOTIFICATIONS-001",
+          "description": "Replace clipboard permission alerts (lines 203, 387, 480, 548) with toast.error() for NotAllowedError",
+          "type": "migration",
+          "estimated_time": "5 minutes",
+          "dependencies": ["MIGRATE-001"]
+        },
+        {
+          "id": "MIGRATE-006",
+          "workorder_id": "WO-SONNER-NOTIFICATIONS-001",
+          "description": "Replace 'Failed to read clipboard' alerts (lines 205, 389, 482) with toast.error('Failed to read clipboard')",
+          "type": "migration",
+          "estimated_time": "3 minutes",
+          "dependencies": ["MIGRATE-001"]
+        },
+        {
+          "id": "MIGRATE-007",
+          "workorder_id": "WO-SONNER-NOTIFICATIONS-001",
+          "description": "Replace 'No prompt to view' alerts (lines 217, 221) with toast.info('No prompt to view')",
+          "type": "migration",
+          "estimated_time": "3 minutes",
+          "dependencies": ["MIGRATE-001"]
+        },
+        {
+          "id": "MIGRATE-008",
+          "workorder_id": "WO-SONNER-NOTIFICATIONS-001",
+          "description": "Replace 'Failed to load preloaded prompt' (line 249) with toast.error('Failed to load preloaded prompt')",
+          "type": "migration",
+          "estimated_time": "2 minutes",
+          "dependencies": ["MIGRATE-001"]
+        },
+        {
+          "id": "MIGRATE-009",
+          "workorder_id": "WO-SONNER-NOTIFICATIONS-001",
+          "description": "Replace 'Failed to add prompt' alert (line 281) with toast.error() using error message",
+          "type": "migration",
+          "estimated_time": "3 minutes",
+          "dependencies": ["MIGRATE-001"]
+        },
+        {
+          "id": "MIGRATE-010",
+          "workorder_id": "WO-SONNER-NOTIFICATIONS-001",
+          "description": "Replace 'File too large to attach' alert (line 354) with toast.error('File too large to attach (max 2MB)')",
+          "type": "migration",
+          "estimated_time": "2 minutes",
+          "dependencies": ["MIGRATE-001"]
+        },
+        {
+          "id": "MIGRATE-011",
+          "workorder_id": "WO-SONNER-NOTIFICATIONS-001",
+          "description": "Replace 'No attachments to view' alerts (lines 396, 405) with toast.info('No attachments to view')",
+          "type": "migration",
+          "estimated_time": "3 minutes",
+          "dependencies": ["MIGRATE-001"]
+        },
+        {
+          "id": "MIGRATE-012",
+          "workorder_id": "WO-SONNER-NOTIFICATIONS-001",
+          "description": "Replace 'No LLM URLs configured' alert (line 451) with toast.info('No LLM URLs configured')",
+          "type": "migration",
+          "estimated_time": "2 minutes",
+          "dependencies": ["MIGRATE-001"]
+        },
+        {
+          "id": "MIGRATE-013",
+          "workorder_id": "WO-SONNER-NOTIFICATIONS-001",
+          "description": "Replace 'No responses to view' alert (line 494) with toast.info('No responses to view')",
+          "type": "migration",
+          "estimated_time": "2 minutes",
+          "dependencies": ["MIGRATE-001"]
+        },
+        {
+          "id": "MIGRATE-014",
+          "workorder_id": "WO-SONNER-NOTIFICATIONS-001",
+          "description": "Replace 'Copied to clipboard' success alert (line 544) with toast.success() using dynamic message",
+          "type": "migration",
+          "estimated_time": "5 minutes",
+          "dependencies": ["MIGRATE-001"]
+        },
+        {
+          "id": "MIGRATE-015",
+          "workorder_id": "WO-SONNER-NOTIFICATIONS-001",
+          "description": "Replace 'Failed to copy to clipboard' alert (line 550) with toast.error('Failed to copy to clipboard')",
+          "type": "migration",
+          "estimated_time": "2 minutes",
+          "dependencies": ["MIGRATE-001"]
+        },
+        {
+          "id": "MIGRATE-016",
+          "workorder_id": "WO-SONNER-NOTIFICATIONS-001",
+          "description": "Replace 'Failed to save clipboard' alert (line 586) with toast.error('Failed to save clipboard')",
+          "type": "migration",
+          "estimated_time": "2 minutes",
+          "dependencies": ["MIGRATE-001"]
+        },
+        {
+          "id": "MIGRATE-017",
+          "workorder_id": "WO-SONNER-NOTIFICATIONS-001",
+          "description": "Replace 'No content to preview' alert (line 597) with toast.info('No content to preview')",
+          "type": "migration",
+          "estimated_time": "2 minutes",
+          "dependencies": ["MIGRATE-001"]
+        },
+        {
+          "id": "MIGRATE-018",
+          "workorder_id": "WO-SONNER-NOTIFICATIONS-001",
+          "description": "Replace 'Cleared all' success alert (line 615) with toast.success('Cleared all')",
+          "type": "migration",
+          "estimated_time": "2 minutes",
+          "dependencies": ["MIGRATE-001"]
+        },
+        {
+          "id": "MIGRATE-019",
+          "workorder_id": "WO-SONNER-NOTIFICATIONS-001",
+          "description": "Replace 'Failed to clear all' alert (line 618) with toast.error('Failed to clear all')",
+          "type": "migration",
+          "estimated_time": "2 minutes",
+          "dependencies": ["MIGRATE-001"]
+        },
+        {
+          "id": "MIGRATE-020",
+          "workorder_id": "WO-SONNER-NOTIFICATIONS-001",
+          "description": "Replace 'Save to...' alert (line 571) with toast.info() - note: this is a placeholder for future implementation",
+          "type": "migration",
+          "estimated_time": "3 minutes",
+          "dependencies": ["MIGRATE-001"]
+        },
+        {
+          "id": "VERIFY-001",
+          "workorder_id": "WO-SONNER-NOTIFICATIONS-001",
+          "description": "Verify all alert() calls have been replaced by searching for 'alert(' in PromptingWorkflowStandalone.tsx",
+          "type": "verification",
+          "estimated_time": "5 minutes",
+          "dependencies": ["MIGRATE-002", "MIGRATE-003", "MIGRATE-004", "MIGRATE-005", "MIGRATE-006", "MIGRATE-007", "MIGRATE-008", "MIGRATE-009", "MIGRATE-010", "MIGRATE-011", "MIGRATE-012", "MIGRATE-013", "MIGRATE-014", "MIGRATE-015", "MIGRATE-016", "MIGRATE-017", "MIGRATE-018", "MIGRATE-019", "MIGRATE-020"]
+        },
+        {
+          "id": "TEST-001",
+          "workorder_id": "WO-SONNER-NOTIFICATIONS-001",
+          "description": "Test all user flows to ensure toast notifications appear correctly and functionality is preserved",
+          "type": "testing",
+          "estimated_time": "15 minutes",
+          "dependencies": ["VERIFY-001"]
+        }
+      ]
+    },
+    "6_implementation_phases": {
+      "phases": [
+        {
+          "phase": 1,
+          "name": "Setup and Configuration",
+          "description": "Install sonner package and configure Toaster component in root layout",
+          "tasks": ["SETUP-001", "SETUP-002"],
+          "deliverables": [
+            "sonner package installed in frontend/package.json",
+            "Toaster component added to layout.tsx with proper configuration"
+          ],
+          "estimated_time": "15 minutes"
+        },
+        {
+          "phase": 2,
+          "name": "Import and Initial Migration",
+          "description": "Add toast import and begin replacing alert() calls, starting with common patterns",
+          "tasks": ["MIGRATE-001", "MIGRATE-002", "MIGRATE-003", "MIGRATE-004", "MIGRATE-005", "MIGRATE-006"],
+          "deliverables": [
+            "toast import added to component",
+            "Clipboard and file error alerts replaced with toasts"
+          ],
+          "estimated_time": "25 minutes"
+        },
+        {
+          "phase": 3,
+          "name": "Complete Alert Migration",
+          "description": "Replace remaining alert() calls with appropriate toast notifications",
+          "tasks": ["MIGRATE-007", "MIGRATE-008", "MIGRATE-009", "MIGRATE-010", "MIGRATE-011", "MIGRATE-012", "MIGRATE-013", "MIGRATE-014", "MIGRATE-015", "MIGRATE-016", "MIGRATE-017", "MIGRATE-018", "MIGRATE-019", "MIGRATE-020"],
+          "deliverables": [
+            "All alert() calls replaced with toast notifications",
+            "Appropriate toast types (success/error/info) used for each case"
+          ],
+          "estimated_time": "40 minutes"
+        },
+        {
+          "phase": 4,
+          "name": "Verification and Testing",
+          "description": "Verify all alerts are replaced and test all user flows",
+          "tasks": ["VERIFY-001", "TEST-001"],
+          "deliverables": [
+            "Verification report confirming no remaining alert() calls",
+            "All user flows tested and working correctly"
+          ],
+          "estimated_time": "20 minutes"
+        }
+      ]
+    },
+    "7_testing_strategy": {
+      "unit_tests": [],
+      "integration_tests": [
+        {
+          "test": "Verify Toaster renders in layout",
+          "description": "Check that Toaster component is visible in the application layout"
+        },
+        {
+          "test": "Test clipboard empty toast",
+          "description": "Trigger paste action with empty clipboard, verify error toast appears"
+        },
+        {
+          "test": "Test file load success",
+          "description": "Load a prompt file successfully, verify no errors and proper state update"
+        },
+        {
+          "test": "Test file load error",
+          "description": "Attempt to load invalid file, verify error toast appears"
+        },
+        {
+          "test": "Test copy all success",
+          "description": "Copy all content to clipboard, verify success toast with correct message"
+        },
+        {
+          "test": "Test clear all success",
+          "description": "Clear all session data, verify success toast appears"
+        },
+        {
+          "test": "Test view empty sections",
+          "description": "Attempt to view empty prompt/attachments/responses, verify info toast appears"
+        }
+      ],
+      "manual_testing": [
+        "Test all button actions that previously showed alerts",
+        "Verify toast positioning (bottom-right)",
+        "Verify toast colors match design system",
+        "Verify toast auto-dismiss behavior",
+        "Test error scenarios to ensure error toasts appear",
+        "Test success scenarios to ensure success toasts appear"
+      ],
+      "regression_tests": [
+        "Verify all existing functionality still works",
+        "Verify confirm() dialogs still work (not replaced)",
+        "Verify modals still work (not modified)",
+        "Verify API error handling unchanged"
+      ]
+    },
+    "8_success_criteria": {
+      "functional_requirements": [
+        "All 30 alert() calls replaced with appropriate toast notifications",
+        "Toaster component configured in layout.tsx with position='bottom-right' and richColors",
+        "Success messages use toast.success()",
+        "Error messages use toast.error()",
+        "Info messages use toast.info()",
+        "All existing functionality preserved"
+      ],
+      "non_functional_requirements": [
+        "Toast notifications appear in bottom-right corner",
+        "Toast notifications auto-dismiss after appropriate time",
+        "Toast notifications match application design system",
+        "No console errors or warnings",
+        "No functionality regressions"
+      ],
+      "acceptance_criteria": [
+        "Zero alert() calls remaining in PromptingWorkflowStandalone.tsx (except in confirm() dialogs)",
+        "All user feedback now uses toast notifications",
+        "Toaster component visible and functional in application",
+        "All test scenarios pass",
+        "Code review approved"
+      ]
+    },
+    "9_implementation_checklist": {
+      "phase_1_setup": [
+        "Install sonner package: npm install sonner",
+        "Import Toaster in layout.tsx: import { Toaster } from 'sonner'",
+        "Add <Toaster position='bottom-right' richColors /> to layout.tsx body",
+        "Verify Toaster appears in application"
+      ],
+      "phase_2_initial_migration": [
+        "Add toast import: import { toast } from 'sonner'",
+        "Replace clipboard empty alerts (4 instances)",
+        "Replace file read error alerts (2 instances)",
+        "Replace 'Failed to load prompt file' alert",
+        "Replace clipboard permission alerts (4 instances)",
+        "Replace 'Failed to read clipboard' alerts (3 instances)"
+      ],
+      "phase_3_complete_migration": [
+        "Replace 'No prompt to view' alerts (2 instances)",
+        "Replace 'Failed to load preloaded prompt' alert",
+        "Replace 'Failed to add prompt' alert",
+        "Replace 'File too large to attach' alert",
+        "Replace 'No attachments to view' alerts (2 instances)",
+        "Replace 'No LLM URLs configured' alert",
+        "Replace 'No responses to view' alert",
+        "Replace 'Copied to clipboard' success alert",
+        "Replace 'Failed to copy to clipboard' alert",
+        "Replace 'Failed to save clipboard' alert",
+        "Replace 'No content to preview' alert",
+        "Replace 'Cleared all' success alert",
+        "Replace 'Failed to clear all' alert",
+        "Replace 'Save to...' placeholder alert"
+      ],
+      "phase_4_verification": [
+        "Search for 'alert(' in PromptingWorkflowStandalone.tsx to verify all replaced",
+        "Verify confirm() dialogs remain unchanged",
+        "Test all user flows manually",
+        "Verify toast types are appropriate (success/error/info)",
+        "Check for any console errors",
+        "Verify no functionality regressions"
+      ]
+    }
+  }
+}
+

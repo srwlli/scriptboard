@@ -4,6 +4,7 @@ import { ThemeProvider } from "@/components/ThemeProvider";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { MenuBar } from "@/components/MenuBar";
 import { FooterBar } from "@/components/ui";
+import { Toaster } from "sonner";
 
 export const metadata: Metadata = {
   title: "Scriptboard",
@@ -27,6 +28,7 @@ export default function RootLayout({
               </div>
               <FooterBar />
             </div>
+            <Toaster position="bottom-right" richColors />
           </ThemeProvider>
         </ErrorBoundary>
       </body>

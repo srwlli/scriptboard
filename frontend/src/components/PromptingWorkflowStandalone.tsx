@@ -1,10 +1,11 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { Plus, FileCode, Merge, Search, Package } from "lucide-react";
+import { Plus, FileCode, Merge, Search, Package, ChevronDown, ChevronUp, FolderOpen, Globe, Clipboard, Trash2, Copy, Save, Eye } from "lucide-react";
 import { api } from "@/lib/api";
-import { SectionButtonRow, StatusLabel, type ButtonConfig } from "@/components/ui";
+import { SectionButtonRow, StatusLabel, type ButtonConfig, useConfirmModal } from "@/components/ui";
 import { useSessionRefresh } from "@/hooks/useSessionRefresh";
+import { toast } from "sonner";
 
 /**
  * PromptingWorkflowStandalone - Self-contained component with all 4 sections.
@@ -85,6 +86,8 @@ export function PromptingWorkflowStandalone() {
   // SHARED STATE
   // ============================================
   const [isElectron, setIsElectron] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [ConfirmModalComponent, confirm] = useConfirmModal();
 
   // ============================================
   // INITIALIZATION
@@ -147,7 +150,7 @@ export function PromptingWorkflowStandalone() {
         if (result && result.filePath && !result.canceled) {
           const fileData = await (window as any).electronAPI.readFile(result.filePath);
           if (fileData.error) {
-            alert(`Failed to read file: ${fileData.error}`);
+            toast.error(`Failed to read file: ${fileData.error}`);
             return;
           }
           await api.setPrompt(fileData.content);
@@ -157,7 +160,7 @@ export function PromptingWorkflowStandalone() {
         }
       } catch (error) {
         console.error("Failed to load prompt file:", error);
-        alert("Failed to load prompt file");
+        toast.error("Failed to load prompt file");
       }
     } else {
       const input = document.createElement("input");
@@ -189,7 +192,7 @@ export function PromptingWorkflowStandalone() {
       }
       const text = await navigator.clipboard.readText();
       if (!text || !text.trim()) {
-        alert("Clipboard empty");
+        toast.error("Clipboard empty");
         return;
       }
       await api.setPrompt(text);
@@ -199,9 +202,9 @@ export function PromptingWorkflowStandalone() {
     } catch (error) {
       console.error("Failed to paste prompt:", error);
       if (error instanceof Error && error.name === "NotAllowedError") {
-        alert("Please click the button again to allow clipboard access");
+        toast.error("Please click the button again to allow clipboard access");
       } else {
-        alert("Failed to read clipboard");
+        toast.error("Failed to read clipboard");
       }
     }
   };
@@ -213,11 +216,11 @@ export function PromptingWorkflowStandalone() {
         setPromptViewContent(response.text);
         setShowPromptViewModal(true);
       } else {
-        alert("No prompt to view");
+        toast.info("No prompt to view");
       }
     } catch (error: any) {
       console.error("Failed to load prompt:", error);
-      alert("No prompt to view");
+      toast.info("No prompt to view");
     }
   };
 
@@ -242,9 +245,10 @@ export function PromptingWorkflowStandalone() {
       setSelectedPromptKey(key);
       setPromptPasteCount(0);
       await loadPromptData();
+      await loadManagementCounts();
     } catch (error) {
       console.error("Failed to load preloaded prompt:", error);
-      alert("Failed to load preloaded prompt");
+      toast.error("Failed to load preloaded prompt");
     }
   };
 
@@ -276,7 +280,7 @@ export function PromptingWorkflowStandalone() {
       await loadPromptData();
     } catch (error: any) {
       console.error("Failed to add prompt:", error);
-      alert(error?.message || "Failed to add prompt");
+      toast.error(error?.message || "Failed to add prompt");
     } finally {
       setIsPromptSaving(false);
     }
@@ -333,11 +337,12 @@ export function PromptingWorkflowStandalone() {
         if (result && result.filePath && !result.canceled) {
           const fileData = await (window as any).electronAPI.readFile(result.filePath);
           if (fileData.error) {
-            alert(`Failed to read file: ${fileData.error}`);
+            toast.error(`Failed to read file: ${fileData.error}`);
             return;
           }
           await api.addAttachmentText(fileData.content, fileData.filename);
           await loadAttachments();
+          await loadManagementCounts();
         }
       } catch (error) {
         console.error("Failed to attach file:", error);
@@ -349,13 +354,14 @@ export function PromptingWorkflowStandalone() {
         const file = (e.target as HTMLInputElement).files?.[0];
         if (file) {
           if (file.size > 2_000_000) {
-            alert("File too large to attach (max 2MB)");
+            toast.error("File too large to attach (max 2MB)");
             return;
           }
           const text = await file.text();
           try {
             await api.addAttachmentText(text, file.name);
             await loadAttachments();
+            await loadManagementCounts();
           } catch (error) {
             console.error("Failed to attach file:", error);
           }
@@ -373,25 +379,26 @@ export function PromptingWorkflowStandalone() {
       }
       const text = await navigator.clipboard.readText();
       if (!text || !text.trim()) {
-        alert("Clipboard empty");
+        toast.error("Clipboard empty");
         return;
       }
       const filename = `clipboard-${attachments.length + 1}.txt`;
       await api.addAttachmentText(text, filename);
       await loadAttachments();
+      await loadManagementCounts();
     } catch (error) {
       console.error("Failed to paste attachment:", error);
       if (error instanceof Error && error.name === "NotAllowedError") {
-        alert("Please click the button again to allow clipboard access");
+        toast.error("Please click the button again to allow clipboard access");
       } else {
-        alert("Failed to read clipboard");
+        toast.error("Failed to read clipboard");
       }
     }
   };
 
   const handleViewAttachments = async () => {
     if (attachments.length === 0) {
-      alert("No attachments to view");
+      toast.info("No attachments to view");
       return;
     }
     try {
@@ -400,7 +407,7 @@ export function PromptingWorkflowStandalone() {
       setShowAttachmentsViewModal(true);
     } catch (error) {
       console.error("Failed to load attachments:", error);
-      alert("No attachments to view");
+      toast.info("No attachments to view");
     }
   };
 
@@ -446,7 +453,7 @@ export function PromptingWorkflowStandalone() {
 
   const handleOpenAllLLMs = () => {
     if (llmUrls.length === 0) {
-      alert("No LLM URLs configured");
+      toast.info("No LLM URLs configured");
       return;
     }
     llmUrls.forEach((llm) => {
@@ -462,22 +469,30 @@ export function PromptingWorkflowStandalone() {
       }
       const text = await navigator.clipboard.readText();
       if (!text || !text.trim()) {
-        alert("Clipboard empty");
+        toast.error("Clipboard empty");
         return;
       }
       if (text.length > 200_000) {
-        if (!confirm("Clipboard content is very large. Add anyway?")) {
+        const confirmed = await confirm({
+          title: "Large Content",
+          message: `Clipboard content is very large (${text.length.toLocaleString()} chars). Add anyway?`,
+          confirmText: "Add",
+          cancelText: "Cancel",
+        });
+        if (!confirmed) {
           return;
         }
       }
       await api.addResponse(text);
       await loadResponsesData();
+      await loadManagementCounts();
+      toast.success(`Response added (${text.length.toLocaleString()} chars)`);
     } catch (error) {
       console.error("Failed to paste response:", error);
       if (error instanceof Error && error.name === "NotAllowedError") {
-        alert("Please click the button again to allow clipboard access");
+        toast.error("Please click the button again to allow clipboard access");
       } else {
-        alert("Failed to read clipboard");
+        toast.error("Failed to read clipboard");
       }
     }
   };
@@ -489,7 +504,7 @@ export function PromptingWorkflowStandalone() {
       setShowResponsesViewModal(true);
     } catch (error) {
       console.error("Failed to load responses:", error);
-      alert("No responses to view");
+      toast.info("No responses to view");
     }
   };
 
@@ -539,13 +554,13 @@ export function PromptingWorkflowStandalone() {
       if (promptCount > 0) parts.push("prompt");
       if (attachmentCount > 0) parts.push(`${attachmentCount} files`);
       if (managementResponseCount > 0) parts.push(`${managementResponseCount} responses`);
-      alert(`Copied to clipboard: ${parts.join(" + ")}`);
+      toast.success(`Copied to clipboard: ${parts.join(" + ")}`);
     } catch (error) {
       console.error("Failed to copy:", error);
       if (error instanceof Error && error.name === "NotAllowedError") {
-        alert("Please click the button again to allow clipboard access");
+        toast.error("Please click the button again to allow clipboard access");
       } else {
-        alert("Failed to copy to clipboard");
+        toast.error("Failed to copy to clipboard");
       }
     }
   };
@@ -558,7 +573,7 @@ export function PromptingWorkflowStandalone() {
       }
       const text = await navigator.clipboard.readText();
       if (!text || !text.trim()) {
-        alert("Clipboard empty");
+        toast.error("Clipboard empty");
         return;
       }
       if (isElectron) {
@@ -566,7 +581,7 @@ export function PromptingWorkflowStandalone() {
         if (result && result.path && !result.error) {
           const defaultName = `clipboard-${attachmentCount + 1}.txt`;
           const filename = prompt(`Filename:`, defaultName) || defaultName;
-          alert(`Save to ${result.path}/${filename} - to be implemented`);
+          toast.info(`Save to ${result.path}/${filename} - to be implemented`);
         }
       } else {
         const blob = new Blob([text], { type: "text/plain" });
@@ -581,7 +596,7 @@ export function PromptingWorkflowStandalone() {
       }
     } catch (error) {
       console.error("Failed to save clipboard:", error);
-      alert("Failed to save clipboard");
+      toast.error("Failed to save clipboard");
     }
   };
 
@@ -592,12 +607,19 @@ export function PromptingWorkflowStandalone() {
       setShowManagementViewModal(true);
     } catch (error) {
       console.error("Failed to load preview:", error);
-      alert("No content to preview");
+      toast.info("No content to preview");
     }
   };
 
   const handleClearAll = async () => {
-    if (!confirm("Clear all session data? This cannot be undone.")) {
+    const confirmed = await confirm({
+      title: "Clear All",
+      message: "Clear all session data? This cannot be undone.",
+      confirmText: "Clear All",
+      cancelText: "Cancel",
+      danger: true,
+    });
+    if (!confirmed) {
       return;
     }
     try {
@@ -610,15 +632,23 @@ export function PromptingWorkflowStandalone() {
       if (typeof window !== "undefined") {
         window.dispatchEvent(new CustomEvent("session-refresh"));
       }
-      alert("Cleared all");
+      toast.success("Cleared all");
     } catch (error) {
       console.error("Failed to clear all:", error);
-      alert("Failed to clear all");
+      toast.error("Failed to clear all");
     }
   };
 
   const getManagementStatusText = (): string => {
-    return `Prompts: ${promptCount} | Attachments: ${attachmentCount} | Responses: ${managementResponseCount}`;
+    // Show prompt name instead of count
+    let promptDisplay = "No prompt";
+    if (selectedPromptKey) {
+      const prompt = preloadedPrompts.find((p) => p.key === selectedPromptKey);
+      promptDisplay = prompt ? prompt.label : "Prompt loaded";
+    } else if (promptCount > 0) {
+      promptDisplay = "Prompt loaded";
+    }
+    return `${promptDisplay} | Attachments: ${attachmentCount} | Responses: ${managementResponseCount}`;
   };
 
   // ============================================
@@ -641,7 +671,6 @@ export function PromptingWorkflowStandalone() {
   const responseButtons: ButtonConfig[] = [
     { text: "LLMs", onClick: handleOpenAllLLMs, variant: "primary" },
     { text: "Paste", onClick: handlePasteResponse, variant: "secondary" },
-    { text: "View", onClick: handleViewResponses, variant: "secondary" },
     { text: "Clear", onClick: handleClearResponses, variant: "secondary" },
   ];
 
@@ -658,66 +687,169 @@ export function PromptingWorkflowStandalone() {
   return (
     <>
       {/* Single Card containing all sections */}
-      <div className="px-2 py-3 bg-background border border-border rounded-lg">
+      <div className="bg-background border border-border rounded-lg">
+        {/* Header with title and collapse toggle */}
+        <div
+          className="px-3 py-2 flex items-center justify-between cursor-pointer hover:bg-accent/50 transition-colors"
+          onClick={() => setIsCollapsed(!isCollapsed)}
+        >
+          <span className="text-sm font-medium text-foreground">Prompt Workflow</span>
+          <button
+            className="p-0.5 text-muted-foreground hover:text-foreground transition-colors"
+            aria-label={isCollapsed ? "Expand" : "Collapse"}
+          >
+            {isCollapsed ? <ChevronDown size={16} /> : <ChevronUp size={16} />}
+          </button>
+        </div>
+
+        {/* Collapsible content */}
+        {!isCollapsed && (
+        <div className="px-2 py-3 border-t border-border">
         <div className="flex flex-col gap-4">
-          {/* Prompt Section */}
-          <div>
-            {/* Preloaded Prompts Icons */}
-            {preloadedPrompts.length > 0 && (
-              <div className="mb-2">
-                <div className="flex flex-wrap gap-1 items-center justify-center">
+          {/* Prompt Section - Preloaded Prompts Icons Only */}
+          <div className="flex justify-center">
+            <div className="w-[268px] flex flex-wrap gap-1 items-center justify-start">
+              <button
+                onClick={() => setShowAddPromptModal(true)}
+                className="p-1.5 rounded font-medium cursor-pointer transition-colors border border-dashed border-border bg-secondary text-muted-foreground hover:bg-accent hover:border-accent-foreground/20 hover:text-foreground flex items-center justify-center"
+                title="Add a custom prompt"
+              >
+                <Plus size={14} />
+              </button>
+              {preloadedPrompts.map((prompt) => {
+                const isSelected = selectedPromptKey === prompt.key;
+                const IconComponent = getPromptIcon(prompt.label);
+                return (
                   <button
-                    onClick={() => setShowAddPromptModal(true)}
-                    className="p-1.5 rounded font-medium cursor-pointer transition-colors border border-dashed border-border bg-secondary text-muted-foreground hover:bg-accent hover:border-accent-foreground/20 hover:text-foreground flex items-center justify-center"
-                    title="Add a new preloaded prompt"
+                    key={prompt.key}
+                    onClick={() => handleSelectPrompt(prompt.key)}
+                    className={`p-1.5 rounded font-medium cursor-pointer transition-colors border flex items-center justify-center ${
+                      isSelected
+                        ? "bg-primary text-primary-foreground border-primary hover:bg-primary/90"
+                        : "bg-secondary text-foreground border-border hover:bg-accent hover:border-accent-foreground/20"
+                    }`}
+                    title={`${prompt.label}\n\n${prompt.preview}`}
                   >
-                    <Plus size={14} />
+                    <IconComponent size={14} />
                   </button>
-                  {preloadedPrompts.map((prompt) => {
-                    const isSelected = selectedPromptKey === prompt.key;
-                    const IconComponent = getPromptIcon(prompt.label);
-                    return (
-                      <button
-                        key={prompt.key}
-                        onClick={() => handleSelectPrompt(prompt.key)}
-                        className={`p-1.5 rounded font-medium cursor-pointer transition-colors border flex items-center justify-center ${
-                          isSelected
-                            ? "bg-primary text-primary-foreground border-primary hover:bg-primary/90"
-                            : "bg-secondary text-foreground border-border hover:bg-accent hover:border-accent-foreground/20"
-                        }`}
-                        title={`${prompt.label}\n\n${prompt.preview}`}
-                      >
-                        <IconComponent size={14} />
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-            <SectionButtonRow buttons={promptButtons} />
+                );
+              })}
+            </div>
           </div>
 
-          {/* Attachments Section */}
-          <div>
-            <SectionButtonRow buttons={attachmentButtons} />
+          {/* Divider */}
+          <div className="border-t border-border" />
+
+          {/* Attachments Section - Icon Buttons */}
+          <div className="flex justify-center">
+            <div className="w-[268px] flex flex-wrap gap-1 items-center justify-start">
+              <button
+                onClick={handleAttachFile}
+                className="p-1.5 rounded font-medium cursor-pointer transition-colors border border-dashed border-border bg-secondary text-muted-foreground hover:bg-accent hover:border-accent-foreground/20 hover:text-foreground flex items-center justify-center"
+                title="Add attachment"
+              >
+                <Plus size={14} />
+              </button>
+              <button
+                onClick={handlePasteAttachment}
+                className="p-1.5 rounded font-medium cursor-pointer transition-colors border bg-secondary text-foreground border-border hover:bg-accent hover:border-accent-foreground/20 flex items-center justify-center"
+                title="Paste from clipboard"
+              >
+                <Clipboard size={14} />
+              </button>
+              <button
+                onClick={handleClearAttachments}
+                className="p-1.5 rounded font-medium cursor-pointer transition-colors border bg-secondary text-foreground border-border hover:bg-accent hover:border-accent-foreground/20 flex items-center justify-center"
+                title="Clear attachments"
+              >
+                <Trash2 size={14} />
+              </button>
+            </div>
           </div>
 
-          {/* Responses Section */}
-          <div>
-            <SectionButtonRow buttons={responseButtons} />
+          {/* Divider */}
+          <div className="border-t border-border" />
+
+          {/* Responses Section - Icon Buttons */}
+          <div className="flex justify-center">
+            <div className="w-[268px] flex flex-wrap gap-1 items-center justify-start">
+              <button
+                onClick={handlePasteResponse}
+                className="p-1.5 rounded font-medium cursor-pointer transition-colors border border-dashed border-border bg-secondary text-muted-foreground hover:bg-accent hover:border-accent-foreground/20 hover:text-foreground flex items-center justify-center"
+                title="Add response from clipboard"
+              >
+                <Plus size={14} />
+              </button>
+              <button
+                onClick={handleOpenAllLLMs}
+                className="p-1.5 rounded font-medium cursor-pointer transition-colors border bg-secondary text-foreground border-border hover:bg-accent hover:border-accent-foreground/20 flex items-center justify-center"
+                title="Open all LLMs"
+              >
+                <Globe size={14} />
+              </button>
+              <button
+                onClick={handleClearResponses}
+                className="p-1.5 rounded font-medium cursor-pointer transition-colors border bg-secondary text-foreground border-border hover:bg-accent hover:border-accent-foreground/20 flex items-center justify-center"
+                title="Clear responses"
+              >
+                <Trash2 size={14} />
+              </button>
+            </div>
           </div>
 
-          {/* Management Section */}
+          {/* Divider */}
+          <div className="border-t border-border" />
+
+          {/* Management Section - Icon Buttons */}
           <div className="space-y-2">
-            <SectionButtonRow buttons={managementButtons} />
+            <div className="flex justify-center">
+              <div className="w-[268px] flex flex-wrap gap-1 items-center justify-start">
+                <button
+                  onClick={handleCopyAll}
+                  className="p-1.5 rounded font-medium cursor-pointer transition-colors border bg-primary text-primary-foreground border-primary hover:bg-primary/90 flex items-center justify-center"
+                  title="Copy all to clipboard"
+                >
+                  <Copy size={14} />
+                </button>
+                <button
+                  onClick={handleSaveAs}
+                  className="p-1.5 rounded font-medium cursor-pointer transition-colors border bg-secondary text-foreground border-border hover:bg-accent hover:border-accent-foreground/20 flex items-center justify-center"
+                  title="Save as file"
+                >
+                  <Save size={14} />
+                </button>
+                <button
+                  onClick={handleViewAll}
+                  className="p-1.5 rounded font-medium cursor-pointer transition-colors border bg-secondary text-foreground border-border hover:bg-accent hover:border-accent-foreground/20 flex items-center justify-center"
+                  title="View all"
+                >
+                  <Eye size={14} />
+                </button>
+                <button
+                  onClick={handleClearAll}
+                  className="p-1.5 rounded font-medium cursor-pointer transition-colors border bg-secondary text-foreground border-border hover:bg-accent hover:border-accent-foreground/20 flex items-center justify-center"
+                  title="Clear all"
+                >
+                  <Trash2 size={14} />
+                </button>
+              </div>
+            </div>
+            {/* Divider */}
+            <div className="border-t border-border" />
+
             <StatusLabel text={getManagementStatusText()} />
           </div>
         </div>
+        </div>
+        )}
       </div>
 
       {/* ============================================ */}
       {/* MODALS */}
       {/* ============================================ */}
+
+      {/* Confirm Modal */}
+      {ConfirmModalComponent}
 
       {/* Prompt View Modal */}
       {showPromptViewModal && (

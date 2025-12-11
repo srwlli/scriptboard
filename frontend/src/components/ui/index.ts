@@ -15,4 +15,5 @@ export { SectionDivider } from "./SectionDivider";
 export { FooterBar } from "./FooterBar";
 export { Drawer } from "./Drawer";
 export type { DrawerProps } from "./Drawer";
+export { ConfirmModal, useConfirmModal } from "./ConfirmModal";
 
