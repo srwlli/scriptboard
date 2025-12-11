@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import { Menu, Home, Layout, Settings } from "lucide-react";
+import { Menu, Home, Layout, Settings, FlaskConical } from "lucide-react";
 import { MenuDropdown } from "./ui/MenuDropdown";
 import { WindowControls } from "./ui/WindowControls";
 
@@ -93,6 +93,7 @@ export function MenuBar() {
   // Navigation items
   const navItems = [
     { href: "/", label: "Home", icon: Home },
+    { href: "/test", label: "Test", icon: FlaskConical },
     { href: "/view-components", label: "View Components", icon: Layout },
     { href: "/settings", label: "Settings", icon: Settings },
   ];

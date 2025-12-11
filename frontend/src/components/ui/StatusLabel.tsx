@@ -23,10 +23,14 @@ interface StatusLabelProps {
 
 export function StatusLabel({ text, className = "" }: StatusLabelProps) {
   return (
-    <div
-      className={`px-2.5 py-1.5 bg-secondary text-muted-foreground text-sm w-full ${className}`}
-    >
-      {text}
+    // Wrapper to center the status label (matches SectionButtonRow centering)
+    <div className="flex justify-center">
+      <div
+        // Fixed width matching button row: 4 buttons × 64px + 3 gaps × 4px = 268px
+        className={`px-2.5 py-1.5 bg-secondary text-muted-foreground text-sm w-[268px] text-center ${className}`}
+      >
+        {text}
+      </div>
     </div>
   );
 }

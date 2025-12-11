@@ -125,7 +125,7 @@ export function ResponsesSection() {
 
   return (
     <>
-      <div className="mx-4 my-2 px-4 py-3 bg-background border border-border rounded-lg">
+      <div className="px-4 py-3 bg-background border border-border rounded-lg h-full">
         <div className="space-y-2">
           <SectionButtonRow buttons={buttons} />
           <StatusLabel text={getStatusText()} />

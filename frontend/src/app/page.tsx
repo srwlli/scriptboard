@@ -24,18 +24,14 @@ export default function Home() {
 
   return (
     <div className="h-full bg-background classic-layout-container flex flex-col">
-      <main className="flex flex-col flex-1 overflow-auto">
-        {/* Prompt Section */}
-        <PromptSection />
-
-        {/* Attachments Section */}
-        <AttachmentsSection />
-
-        {/* Responses Section */}
-        <ResponsesSection />
-
-        {/* Management Section */}
-        <ManagementSection />
+      <main className="flex-1 overflow-auto p-2">
+        {/* 2-column grid for section cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+          <PromptSection />
+          <AttachmentsSection />
+          <ResponsesSection />
+          <ManagementSection />
+        </div>
 
         {/* Toggleable Preview */}
         <ToggleablePreview visible={previewVisible} onToggle={togglePreview} />
