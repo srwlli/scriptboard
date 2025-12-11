@@ -209,34 +209,69 @@ function createWindow() {
         // Development: load from Next.js dev server
         mainWindow.loadURL(FRONTEND_URL);
       } else {
-        // Production: load from built Next.js app
-        const frontendPath = path.join(process.resourcesPath, "frontend", ".next");
-        const indexPath = path.join(frontendPath, "server", "pages", "index.html");
-        
-        // Try to load built Next.js app, fallback to dev server if not found
-        if (fs.existsSync(indexPath)) {
-          mainWindow.loadFile(indexPath);
-        } else {
-          // Fallback: try to use Next.js standalone server
-          const standalonePath = path.join(frontendPath, "standalone");
-          if (fs.existsSync(standalonePath)) {
-            const serverPath = path.join(standalonePath, "server.js");
-            if (fs.existsSync(serverPath)) {
-              // Spawn Next.js standalone server
-              const nodeCmd = process.platform === "win32" ? "node.exe" : "node";
-              spawn(nodeCmd, [serverPath], {
-                cwd: standalonePath,
-                env: { ...process.env, PORT: "3000" },
-              });
-              setTimeout(() => {
-                mainWindow.loadURL("http://localhost:3000");
-              }, 2000);
-            } else {
-              mainWindow.loadURL(FRONTEND_URL);
+        // Production: spawn Next.js standalone server from extraResources
+        const frontendPath = path.join(process.resourcesPath, "frontend");
+        const serverPath = path.join(frontendPath, "server.js");
+
+        if (fs.existsSync(serverPath)) {
+          console.log("Starting Next.js standalone server from:", serverPath);
+
+          // Spawn Next.js standalone server
+          const nodeCmd = process.platform === "win32" ? "node.exe" : "node";
+          const frontendProcess = spawn(nodeCmd, [serverPath], {
+            cwd: frontendPath,
+            env: {
+              ...process.env,
+              PORT: "3000",
+              HOSTNAME: "localhost"
+            },
+            stdio: ["ignore", "pipe", "pipe"],
+          });
+
+          frontendProcess.stdout.on("data", (data) => {
+            console.log(`[Frontend] ${data.toString()}`);
+          });
+
+          frontendProcess.stderr.on("data", (data) => {
+            console.error(`[Frontend Error] ${data.toString()}`);
+          });
+
+          frontendProcess.on("error", (error) => {
+            console.error("Frontend spawn error:", error);
+          });
+
+          // Wait for frontend server to start, then load
+          const pollFrontend = (attempts = 0) => {
+            if (attempts > 20) {
+              showBackendError("Frontend not responding", "Failed to start frontend server");
+              return;
             }
-          } else {
-            mainWindow.loadURL(FRONTEND_URL);
-          }
+
+            const req = http.get("http://localhost:3000", (res) => {
+              if (res.statusCode === 200 || res.statusCode === 304) {
+                mainWindow.loadURL("http://localhost:3000");
+              } else {
+                setTimeout(() => pollFrontend(attempts + 1), 500);
+              }
+            });
+
+            req.on("error", () => {
+              setTimeout(() => pollFrontend(attempts + 1), 500);
+            });
+
+            req.setTimeout(1000, () => {
+              req.destroy();
+              setTimeout(() => pollFrontend(attempts + 1), 500);
+            });
+          };
+
+          // Give server a moment to start
+          setTimeout(() => pollFrontend(), 1000);
+        } else {
+          // Fallback to dev server URL if standalone not found
+          console.log("Standalone server not found at:", serverPath);
+          console.log("Falling back to dev server URL");
+          mainWindow.loadURL(FRONTEND_URL);
         }
       }
     } else {

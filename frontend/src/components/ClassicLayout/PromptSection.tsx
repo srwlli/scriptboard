@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { Plus, FileCode, Merge, Search, Package } from "lucide-react";
 import { api } from "@/lib/api";
-import { SectionButtonRow, StatusLabel, SectionDivider, type ButtonConfig } from "@/components/ui";
+import { SectionButtonRow, StatusLabel, type ButtonConfig } from "@/components/ui";
 import { useSessionRefresh } from "@/hooks/useSessionRefresh";
 
 /**
@@ -301,7 +301,7 @@ export function PromptSection() {
 
   return (
     <>
-      <div className="px-5 py-2 bg-background">
+      <div className="mx-4 my-2 px-4 py-3 bg-background border border-border rounded-lg">
         <div className="space-y-2">
           {/* Preloaded Prompts Icons - Compact inline layout with tooltips */}
           {preloadedPrompts.length > 0 && (
@@ -342,7 +342,6 @@ export function PromptSection() {
           <StatusLabel text={getStatusText()} />
         </div>
       </div>
-      <SectionDivider />
 
       {/* View Modal */}
       {showViewModal && (

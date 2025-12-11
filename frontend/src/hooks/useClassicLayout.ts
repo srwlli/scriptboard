@@ -3,11 +3,10 @@
 import { useState, useEffect, useCallback } from "react";
 import { api } from "@/lib/api";
 import { useSessionRefresh } from "./useSessionRefresh";
-import { useBackendConnection } from "./useBackendConnection";
 
 /**
  * Custom hook for managing classic layout state.
- * 
+ *
  * Manages:
  * - Preview visibility (toggleable)
  * - Footer state (status message, size visibility, lock size, on top)
@@ -20,39 +19,27 @@ export function useClassicLayout() {
   const [lockSize, setLockSize] = useState(false);
   const [onTop, setOnTop] = useState(false);
   const [charCount, setCharCount] = useState(0);
-  const { isConnected } = useBackendConnection();
 
-  // Load character count from session
+  // Load character count from session (called once on mount and on session refresh)
   const loadCharCount = useCallback(async () => {
-    // Don't attempt if backend is disconnected
-    if (!isConnected) {
-      return;
-    }
-
     try {
       const session = await api.getSession();
       setCharCount(session.total_chars || 0);
     } catch (error) {
-      // Silently fail - backend might not be running yet
+      // Silently fail - backend might not be running
       if (process.env.NODE_ENV === 'development') {
-        console.warn("Failed to load char count (backend may not be running):", error);
+        console.warn("Failed to load char count:", error);
       }
-      // Set to 0 as fallback
       setCharCount(0);
     }
-  }, [isConnected]);
+  }, []);
 
+  // Load once on mount
   useEffect(() => {
-    if (isConnected) {
-      loadCharCount();
-      // Poll for updates only when connected
-      const interval = setInterval(loadCharCount, 2000);
-      return () => clearInterval(interval);
-    }
-    // If disconnected, don't poll
-  }, [loadCharCount, isConnected]);
+    loadCharCount();
+  }, [loadCharCount]);
 
-  // Listen for session refresh events
+  // Listen for session refresh events (updates char count when session changes)
   useSessionRefresh(() => {
     loadCharCount();
   });

@@ -29,14 +29,24 @@
     },
     "files": [
       "main.js",
-      "preload.js",
-      "../frontend/.next/**/*",
-      "../frontend/public/**/*"
+      "preload.js"
     ],
     "extraResources": [
       {
         "from": "../backend/dist/scriptboard-backend.exe",
         "to": "backend/scriptboard-backend.exe"
+      },
+      {
+        "from": "../frontend/.next/standalone",
+        "to": "frontend"
+      },
+      {
+        "from": "../frontend/.next/static",
+        "to": "frontend/.next/static"
+      },
+      {
+        "from": "../frontend/public",
+        "to": "frontend/public"
       }
     ],
     "win": {
