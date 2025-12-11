@@ -1,10 +1,12 @@
- 1. Backend (Python/FastAPI) - Port 8000
-  cd backend
-  venv\Scripts\activate
-  uvicorn api:app --host 127.0.0.1 --port 8000
-  2. Frontend (Next.js) - Port 3000
-  cd frontend
-  npm run dev
-  3. Shell (Electron) - Loads from localhost:3000
-  cd shell
-  npm run dev
+# 1. Backend (Python/FastAPI) - Port 8000
+cd backend
+venv\Scripts\activate
+uvicorn api:app --host 127.0.0.1 --port 8000
+
+# 2. Frontend (Next.js) - Port 3000
+cd frontend
+npm run dev
+
+# 3. Shell (Electron) - Loads from localhost:3000
+cd shell
+npm run dev

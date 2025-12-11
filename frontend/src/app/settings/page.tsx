@@ -1,6 +1,6 @@
 "use client";
 
-import { ThemeToggle } from "@/components/ThemeToggle";
+import { ThemeSwitcher } from "@/components/theme";
 import { ConnectionStatus } from "@/components/ConnectionStatus";
 
 /**
@@ -39,10 +39,10 @@ export default function SettingsPage() {
                 <div>
                   <p className="text-sm font-medium text-foreground">Theme</p>
                   <p className="text-sm text-muted-foreground">
-                    Switch between light and dark mode
+                    Choose light, dark, or system preference
                   </p>
                 </div>
-                <ThemeToggle />
+                <ThemeSwitcher />
               </div>
             </section>
           </div>

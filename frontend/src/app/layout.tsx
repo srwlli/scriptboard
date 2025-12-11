@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import "../styles/globals.css";
-import { ThemeProvider } from "@/components/ThemeProvider";
+import { ThemeProvider, themeScript } from "@/components/theme";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { MenuBar } from "@/components/MenuBar";
 import { FooterBar } from "@/components/ui";
@@ -19,6 +20,11 @@ export default function RootLayout({
   return (
     <html lang="en" data-theme="light" suppressHydrationWarning>
       <body>
+        <Script
+          id="theme-script"
+          strategy="beforeInteractive"
+          dangerouslySetInnerHTML={{ __html: themeScript }}
+        />
         <ErrorBoundary>
           <ThemeProvider>
             <div className="h-screen flex flex-col overflow-hidden">

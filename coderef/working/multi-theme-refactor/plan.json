@@ -1,0 +1,355 @@
+{
+  "name": "Multi-Theme System Refactor",
+  "workorder_id": "WO-MULTI-THEME-001",
+  "status": "pending",
+  "overview": "Refactor theme system from single dimension (light/dark/system) to two dimensions (theme + mode). Ships with Default theme only. Architecture ready for future themes.",
+
+  "mental_model": {
+    "current": "mode = light | dark | system",
+    "target": "theme = default (+ future themes) + mode = light | dark | system"
+  },
+
+  "decisions": {
+    "default_theme": {
+      "decision": "Current light/dark colors become 'Default' theme",
+      "light_variant": "Current :root colors",
+      "dark_variant": "Current [data-theme='dark'] colors"
+    },
+    "data_attributes": {
+      "decision": "Use two attributes on <html>",
+      "theme_attr": "data-theme='default'",
+      "mode_attr": "data-mode='light' | 'dark'",
+      "example": "<html data-theme='default' data-mode='dark'>"
+    },
+    "storage": {
+      "theme_key": "app-theme",
+      "mode_key": "app-mode",
+      "migration": "NO - start fresh, ignore old 'theme' key"
+    },
+    "css_structure": {
+      "pattern": "[data-theme='default'][data-mode='light'] { ... }",
+      "note": "Future themes add new selectors"
+    },
+    "tailwind_config": {
+      "decision": "Update darkMode selector",
+      "before": "darkMode: ['class', '[data-theme=\"dark\"]']",
+      "after": "darkMode: ['class', '[data-mode=\"dark\"]']",
+      "why": "Ensures Tailwind dark: prefix works with new data-mode attribute"
+    },
+    "theme_selector_ui": {
+      "decision": "Modal with theme preview cards and Apply button",
+      "modal_pattern": "Follow FavoritesModal.tsx (overlay, backdrop click to close, Escape key)",
+      "card_layout": "Grid, 2 columns on mobile, 3 on desktop",
+      "color_preview": "3-4 color swatches per card (background, foreground, primary, accent)",
+      "mode_toggle": "ModeSwitcher in modal header top-right for live preview",
+      "apply_behavior": "Click card to preview, explicit Apply button to confirm and close"
+    }
+  },
+
+  "architecture": {
+    "folder": "frontend/src/components/theme/",
+    "files": {
+      "themes.ts": {
+        "changes": [
+          "Add Theme type (starts with 'default' only)",
+          "Add Mode type (light/dark/system)",
+          "Create theme registry with name, icon, description",
+          "Separate mode options array",
+          "DEFAULT_THEME = 'default'",
+          "DEFAULT_MODE = 'system'",
+          "THEME_STORAGE_KEY = 'app-theme'",
+          "MODE_STORAGE_KEY = 'app-mode'"
+        ]
+      },
+      "ThemeProvider.tsx": {
+        "changes": [
+          "Track both theme and mode state",
+          "Apply data-theme and data-mode attributes to <html>",
+          "Two localStorage keys",
+          "System detection for mode only"
+        ]
+      },
+      "useTheme.ts": {
+        "returns": {
+          "theme": "Selected theme (default)",
+          "setTheme": "Change theme",
+          "mode": "User preference (light/dark/system)",
+          "setMode": "Change mode",
+          "resolvedMode": "Actual mode (light/dark)",
+          "themes": "Theme registry array",
+          "modes": "Mode options array"
+        }
+      },
+      "ModeSwitcher.tsx": {
+        "purpose": "Renamed from ThemeSwitcher",
+        "changes": [
+          "Use mode/setMode instead of theme/setTheme",
+          "Same icon button UI (Sun/Moon/Monitor)"
+        ]
+      },
+      "ThemeSelector.tsx": {
+        "purpose": "NEW - Modal for theme selection",
+        "features": [
+          "Modal overlay",
+          "Theme cards with color preview",
+          "Mode toggle inside modal for preview",
+          "Apply button to confirm selection",
+          "Shows Default theme card (ready for more)"
+        ]
+      },
+      "theme-script.ts": {
+        "changes": [
+          "Read app-theme from localStorage (default if missing)",
+          "Read app-mode from localStorage",
+          "Set data-theme attribute",
+          "Set data-mode attribute",
+          "System detection for mode"
+        ]
+      },
+      "index.ts": {
+        "exports": [
+          "ThemeProvider",
+          "ThemeSelector",
+          "ModeSwitcher",
+          "useTheme",
+          "themeScript",
+          "Theme type",
+          "Mode type",
+          "ThemeConfig type"
+        ]
+      }
+    }
+  },
+
+  "hook_api": {
+    "theme": "Current theme (default)",
+    "setTheme": "Change theme",
+    "mode": "User mode preference (light/dark/system)",
+    "setMode": "Change mode",
+    "resolvedMode": "Actual applied mode (light/dark)",
+    "themes": "Available themes for UI",
+    "modes": "Available modes for UI"
+  },
+
+  "css_changes": {
+    "file": "frontend/src/styles/globals.css",
+    "before": [
+      ":root { --background: 0 0% 100%; ... }",
+      "[data-theme='dark'] { --background: 222.2 84% 4.9%; ... }"
+    ],
+    "after": [
+      "[data-theme='default'][data-mode='light'] { --background: 0 0% 100%; ... }",
+      "[data-theme='default'][data-mode='dark'] { --background: 222.2 84% 4.9%; ... }"
+    ]
+  },
+
+  "implementation_phases": [
+    {
+      "phase": 1,
+      "name": "Update Types and Registry",
+      "file": "frontend/src/components/theme/themes.ts",
+      "tasks": [
+        "Create Theme type = 'default'",
+        "Create Mode type = 'light' | 'dark' | 'system'",
+        "Create ThemeConfig interface with id, name, description, icon",
+        "Create ModeConfig interface with id, label, icon",
+        "Create themes array with Default entry only",
+        "Create modes array with light/dark/system",
+        "Export DEFAULT_THEME = 'default'",
+        "Export DEFAULT_MODE = 'system'",
+        "Export THEME_STORAGE_KEY = 'app-theme'",
+        "Export MODE_STORAGE_KEY = 'app-mode'",
+        "Update validation functions for both"
+      ]
+    },
+    {
+      "phase": 2,
+      "name": "Update Provider",
+      "file": "frontend/src/components/theme/ThemeProvider.tsx",
+      "tasks": [
+        "Add theme state (default: DEFAULT_THEME)",
+        "Rename existing theme state to mode",
+        "Update context type to include theme, setTheme, mode, setMode, resolvedMode",
+        "Read/write THEME_STORAGE_KEY for theme",
+        "Read/write MODE_STORAGE_KEY for mode",
+        "Apply document.documentElement.setAttribute('data-theme', theme)",
+        "Apply document.documentElement.setAttribute('data-mode', resolvedMode)",
+        "Keep system detection logic for mode"
+      ]
+    },
+    {
+      "phase": 3,
+      "name": "Update Hook",
+      "file": "frontend/src/components/theme/useTheme.ts",
+      "tasks": [
+        "Update return type to match new context",
+        "Export themes and modes arrays from context"
+      ]
+    },
+    {
+      "phase": 4,
+      "name": "Update Flash Prevention Script",
+      "file": "frontend/src/components/theme/theme-script.ts",
+      "tasks": [
+        "Read app-theme from localStorage, default to 'default'",
+        "Read app-mode from localStorage",
+        "Resolve mode (system -> check OS preference)",
+        "Set data-theme attribute on documentElement",
+        "Set data-mode attribute on documentElement"
+      ]
+    },
+    {
+      "phase": 5,
+      "name": "Rename ThemeSwitcher to ModeSwitcher",
+      "tasks": [
+        "Rename file ThemeSwitcher.tsx -> ModeSwitcher.tsx",
+        "Update component name to ModeSwitcher",
+        "Change useTheme destructure from { theme, setTheme } to { mode, setMode }",
+        "Update modes.map instead of themes.map",
+        "Keep same icon button UI"
+      ]
+    },
+    {
+      "phase": 6,
+      "name": "Create ThemeSelector Modal",
+      "file": "frontend/src/components/theme/ThemeSelector.tsx",
+      "reference": "Follow FavoritesModal.tsx pattern",
+      "tasks": [
+        "Create modal with fixed inset-0 overlay (bg-black/50)",
+        "Add isOpen/onClose props",
+        "Handle Escape key to close",
+        "Handle backdrop click to close",
+        "Modal header: title 'Select Theme', ModeSwitcher top-right, close X button",
+        "Get themes, theme, setTheme from useTheme",
+        "Track previewTheme state (initially = current theme)",
+        "Render theme cards in grid (grid-cols-2 md:grid-cols-3)",
+        "Each card shows: theme name, description, 4 color swatches (background, foreground, primary, accent)",
+        "Click card sets previewTheme (highlights card, does not apply yet)",
+        "Apply button: calls setTheme(previewTheme), then onClose()",
+        "Cancel button: calls onClose() without applying"
+      ]
+    },
+    {
+      "phase": 7,
+      "name": "Update Barrel Export",
+      "file": "frontend/src/components/theme/index.ts",
+      "tasks": [
+        "Export ThemeSelector",
+        "Export ModeSwitcher (remove ThemeSwitcher)",
+        "Export new types: Theme, Mode, ThemeConfig, ModeConfig"
+      ]
+    },
+    {
+      "phase": 8,
+      "name": "Update CSS",
+      "file": "frontend/src/styles/globals.css",
+      "tasks": [
+        "Change :root to [data-theme='default'][data-mode='light']",
+        "Change [data-theme='dark'] to [data-theme='default'][data-mode='dark']",
+        "Keep all CSS variable values the same"
+      ]
+    },
+    {
+      "phase": 8.5,
+      "name": "Update Tailwind Config",
+      "file": "frontend/tailwind.config.ts (or .js)",
+      "tasks": [
+        "Change darkMode from ['class', '[data-theme=\"dark\"]']",
+        "To darkMode: ['class', '[data-mode=\"dark\"]']"
+      ]
+    },
+    {
+      "phase": 9,
+      "name": "Update Settings Page",
+      "file": "frontend/src/app/settings/page.tsx",
+      "tasks": [
+        "Import ThemeSelector, ModeSwitcher from theme",
+        "Add state for theme modal: const [showThemeModal, setShowThemeModal] = useState(false)",
+        "Add button to open theme modal (shows current theme name)",
+        "Render ThemeSelector modal",
+        "Keep ModeSwitcher for quick mode toggle"
+      ]
+    },
+    {
+      "phase": 10,
+      "name": "Update Layout",
+      "file": "frontend/src/app/layout.tsx",
+      "required": "YES - theme-script.ts content changed",
+      "tasks": [
+        "No import changes needed (still imports themeScript)",
+        "Script content auto-updates since it's exported string"
+      ]
+    },
+    {
+      "phase": 11,
+      "name": "Delete Old File",
+      "tasks": [
+        "Delete frontend/src/components/theme/ThemeSwitcher.tsx after ModeSwitcher created"
+      ]
+    }
+  ],
+
+  "theme_registry_structure": {
+    "themes": [
+      {
+        "id": "default",
+        "name": "Default",
+        "description": "Clean and minimal",
+        "icon": "Palette"
+      }
+    ],
+    "modes": [
+      { "id": "light", "label": "Light", "icon": "Sun" },
+      { "id": "dark", "label": "Dark", "icon": "Moon" },
+      { "id": "system", "label": "System", "icon": "Monitor" }
+    ]
+  },
+
+  "testing_checklist": [
+    "Default theme light mode works",
+    "Default theme dark mode works",
+    "Default theme system mode follows OS",
+    "Theme persists after reload",
+    "Mode persists after reload",
+    "No flash of wrong theme/mode on load",
+    "Theme modal opens and closes",
+    "Mode toggle in modal previews changes",
+    "Default theme card displays correctly",
+    "ModeSwitcher shows correct active mode"
+  ],
+
+  "adding_future_theme": {
+    "steps": [
+      "1. Add entry to themes array in themes.ts",
+      "2. Add Theme type union member",
+      "3. Add CSS selectors in globals.css for light and dark variants"
+    ],
+    "no_changes_needed": [
+      "ThemeProvider",
+      "ThemeSelector (reads from themes array)",
+      "ModeSwitcher",
+      "useTheme",
+      "theme-script"
+    ]
+  },
+
+  "files_to_modify": [
+    "frontend/src/components/theme/themes.ts",
+    "frontend/src/components/theme/ThemeProvider.tsx",
+    "frontend/src/components/theme/useTheme.ts",
+    "frontend/src/components/theme/theme-script.ts",
+    "frontend/src/components/theme/index.ts",
+    "frontend/src/styles/globals.css",
+    "frontend/tailwind.config.ts",
+    "frontend/src/app/settings/page.tsx"
+  ],
+
+  "files_to_create": [
+    "frontend/src/components/theme/ModeSwitcher.tsx",
+    "frontend/src/components/theme/ThemeSelector.tsx"
+  ],
+
+  "files_to_delete": [
+    "frontend/src/components/theme/ThemeSwitcher.tsx"
+  ]
+}

@@ -8,7 +8,8 @@
       "Bash(mv:*)",
       "Bash(mkdir:*)",
       "Bash(pyinstaller:*)",
-      "Bash(npm run package:win:*)"
+      "Bash(npm run package:win:*)",
+      "mcp__docs-mcp__generate_deliverables_template"
     ]
   }
 }
