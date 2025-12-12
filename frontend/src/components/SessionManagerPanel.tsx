@@ -8,20 +8,6 @@ export function SessionManagerPanel() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
 
-  const handleCopyAll = async () => {
-    try {
-      const json = await api.exportJson();
-      const jsonString = JSON.stringify(json, null, 2);
-      await navigator.clipboard.writeText(jsonString);
-      setMessage("Copied to clipboard!");
-      setTimeout(() => setMessage(null), 2000);
-    } catch (error) {
-      console.error("Failed to copy JSON:", error);
-      setMessage("Failed to copy");
-      setTimeout(() => setMessage(null), 2000);
-    }
-  };
-
   const handleExportMarkdown = async () => {
     setLoading(true);
     try {
@@ -67,52 +53,15 @@ export function SessionManagerPanel() {
     setTimeout(() => setMessage(null), 2000);
   };
 
-  const handleClearAll = async () => {
-    if (!confirm("Clear all session data? This cannot be undone.")) {
-      return;
-    }
-
-    setLoading(true);
-    try {
-      await Promise.all([
-        api.clearPrompt(),
-        api.clearAttachments(),
-        api.clearResponses(),
-      ]);
-      setMessage("All cleared!");
-      setTimeout(() => setMessage(null), 2000);
-    } catch (error) {
-      console.error("Failed to clear all:", error);
-      setMessage("Failed to clear");
-      setTimeout(() => setMessage(null), 2000);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   return (
     <CollapsibleCard title="Session Manager">
       <div className="space-y-2">
-        <button
-          onClick={handleCopyAll}
-          disabled={loading}
-          className="w-full px-3 py-2 text-sm rounded-md border border-border bg-background hover:bg-accent transition-colors disabled:opacity-50"
-        >
-          Copy All JSON
-        </button>
         <button
           onClick={handleSaveSession}
           disabled={loading}
           className="w-full px-3 py-2 text-sm rounded-md border border-border bg-background hover:bg-accent transition-colors disabled:opacity-50"
         >
           Save Session
-        </button>
-        <button
-          onClick={handleExportMarkdown}
-          disabled={loading}
-          className="w-full px-3 py-2 text-sm rounded-md border border-border bg-background hover:bg-accent transition-colors disabled:opacity-50"
-        >
-          Export Markdown
         </button>
         <button
           onClick={handleLoadSession}
@@ -122,11 +71,11 @@ export function SessionManagerPanel() {
           Load Session
         </button>
         <button
-          onClick={handleClearAll}
+          onClick={handleExportMarkdown}
           disabled={loading}
-          className="w-full px-3 py-2 text-sm rounded-md border border-red-500 bg-background hover:bg-red-500/10 text-red-500 transition-colors disabled:opacity-50"
+          className="w-full px-3 py-2 text-sm rounded-md border border-border bg-background hover:bg-accent transition-colors disabled:opacity-50"
         >
-          Clear All
+          Export Markdown
         </button>
         {message && (
           <p className="text-xs text-muted-foreground text-center mt-2">
