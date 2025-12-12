@@ -109,6 +109,34 @@ function spawnBackend() {
   });
 }
 
+function killBackend() {
+  return new Promise((resolve) => {
+    if (!backendProcess) {
+      resolve();
+      return;
+    }
+    
+    console.log("Killing existing backend process...");
+    backendProcess.kill();
+    backendProcess = null;
+    
+    // Give it a moment to fully terminate
+    setTimeout(resolve, 500);
+  });
+}
+
+async function restartBackend() {
+  await killBackend();
+  spawnBackend();
+  pollBackendHealth((healthy) => {
+    if (healthy && mainWindow) {
+      mainWindow.reload();
+    } else {
+      showBackendError("Backend restart failed", "Could not restart backend. Please check logs.");
+    }
+  });
+}
+
 function pollBackendHealth(callback) {
   const maxAttempts = 30;
   let attempts = 0;
@@ -163,14 +191,7 @@ function showBackendError(title, message) {
     .then((result) => {
       if (result.response === 0) {
         // Restart backend
-        spawnBackend();
-        pollBackendHealth((healthy) => {
-          if (healthy && mainWindow) {
-            mainWindow.reload();
-          } else {
-            showBackendError("Backend restart failed", "Could not restart backend. Please check logs.");
-          }
-        });
+        restartBackend();
       }
     });
 }

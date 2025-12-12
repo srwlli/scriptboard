@@ -1,0 +1,27 @@
+[data-theme="THEME_NAME"][data-mode="light"] {
+  --background: H S% L%;
+  --foreground: H S% L%;
+  --primary: H S% L%;
+  --primary-foreground: H S% L%;
+  --secondary: H S% L%;
+  --secondary-foreground: H S% L%;
+  --muted: H S% L%;
+  --muted-foreground: H S% L%;
+  --accent: H S% L%;
+  --accent-foreground: H S% L%;
+  --border: H S% L%;
+}
+
+[data-theme="THEME_NAME"][data-mode="dark"] {
+  --background: H S% L%;
+  --foreground: H S% L%;
+  --primary: H S% L%;
+  --primary-foreground: H S% L%;
+  --secondary: H S% L%;
+  --secondary-foreground: H S% L%;
+  --muted: H S% L%;
+  --muted-foreground: H S% L%;
+  --accent: H S% L%;
+  --accent-foreground: H S% L%;
+  --border: H S% L%;
+}

@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useClassicLayout } from "@/hooks/useClassicLayout";
 
 /**
  * User Feedback Panel - displays system status and metrics.
@@ -9,10 +8,8 @@ import { useClassicLayout } from "@/hooks/useClassicLayout";
  * Shows:
  * - Status message (dynamic feedback)
  * - Window size (width x height)
- * - Character count
  */
 export function UserFeedbackPanel() {
-  const { statusMessage, charCount } = useClassicLayout();
   const [windowSize, setWindowSize] = useState({ width: 0, height: 0 });
 
   useEffect(() => {
@@ -34,17 +31,13 @@ export function UserFeedbackPanel() {
       <div className="space-y-2 text-sm">
         <div className="flex items-center justify-between">
           <span className="text-muted-foreground">Status</span>
-          <span className="text-foreground">{statusMessage || "Ready"}</span>
+          <span className="text-foreground">Ready</span>
         </div>
         <div className="flex items-center justify-between">
           <span className="text-muted-foreground">Window Size</span>
           <span className="text-foreground">
             {windowSize.width > 0 ? `${windowSize.width} x ${windowSize.height}` : "—"}
           </span>
-        </div>
-        <div className="flex items-center justify-between">
-          <span className="text-muted-foreground">Char Count</span>
-          <span className="text-foreground">{charCount.toLocaleString()}</span>
         </div>
       </div>
     </div>

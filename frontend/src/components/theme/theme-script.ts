@@ -2,8 +2,8 @@
  * Inline script for flash prevention.
  * 
  * This script runs in the <head> before React hydrates to prevent
- * flash of wrong theme. It reads localStorage and sets data-theme
- * attribute immediately.
+ * flash of wrong theme/mode. It reads localStorage and sets both
+ * data-theme and data-mode attributes immediately.
  * 
  * Usage: Inline this script in layout.tsx <head> section.
  */
@@ -11,20 +11,24 @@
 export const themeScript = `
 (function() {
   try {
-    const theme = localStorage.getItem('theme') || 'light';
+    const theme = localStorage.getItem('app-theme') || 'default';
+    const mode = localStorage.getItem('app-mode') || 'system';
     const root = document.documentElement;
     
-    if (theme === 'system') {
-      // Check OS preference
+    // Resolve mode (system -> check OS preference)
+    let resolvedMode = mode;
+    if (mode === 'system') {
       const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      root.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
-    } else {
-      root.setAttribute('data-theme', theme);
+      resolvedMode = prefersDark ? 'dark' : 'light';
     }
+    
+    // Set both attributes
+    root.setAttribute('data-theme', theme);
+    root.setAttribute('data-mode', resolvedMode);
   } catch (e) {
-    // Fallback to light if anything fails
-    document.documentElement.setAttribute('data-theme', 'light');
+    // Fallback to default/light if anything fails
+    document.documentElement.setAttribute('data-theme', 'default');
+    document.documentElement.setAttribute('data-mode', 'light');
   }
 })();
 `.trim();
-

@@ -1,0 +1,43 @@
+{
+  "feature": "prompt-sync",
+  "description": "Sync prompts from settings.py to config.json on startup",
+  "problem": {
+    "summary": "Adding new prompts to settings.py doesn't sync to the app",
+    "details": [
+      "settings.py → config.json migration only happens ONCE (on first run)",
+      "After that, settings.py is permanently ignored",
+      "No mechanism to detect/merge new prompts"
+    ]
+  },
+  "solution": {
+    "approach": "On each startup, compare settings.py prompts with config.json and merge any NEW prompts while preserving existing ones",
+    "principles": [
+      "settings.py = prompts shipped with the app",
+      "config.json = all prompts (shipped + user-added)",
+      "New prompts from settings.py are merged in; existing prompts are preserved"
+    ]
+  },
+  "implementation": {
+    "files": [
+      {
+        "path": "backend/api.py",
+        "changes": [
+          {
+            "description": "Add sync_prompts_from_settings() function after migrate_prompt_keys_to_4digit() (~line 320)",
+            "code": "def sync_prompts_from_settings(config_prompts: dict) -> tuple[dict, bool]:\n    \"\"\"\n    Sync prompts from settings.py into config.json.\n\n    - Adds any NEW prompts from settings.py that don't exist in config\n    - Preserves existing prompts (doesn't overwrite)\n    - Uses label matching to detect duplicates\n\n    Returns:\n        tuple: (updated_prompts_dict, was_modified)\n    \"\"\"\n    from settings import PRELOADED_PROMPTS\n\n    # Get existing labels to avoid duplicates\n    existing_labels = {p[\"label\"] for p in config_prompts.values()}\n\n    modified = False\n    for key, (label, text) in PRELOADED_PROMPTS.items():\n        if label not in existing_labels:\n            # New prompt - add it\n            new_key = generate_next_prompt_key(config_prompts)\n            config_prompts[new_key] = {\"label\": label, \"text\": text}\n            modified = True\n\n    return config_prompts, modified"
+          },
+          {
+            "description": "Modify get_config() to call sync on every load (~line 400). In the else branch (when prompts already exist), add sync call after key migration check",
+            "code": "# After the key migration block, add:\n\n# Sync any new prompts from settings.py\nconfig[\"prompts\"], sync_modified = sync_prompts_from_settings(config[\"prompts\"])\n\n# Update the save condition:\nif needs_migration or sync_modified:\n    try:\n        config_path = get_config_path()\n        temp_path = config_path.with_suffix(\".tmp\")\n        with open(temp_path, \"w\", encoding=\"utf-8\") as f:\n            json.dump(config, f, indent=2, ensure_ascii=False)\n        shutil.move(str(temp_path), str(config_path))\n    except (IOError, OSError):\n        pass"
+          }
+        ]
+      }
+    ]
+  },
+  "behavior": {
+    "add_prompt_to_settings": "Restart backend → Prompt appears in app",
+    "user_edits_prompt": "Changes preserved",
+    "user_adds_prompt": "Preserved (won't conflict)",
+    "developer_updates_text": "NOT synced (preserves user edits)"
+  }
+}

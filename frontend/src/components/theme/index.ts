@@ -5,14 +5,25 @@
  * 
  * @example
  * ```tsx
- * import { ThemeProvider, ThemeSwitcher, useTheme } from '@/components/theme';
+ * import { ThemeProvider, ThemeSelector, ModeSwitcher, useTheme } from '@/components/theme';
  * ```
  */
 
 export { ThemeProvider } from "./ThemeProvider";
-export { ThemeSwitcher } from "./ThemeSwitcher";
+export { ThemeSelector } from "./ThemeSelector";
+export { ModeSwitcher } from "./ModeSwitcher";
 export { useTheme } from "./useTheme";
-export { themes, DEFAULT_THEME, STORAGE_KEY, getThemeById, isValidTheme } from "./themes";
-export type { ThemeOption, ThemeConfig } from "./themes";
+export {
+  themes,
+  modes,
+  DEFAULT_THEME,
+  DEFAULT_MODE,
+  THEME_STORAGE_KEY,
+  MODE_STORAGE_KEY,
+  getThemeById,
+  getModeById,
+  isValidTheme,
+  isValidMode,
+} from "./themes";
+export type { Theme, Mode, ThemeConfig, ModeConfig } from "./themes";
 export { themeScript } from "./theme-script";
-

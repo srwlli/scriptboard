@@ -310,6 +310,33 @@ def migrate_prompt_keys_to_4digit(prompts: dict) -> dict:
     return migrated
 
 
+def sync_prompts_from_settings(config_prompts: dict) -> tuple[dict, bool]:
+    """
+    Sync prompts from settings.py into config.json.
+
+    - Adds any NEW prompts from settings.py that don't exist in config
+    - Preserves existing prompts (doesn't overwrite)
+    - Uses label matching to detect duplicates
+
+    Returns:
+        tuple: (updated_prompts_dict, was_modified)
+    """
+    from settings import PRELOADED_PROMPTS
+
+    # Get existing labels to avoid duplicates
+    existing_labels = {p["label"] for p in config_prompts.values()}
+
+    modified = False
+    for key, (label, text) in PRELOADED_PROMPTS.items():
+        if label not in existing_labels:
+            # New prompt - add it
+            new_key = generate_next_prompt_key(config_prompts)
+            config_prompts[new_key] = {"label": label, "text": text}
+            modified = True
+
+    return config_prompts, modified
+
+
 def load_config() -> dict:
     """
     Load configuration from ~/.scriptboard/config.json with validation and fallback to defaults.
@@ -410,7 +437,12 @@ def load_config() -> dict:
             if needs_migration:
                 # Migrate all keys to 4-digit format
                 config["prompts"] = migrate_prompt_keys_to_4digit(prompts)
-                # Save migrated config
+            
+            # Sync any new prompts from settings.py
+            config["prompts"], sync_modified = sync_prompts_from_settings(config["prompts"])
+            
+            # Save if migration or sync occurred
+            if needs_migration or sync_modified:
                 try:
                     config_path = get_config_path()
                     import tempfile

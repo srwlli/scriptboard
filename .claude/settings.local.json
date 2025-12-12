@@ -9,7 +9,8 @@
       "Bash(mkdir:*)",
       "Bash(pyinstaller:*)",
       "Bash(npm run package:win:*)",
-      "mcp__docs-mcp__generate_deliverables_template"
+      "mcp__docs-mcp__generate_deliverables_template",
+      "mcp__docs-mcp__list_context_experts"
     ]
   }
 }

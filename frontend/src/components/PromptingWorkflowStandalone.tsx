@@ -1,11 +1,12 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { Plus, FileCode, Merge, Search, Package, ChevronDown, ChevronUp, FolderOpen, Globe, Clipboard, Trash2, Copy, Save, Eye } from "lucide-react";
+import { Plus, FileCode, Merge, Search, Package, Palette, ChevronDown, ChevronUp, FolderOpen, Globe, Clipboard, Trash2, Copy, Save, Eye } from "lucide-react";
 import { api } from "@/lib/api";
 import { SectionButtonRow, StatusLabel, type ButtonConfig, useConfirmModal } from "@/components/ui";
 import { useSessionRefresh } from "@/hooks/useSessionRefresh";
 import { toast } from "sonner";
+import { LoadingSpinner } from "@/components/LoadingSpinner";
 
 /**
  * PromptingWorkflowStandalone - Self-contained component with all 4 sections.
@@ -37,6 +38,7 @@ const getPromptIcon = (label: string) => {
     "Synthesize": Merge,
     "Research": Search,
     "Consolidate": Package,
+    "UI Variations": Palette,
   };
   return iconMap[label] || FileCode;
 };
@@ -87,6 +89,7 @@ export function PromptingWorkflowStandalone() {
   // ============================================
   const [isElectron, setIsElectron] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [ConfirmModalComponent, confirm] = useConfirmModal();
 
   // ============================================
@@ -105,12 +108,17 @@ export function PromptingWorkflowStandalone() {
   });
 
   const loadAllData = async () => {
-    await Promise.all([
-      loadPromptData(),
-      loadAttachments(),
-      loadResponsesData(),
-      loadManagementCounts(),
-    ]);
+    setIsLoading(true);
+    try {
+      await Promise.all([
+        loadPromptData(),
+        loadAttachments(),
+        loadResponsesData(),
+        loadManagementCounts(),
+      ]);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   // ============================================
@@ -686,6 +694,7 @@ export function PromptingWorkflowStandalone() {
   // ============================================
   return (
     <>
+      {isLoading && <LoadingSpinner />}
       {/* Single Card containing all sections */}
       <div className="bg-background border border-border rounded-lg">
         {/* Header with title and collapse toggle */}
@@ -734,6 +743,13 @@ export function PromptingWorkflowStandalone() {
                   </button>
                 );
               })}
+              <button
+                onClick={handleClearPrompt}
+                className="p-1.5 rounded font-medium cursor-pointer transition-colors border bg-secondary text-foreground border-border hover:bg-accent hover:border-accent-foreground/20 flex items-center justify-center"
+                title="Clear current prompt"
+              >
+                <Trash2 size={14} />
+              </button>
             </div>
           </div>
 

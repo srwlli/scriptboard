@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { api } from "@/lib/api";
 
 export function PreviewPanel() {
@@ -33,11 +33,9 @@ export function PreviewPanel() {
   };
 
   // Load truncated preview on mount
-  useState(() => {
-    if (!preview) {
-      loadPreview(false);
-    }
-  });
+  useEffect(() => {
+    loadPreview(false);
+  }, []);
 
   return (
     <div className="p-4 border border-border rounded-md bg-background">

@@ -2,20 +2,20 @@
 
 import { Sun, Moon, Monitor } from "lucide-react";
 import { useTheme } from "./useTheme";
-import { themes } from "./themes";
-import type { ThemeOption } from "./themes";
+import { modes } from "./themes";
+import type { Mode } from "./themes";
 
 /**
- * Theme switcher component with icon buttons.
+ * Mode switcher component with icon buttons.
  * 
  * Displays three icon buttons: Sun (Light), Moon (Dark), Monitor (System).
  * Shows active state with aria-pressed for accessibility.
  */
-export function ThemeSwitcher() {
-  const { theme, setTheme } = useTheme();
+export function ModeSwitcher() {
+  const { mode, setMode } = useTheme();
 
-  const handleThemeChange = (newTheme: ThemeOption) => {
-    setTheme(newTheme);
+  const handleModeChange = (newMode: Mode) => {
+    setMode(newMode);
   };
 
   const getIcon = (iconName: string) => {
@@ -33,22 +33,22 @@ export function ThemeSwitcher() {
 
   return (
     <div className="flex items-center gap-1">
-      {themes.map((themeOption) => {
-        const isActive = theme === themeOption.id;
+      {modes.map((modeOption) => {
+        const isActive = mode === modeOption.id;
         return (
           <button
-            key={themeOption.id}
-            onClick={() => handleThemeChange(themeOption.id)}
+            key={modeOption.id}
+            onClick={() => handleModeChange(modeOption.id)}
             className={`px-3 py-2 rounded-md border transition-colors ${
               isActive
                 ? "border-primary bg-primary text-primary-foreground"
                 : "border-border bg-background hover:bg-accent text-foreground"
             }`}
-            aria-label={`Switch to ${themeOption.label} theme`}
+            aria-label={`Switch to ${modeOption.label} mode`}
             aria-pressed={isActive}
-            title={themeOption.label}
+            title={modeOption.label}
           >
-            {getIcon(themeOption.icon)}
+            {getIcon(modeOption.icon)}
           </button>
         );
       })}

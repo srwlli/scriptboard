@@ -1,40 +1,17 @@
 "use client";
 
-import { PromptSection } from "@/components/ClassicLayout/PromptSection";
-import { AttachmentsSection } from "@/components/ClassicLayout/AttachmentsSection";
-import { ResponsesSection } from "@/components/ClassicLayout/ResponsesSection";
-import { ManagementSection } from "@/components/ClassicLayout/ManagementSection";
-import { ToggleablePreview } from "@/components/ClassicLayout/ToggleablePreview";
-import { useClassicLayout } from "@/hooks/useClassicLayout";
+import { PromptingWorkflowStandalone } from "@/components/PromptingWorkflowStandalone";
 
 /**
- * Main page with classic layout replicating original scriptboard.py UI/UX.
- * 
- * Layout matches original:
- * - Favorites button (moved to header, top right)
- * - Prompt section (buttons + status)
- * - Attachments section (buttons + status)
- * - Responses section (buttons + status)
- * - Management section (buttons + status)
- * - Toggleable Preview (optional)
- * - Footer/Status bar (bottom)
+ * Main page with PromptingWorkflowStandalone component.
+ *
+ * Unified workflow UI replacing the 4-section ClassicLayout grid.
  */
 export default function Home() {
-  const { previewVisible, togglePreview } = useClassicLayout();
-
   return (
-    <div className="h-full bg-background classic-layout-container flex flex-col">
+    <div className="h-full bg-background flex flex-col">
       <main className="flex-1 overflow-auto p-2">
-        {/* 2-column grid for section cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-          <PromptSection />
-          <AttachmentsSection />
-          <ResponsesSection />
-          <ManagementSection />
-        </div>
-
-        {/* Toggleable Preview */}
-        <ToggleablePreview visible={previewVisible} onToggle={togglePreview} />
+        <PromptingWorkflowStandalone />
       </main>
     </div>
   );
