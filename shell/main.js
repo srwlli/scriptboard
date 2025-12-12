@@ -207,7 +207,7 @@ if (backendProcess) {
 
 function createWindow() {
   mainWindow = new BrowserWindow({
-    width: 400,
+    width: 350,
     height: 725,
     minWidth: 350,
     minHeight: 550,

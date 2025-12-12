@@ -4,6 +4,7 @@ import { useState } from "react";
 import { ThemeSelector, ModeSwitcher, useTheme } from "@/components/theme";
 import { ConnectionStatus } from "@/components/ConnectionStatus";
 import { UpdateChecker } from "@/components/UpdateChecker";
+import { UserFeedbackPanel } from "@/components/UserFeedbackPanel";
 import { CollapsibleCard } from "@/components/ui";
 
 /**
@@ -72,6 +73,9 @@ export default function SettingsPage() {
           >
             <UpdateChecker />
           </CollapsibleCard>
+
+          {/* User Feedback Section */}
+          <UserFeedbackPanel />
         </div>
       </div>
 
