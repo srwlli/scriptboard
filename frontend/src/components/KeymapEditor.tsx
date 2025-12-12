@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { api } from "@/lib/api";
+import { CollapsibleCard } from "@/components/ui";
 
 interface Keymap {
   [key: string]: string; // e.g., "paste_response": "Ctrl+V"
@@ -83,9 +84,7 @@ export function KeymapEditor() {
   ];
 
   return (
-    <div className="p-4 border border-border rounded-md bg-background">
-      <h2 className="text-sm font-semibold mb-3 text-foreground">Keyboard Shortcuts</h2>
-
+    <CollapsibleCard title="Keyboard Shortcuts">
       <div className="space-y-2">
         {keymapActions.map((action) => (
           <div
@@ -138,7 +137,7 @@ export function KeymapEditor() {
       <p className="text-xs text-muted-foreground mt-3">
         Note: Keymap changes are temporary. To persist, update config.json or implement save endpoint.
       </p>
-    </div>
+    </CollapsibleCard>
   );
 }
 

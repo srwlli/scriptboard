@@ -16,4 +16,6 @@ export { FooterBar } from "./FooterBar";
 export { Drawer } from "./Drawer";
 export type { DrawerProps } from "./Drawer";
 export { ConfirmModal, useConfirmModal } from "./ConfirmModal";
+export { CollapsibleCard } from "./CollapsibleCard";
+export type { CollapsibleCardProps } from "./CollapsibleCard";
 

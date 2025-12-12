@@ -30,7 +30,11 @@ export default function RootLayout({
             <div className="h-screen flex flex-col overflow-hidden">
               <MenuBar />
               <div className="flex-1 overflow-auto">
-                {children}
+                <div className="h-full bg-background">
+                  <main className="container mx-auto px-4 py-6">
+                    {children}
+                  </main>
+                </div>
               </div>
               <FooterBar />
             </div>

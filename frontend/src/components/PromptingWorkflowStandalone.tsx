@@ -1,9 +1,9 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { Plus, FileCode, Merge, Search, Package, Palette, ChevronDown, ChevronUp, FolderOpen, Globe, Clipboard, Trash2, Copy, Save, Eye } from "lucide-react";
+import { Plus, FileCode, Merge, Search, Package, Palette, FolderOpen, Globe, Clipboard, Trash2, Copy, Save, Eye } from "lucide-react";
 import { api } from "@/lib/api";
-import { SectionButtonRow, StatusLabel, type ButtonConfig, useConfirmModal } from "@/components/ui";
+import { SectionButtonRow, StatusLabel, type ButtonConfig, useConfirmModal, CollapsibleCard } from "@/components/ui";
 import { useSessionRefresh } from "@/hooks/useSessionRefresh";
 import { toast } from "sonner";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
@@ -36,8 +36,9 @@ const getPromptIcon = (label: string) => {
   const iconMap: Record<string, typeof FileCode> = {
     "Code Review": FileCode,
     "Synthesize": Merge,
-    "Research": Search,
     "Consolidate": Package,
+    "Research": Search,
+    "Research Synth": Merge,
     "UI Variations": Palette,
   };
   return iconMap[label] || FileCode;
@@ -88,7 +89,6 @@ export function PromptingWorkflowStandalone() {
   // SHARED STATE
   // ============================================
   const [isElectron, setIsElectron] = useState(false);
-  const [isCollapsed, setIsCollapsed] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [ConfirmModalComponent, confirm] = useConfirmModal();
 
@@ -587,8 +587,7 @@ export function PromptingWorkflowStandalone() {
       if (isElectron) {
         const result = await (window as any).electronAPI.selectFolder();
         if (result && result.path && !result.error) {
-          const defaultName = `clipboard-${attachmentCount + 1}.txt`;
-          const filename = prompt(`Filename:`, defaultName) || defaultName;
+          const filename = `clipboard-${attachmentCount + 1}.txt`;
           toast.info(`Save to ${result.path}/${filename} - to be implemented`);
         }
       } else {
@@ -695,25 +694,7 @@ export function PromptingWorkflowStandalone() {
   return (
     <>
       {isLoading && <LoadingSpinner />}
-      {/* Single Card containing all sections */}
-      <div className="bg-background border border-border rounded-lg">
-        {/* Header with title and collapse toggle */}
-        <div
-          className="px-3 py-2 flex items-center justify-between cursor-pointer hover:bg-accent/50 transition-colors"
-          onClick={() => setIsCollapsed(!isCollapsed)}
-        >
-          <span className="text-sm font-medium text-foreground">Prompt Workflow</span>
-          <button
-            className="p-0.5 text-muted-foreground hover:text-foreground transition-colors"
-            aria-label={isCollapsed ? "Expand" : "Collapse"}
-          >
-            {isCollapsed ? <ChevronDown size={16} /> : <ChevronUp size={16} />}
-          </button>
-        </div>
-
-        {/* Collapsible content */}
-        {!isCollapsed && (
-        <div className="px-2 py-3 border-t border-border">
+      <CollapsibleCard title="Prompt Workflow">
         <div className="flex flex-col gap-4">
           {/* Prompt Section - Preloaded Prompts Icons Only */}
           <div className="flex justify-center">
@@ -856,9 +837,7 @@ export function PromptingWorkflowStandalone() {
             <StatusLabel text={getManagementStatusText()} />
           </div>
         </div>
-        </div>
-        )}
-      </div>
+      </CollapsibleCard>
 
       {/* ============================================ */}
       {/* MODALS */}

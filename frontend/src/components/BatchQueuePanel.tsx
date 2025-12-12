@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { api } from "@/lib/api";
 import { useBackendConnection } from "@/hooks/useBackendConnection";
+import { CollapsibleCard } from "@/components/ui";
 
 interface BatchJob {
   id: string;
@@ -123,19 +124,17 @@ export function BatchQueuePanel() {
   };
 
   return (
-    <div className="p-4 border border-border rounded-md bg-background">
-      <div className="flex items-center justify-between mb-3">
-        <h2 className="text-sm font-semibold text-foreground">Batch Queue</h2>
+    <CollapsibleCard
+      title="Batch Queue"
+      rightContent={
         <button
-          onClick={() => setShowEnqueue(!showEnqueue)}
-          className="px-3 py-1.5 text-sm rounded-md border border-border bg-background hover:bg-accent transition-colors"
+          onClick={(e) => { e.stopPropagation(); setShowEnqueue(!showEnqueue); }}
+          className="px-2 py-1 text-xs rounded-md border border-border bg-background hover:bg-accent transition-colors"
         >
           {showEnqueue ? "Cancel" : "New Batch"}
         </button>
-      </div>
-
-
-
+      }
+    >
       {showEnqueue && (
         <div className="mb-4 p-3 border border-border rounded-md bg-muted/30">
           <div className="space-y-2">
@@ -229,7 +228,7 @@ export function BatchQueuePanel() {
           ))
         )}
       </div>
-    </div>
+    </CollapsibleCard>
   );
 }
 

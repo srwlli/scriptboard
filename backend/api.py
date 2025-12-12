@@ -711,16 +711,28 @@ async def add_preloaded_prompt(payload: AddPromptPayload):
 
 @app.post("/prompt/preloaded")
 async def use_preloaded_prompt(payload: PromptPreloadedPayload):
-    """Load a preloaded prompt by key from config.json."""
+    """Load a preloaded prompt by key from config.json.
+
+    Supports dynamic placeholders:
+    - {{DATE}} - Replaced with current date (e.g., December 11, 2025)
+    """
+    from datetime import datetime
+
     config = load_config()
     prompts = config.get("prompts", {})
-    
+
     if payload.key in prompts:
         prompt_data = prompts[payload.key]
-        core.set_prompt(prompt_data["text"], source=f"preloaded:{payload.key}")
+        prompt_text = prompt_data["text"]
+
+        # Replace dynamic placeholders
+        today = datetime.now().strftime("%B %d, %Y")  # e.g., "December 11, 2025"
+        prompt_text = prompt_text.replace("{{DATE}}", today)
+
+        core.set_prompt(prompt_text, source=f"preloaded:{payload.key}")
         trigger_autosave()
         return {"status": "ok"}
-    
+
     raise HTTPException(
         status_code=404,
         detail=f"Preloaded prompt '{payload.key}' not found"

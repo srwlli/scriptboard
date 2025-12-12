@@ -3,6 +3,7 @@
 import { useState, useMemo, useRef, useEffect } from "react";
 import { api } from "@/lib/api";
 import { LogDisplay, LogEntry } from "./ui/LogDisplay";
+import { CollapsibleCard } from "@/components/ui";
 
 interface MacroEvent {
   type: string;
@@ -143,8 +144,7 @@ export function KeyLogPanel() {
   };
 
   return (
-    <div className="p-4 border border-border rounded-md bg-background">
-      <h2 className="text-sm font-semibold mb-3 text-foreground">Key Logger</h2>
+    <CollapsibleCard title="Key Logger">
       <div className="space-y-3">
         <div className="flex gap-2 flex-wrap">
           <button onClick={handleStartRecording} disabled={isRecording || isSaving}
@@ -159,6 +159,6 @@ export function KeyLogPanel() {
         <p className="text-xs text-muted-foreground">{statusMessage}</p>
         <LogDisplay logs={eventLogs} title="Captured Events" showFilter={true} showAutoScroll={true} onClear={events.length > 0 ? clearEvents : undefined} height="h-32" />
       </div>
-    </div>
+    </CollapsibleCard>
   );
 }

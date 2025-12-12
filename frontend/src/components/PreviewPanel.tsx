@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { api } from "@/lib/api";
+import { CollapsibleCard } from "@/components/ui";
 
 export function PreviewPanel() {
   const [preview, setPreview] = useState<string>("");
@@ -38,18 +39,18 @@ export function PreviewPanel() {
   }, []);
 
   return (
-    <div className="p-4 border border-border rounded-md bg-background">
-      <div className="flex items-center justify-between mb-3">
-        <h2 className="text-sm font-semibold text-foreground">Preview</h2>
+    <CollapsibleCard
+      title="Preview"
+      rightContent={
         <button
-          onClick={handleToggle}
+          onClick={(e) => { e.stopPropagation(); handleToggle(); }}
           disabled={loading}
-          className="px-3 py-1.5 text-xs rounded-md border border-border bg-background hover:bg-accent transition-colors disabled:opacity-50"
+          className="px-2 py-1 text-xs rounded-md border border-border bg-background hover:bg-accent transition-colors disabled:opacity-50"
         >
           {isExpanded ? "Collapse" : "Expand"}
         </button>
-      </div>
-
+      }
+    >
       {loading ? (
         <p className="text-sm text-muted-foreground">Loading preview...</p>
       ) : preview ? (
@@ -61,7 +62,7 @@ export function PreviewPanel() {
       ) : (
         <p className="text-sm text-muted-foreground">No content to preview</p>
       )}
-    </div>
+    </CollapsibleCard>
   );
 }
 

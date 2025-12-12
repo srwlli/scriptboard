@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { CollapsibleCard } from "@/components/ui";
 
 /**
  * User Feedback Panel - displays system status and metrics.
@@ -26,8 +27,7 @@ export function UserFeedbackPanel() {
   }, []);
 
   return (
-    <div className="border border-border rounded-lg p-4 bg-background">
-      <h3 className="text-sm font-semibold text-foreground mb-3">User Feedback</h3>
+    <CollapsibleCard title="User Feedback">
       <div className="space-y-2 text-sm">
         <div className="flex items-center justify-between">
           <span className="text-muted-foreground">Status</span>
@@ -40,6 +40,6 @@ export function UserFeedbackPanel() {
           </span>
         </div>
       </div>
-    </div>
+    </CollapsibleCard>
   );
 }

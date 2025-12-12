@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { LogDisplay, LogEntry } from "./ui/LogDisplay";
+import { CollapsibleCard } from "@/components/ui";
 
 /**
  * Logging Console Panel - captures and displays console.log/warn/error/debug messages.
@@ -70,13 +71,15 @@ export function LoggingConsolePanel() {
   };
 
   return (
-    <LogDisplay
-      logs={logs}
-      title="Logging Console"
-      showFilter={true}
-      showAutoScroll={true}
-      onClear={clearLogs}
-      height="h-64"
-    />
+    <CollapsibleCard title="Logging Console">
+      <LogDisplay
+        logs={logs}
+        title=""
+        showFilter={true}
+        showAutoScroll={true}
+        onClear={clearLogs}
+        height="h-64"
+      />
+    </CollapsibleCard>
   );
 }

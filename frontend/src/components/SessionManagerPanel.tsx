@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { api } from "@/lib/api";
+import { CollapsibleCard } from "@/components/ui";
 
 export function SessionManagerPanel() {
   const [loading, setLoading] = useState(false);
@@ -90,9 +91,7 @@ export function SessionManagerPanel() {
   };
 
   return (
-    <div className="p-4 border border-border rounded-md bg-background">
-      <h2 className="text-sm font-semibold mb-3 text-foreground">Session Manager</h2>
-
+    <CollapsibleCard title="Session Manager">
       <div className="space-y-2">
         <button
           onClick={handleCopyAll}
@@ -135,7 +134,7 @@ export function SessionManagerPanel() {
           </p>
         )}
       </div>
-    </div>
+    </CollapsibleCard>
   );
 }
 

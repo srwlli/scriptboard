@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { api } from "@/lib/api";
+import { CollapsibleCard } from "@/components/ui";
 
 interface GitStatus {
   is_git_repo: boolean;
@@ -58,36 +59,34 @@ export function GitIntegrationPanel() {
 
   if (loading) {
     return (
-      <div className="p-4 border border-border rounded-md bg-background">
-        <h2 className="text-sm font-semibold mb-2 text-foreground">Git Integration</h2>
+      <CollapsibleCard title="Git Integration">
         <p className="text-sm text-muted-foreground">Loading...</p>
-      </div>
+      </CollapsibleCard>
     );
   }
 
   if (!status || !status.is_git_repo) {
     return (
-      <div className="p-4 border border-border rounded-md bg-background">
-        <h2 className="text-sm font-semibold mb-2 text-foreground">Git Integration</h2>
+      <CollapsibleCard title="Git Integration">
         <p className="text-sm text-muted-foreground">
           {status?.message || "Not a git repository"}
         </p>
-      </div>
+      </CollapsibleCard>
     );
   }
 
   return (
-    <div className="p-4 border border-border rounded-md bg-background">
-      <div className="flex items-center justify-between mb-3">
-        <h2 className="text-sm font-semibold text-foreground">Git Integration</h2>
+    <CollapsibleCard
+      title="Git Integration"
+      rightContent={
         <button
-          onClick={loadStatus}
+          onClick={(e) => { e.stopPropagation(); loadStatus(); }}
           className="px-2 py-1 text-xs rounded-md border border-border bg-background hover:bg-accent transition-colors"
         >
           Refresh
         </button>
-      </div>
-
+      }
+    >
       <div className="space-y-2 mb-3">
         <div className="text-xs">
           <span className="text-muted-foreground">Branch: </span>
@@ -131,7 +130,7 @@ export function GitIntegrationPanel() {
           </button>
         </div>
       )}
-    </div>
+    </CollapsibleCard>
   );
 }
 
