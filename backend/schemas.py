@@ -411,3 +411,50 @@ class MacroRecordResponse(BaseModel):
         None,
         description="Captured events (only present when stopping)"
     )
+
+
+# ---------------------------------------------------------------------------
+# System Monitoring (Process Monitor feature)
+# ---------------------------------------------------------------------------
+
+class SystemStats(BaseModel):
+    """System resource usage statistics."""
+    cpu_percent: float = Field(..., description="CPU usage percentage (0-100)")
+    memory_percent: float = Field(..., description="RAM usage percentage (0-100)")
+    memory_used_gb: float = Field(..., description="RAM used in GB")
+    memory_total_gb: float = Field(..., description="Total RAM in GB")
+    disk_percent: float = Field(..., description="Disk usage percentage (0-100)")
+    disk_used_gb: float = Field(..., description="Disk used in GB")
+    disk_total_gb: float = Field(..., description="Total disk in GB")
+
+
+class ProcessInfo(BaseModel):
+    """Information about a running process."""
+    pid: int = Field(..., description="Process ID")
+    name: str = Field(..., description="Process name")
+    cpu_percent: float = Field(..., description="CPU usage percentage")
+    memory_percent: float = Field(..., description="Memory usage percentage")
+    memory_mb: float = Field(..., description="Memory usage in MB")
+    status: str = Field(..., description="Process status (running, sleeping, etc.)")
+    is_protected: bool = Field(default=False, description="Whether this is a protected process")
+
+
+class ProcessListResponse(BaseModel):
+    """Response containing list of processes."""
+    processes: List[ProcessInfo]
+    total_count: int
+    page: int = Field(default=1)
+    page_size: int = Field(default=50)
+
+
+class KillProcessPayload(BaseModel):
+    """Payload for killing a process."""
+    pid: int = Field(..., description="Process ID to kill")
+    force: bool = Field(default=False, description="Use SIGKILL instead of SIGTERM")
+
+
+class KillProcessResponse(BaseModel):
+    """Response from kill process attempt."""
+    success: bool
+    pid: int
+    message: str

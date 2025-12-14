@@ -390,6 +390,78 @@ class ApiClient {
   getRecordingStreamUrl(): string {
     return `${this.baseUrl}/macros/record/stream`;
   }
+
+  // System Process Monitor endpoints
+  async getSystemStats() {
+    return this.request<SystemStats>("/system/stats");
+  }
+
+  async getProcesses(params?: {
+    page?: number;
+    page_size?: number;
+    sort_by?: string;
+    sort_order?: string;
+    filter_name?: string;
+  }) {
+    const searchParams = new URLSearchParams();
+    if (params?.page) searchParams.set("page", params.page.toString());
+    if (params?.page_size) searchParams.set("page_size", params.page_size.toString());
+    if (params?.sort_by) searchParams.set("sort_by", params.sort_by);
+    if (params?.sort_order) searchParams.set("sort_order", params.sort_order);
+    if (params?.filter_name) searchParams.set("filter_name", params.filter_name);
+
+    const query = searchParams.toString();
+    return this.request<ProcessListResponse>(`/system/processes${query ? `?${query}` : ""}`);
+  }
+
+  async getAppProcesses() {
+    return this.request<ProcessListResponse>("/system/processes/app");
+  }
+
+  async killProcess(pid: number, force?: boolean) {
+    return this.request<KillProcessResponse>("/system/processes/kill", {
+      method: "POST",
+      body: JSON.stringify({ pid, force }),
+    });
+  }
+
+  async getProtectedProcesses() {
+    return this.request<{ protected: string[] }>("/system/protected-processes");
+  }
+}
+
+// System Monitor interfaces
+export interface SystemStats {
+  cpu_percent: number;
+  memory_percent: number;
+  memory_used_gb: number;
+  memory_total_gb: number;
+  disk_percent: number;
+  disk_used_gb: number;
+  disk_total_gb: number;
+}
+
+export interface ProcessInfo {
+  pid: number;
+  name: string;
+  cpu_percent: number;
+  memory_percent: number;
+  memory_mb: number;
+  status: string;
+  is_protected: boolean;
+}
+
+export interface ProcessListResponse {
+  processes: ProcessInfo[];
+  total_count: number;
+  page: number;
+  page_size: number;
+}
+
+export interface KillProcessResponse {
+  success: boolean;
+  pid: number;
+  message: string;
 }
 
 export const api = new ApiClient(API_BASE_URL);

@@ -1694,3 +1694,278 @@ async def save_macro(payload: MacroSavePayload):
         "created_at": created_at
     }
 
+
+# --------------------------------------------------------------------------- #
+# System Process Monitor Endpoints
+# --------------------------------------------------------------------------- #
+
+# Protected processes that cannot be killed
+PROTECTED_PROCESSES = {
+    # Windows system-critical
+    "System", "csrss.exe", "wininit.exe", "smss.exe", "services.exe",
+    "lsass.exe", "svchost.exe", "explorer.exe", "winlogon.exe",
+    # Scriptboard app processes
+    "Scriptboard.exe", "scriptboard-backend.exe", "scriptboard.exe",
+    # Development processes
+    "node.exe", "python.exe", "pythonw.exe", "uvicorn.exe",
+}
+
+
+def is_protected_process(name: str) -> bool:
+    """Check if a process name is in the protected list."""
+    return name.lower() in {p.lower() for p in PROTECTED_PROCESSES}
+
+
+@app.get("/system/stats")
+async def get_system_stats():
+    """Get current system resource usage (CPU, RAM, Disk)."""
+    try:
+        import psutil
+    except ImportError:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="psutil not installed"
+        )
+
+    cpu = psutil.cpu_percent(interval=0.1)
+    memory = psutil.virtual_memory()
+    disk = psutil.disk_usage("/")
+
+    from schemas import SystemStats
+    return SystemStats(
+        cpu_percent=cpu,
+        memory_percent=memory.percent,
+        memory_used_gb=round(memory.used / (1024**3), 2),
+        memory_total_gb=round(memory.total / (1024**3), 2),
+        disk_percent=disk.percent,
+        disk_used_gb=round(disk.used / (1024**3), 2),
+        disk_total_gb=round(disk.total / (1024**3), 2),
+    )
+
+
+@app.get("/system/processes")
+async def get_processes(
+    page: int = 1,
+    page_size: int = 50,
+    sort_by: str = "cpu_percent",
+    sort_order: str = "desc",
+    filter_name: Optional[str] = None,
+):
+    """Get list of running processes with pagination and sorting."""
+    try:
+        import psutil
+    except ImportError:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="psutil not installed"
+        )
+
+    from schemas import ProcessInfo, ProcessListResponse
+
+    processes = []
+    for proc in psutil.process_iter(['pid', 'name', 'cpu_percent', 'memory_percent', 'memory_info', 'status']):
+        try:
+            info = proc.info
+            name = info['name'] or ''
+
+            # Apply name filter if provided
+            if filter_name and filter_name.lower() not in name.lower():
+                continue
+
+            memory_mb = 0
+            if info['memory_info']:
+                memory_mb = round(info['memory_info'].rss / (1024**2), 2)
+
+            processes.append(ProcessInfo(
+                pid=info['pid'],
+                name=name,
+                cpu_percent=info['cpu_percent'] or 0.0,
+                memory_percent=info['memory_percent'] or 0.0,
+                memory_mb=memory_mb,
+                status=info['status'] or 'unknown',
+                is_protected=is_protected_process(name),
+            ))
+        except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+            continue
+
+    # Sort processes
+    reverse = sort_order == "desc"
+    if sort_by in ['cpu_percent', 'memory_percent', 'memory_mb', 'pid']:
+        processes.sort(key=lambda p: getattr(p, sort_by), reverse=reverse)
+    elif sort_by == 'name':
+        processes.sort(key=lambda p: p.name.lower(), reverse=reverse)
+
+    # Paginate
+    total = len(processes)
+    start = (page - 1) * page_size
+    end = start + page_size
+    paginated = processes[start:end]
+
+    return ProcessListResponse(
+        processes=paginated,
+        total_count=total,
+        page=page,
+        page_size=page_size,
+    )
+
+
+@app.get("/system/processes/app")
+async def get_app_processes():
+    """Get Scriptboard-related processes only."""
+    try:
+        import psutil
+    except ImportError:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="psutil not installed"
+        )
+
+    from schemas import ProcessInfo, ProcessListResponse
+
+    # Scriptboard-related process patterns
+    app_patterns = [
+        "scriptboard", "uvicorn", "python", "node", "next",
+        "electron", "scriptboard-backend"
+    ]
+
+    processes = []
+    for proc in psutil.process_iter(['pid', 'name', 'cpu_percent', 'memory_percent', 'memory_info', 'status', 'cmdline']):
+        try:
+            info = proc.info
+            name = (info['name'] or '').lower()
+            cmdline = ' '.join(info['cmdline'] or []).lower()
+
+            # Check if process matches app patterns
+            is_app_process = any(
+                pattern in name or pattern in cmdline
+                for pattern in app_patterns
+            )
+
+            if not is_app_process:
+                continue
+
+            memory_mb = 0
+            if info['memory_info']:
+                memory_mb = round(info['memory_info'].rss / (1024**2), 2)
+
+            processes.append(ProcessInfo(
+                pid=info['pid'],
+                name=info['name'] or '',
+                cpu_percent=info['cpu_percent'] or 0.0,
+                memory_percent=info['memory_percent'] or 0.0,
+                memory_mb=memory_mb,
+                status=info['status'] or 'unknown',
+                is_protected=is_protected_process(info['name'] or ''),
+            ))
+        except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+            continue
+
+    # Sort by CPU usage
+    processes.sort(key=lambda p: p.cpu_percent, reverse=True)
+
+    return ProcessListResponse(
+        processes=processes,
+        total_count=len(processes),
+        page=1,
+        page_size=len(processes),
+    )
+
+
+@app.post("/system/processes/kill")
+async def kill_process(payload: dict):
+    """Kill a process by PID with safeguards."""
+    try:
+        import psutil
+    except ImportError:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="psutil not installed"
+        )
+
+    from schemas import KillProcessResponse
+
+    pid = payload.get("pid")
+    force = payload.get("force", False)
+
+    if not pid:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="PID is required"
+        )
+
+    try:
+        proc = psutil.Process(pid)
+        proc_name = proc.name()
+
+        # Check if process is protected
+        if is_protected_process(proc_name):
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail=f"Cannot kill protected process: {proc_name} (PID: {pid})"
+            )
+
+        # Attempt to kill
+        if force:
+            proc.kill()  # SIGKILL
+        else:
+            proc.terminate()  # SIGTERM
+
+        # Wait briefly for process to terminate
+        try:
+            proc.wait(timeout=3)
+            return KillProcessResponse(
+                success=True,
+                pid=pid,
+                message=f"Process {proc_name} (PID: {pid}) terminated successfully"
+            )
+        except psutil.TimeoutExpired:
+            return KillProcessResponse(
+                success=True,
+                pid=pid,
+                message=f"Termination signal sent to {proc_name} (PID: {pid})"
+            )
+
+    except psutil.NoSuchProcess:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Process with PID {pid} not found"
+        )
+    except psutil.AccessDenied:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=f"Permission denied to kill process (PID: {pid})"
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to kill process: {str(e)}"
+        )
+
+
+@app.get("/system/protected-processes")
+async def get_protected_processes():
+    """Get list of protected process names that cannot be killed."""
+    return {"protected": list(PROTECTED_PROCESSES)}
+
+
+# --------------------------------------------------------------------------- #
+# Entry Point for PyInstaller
+# --------------------------------------------------------------------------- #
+
+if __name__ == "__main__":
+    import sys
+    import os
+    import multiprocessing
+
+    # Required for PyInstaller on Windows to prevent infinite subprocess spawning
+    multiprocessing.freeze_support()
+
+    # Handle --noconsole mode where stdout/stderr are None (pythonw.exe)
+    if sys.stdout is None:
+        sys.stdout = open(os.devnull, 'w')
+    if sys.stderr is None:
+        sys.stderr = open(os.devnull, 'w')
+
+    import uvicorn
+    uvicorn.run(app, host="127.0.0.1", port=8000, log_level="info")
+

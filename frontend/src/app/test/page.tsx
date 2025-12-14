@@ -1,11 +1,10 @@
+"use client";
+
+import { SystemMonitor } from "@/components/SystemMonitor";
+
 /**
- * Test page for experimenting with new layouts.
+ * System Monitor page - displays system stats, process list, and app processes.
  */
 export default function TestPage() {
-  return (
-    <div>
-      <h1 className="text-2xl font-bold text-foreground mb-6">Test Page</h1>
-      <p className="text-muted-foreground">Add test components here</p>
-    </div>
-  );
+  return <SystemMonitor />;
 }

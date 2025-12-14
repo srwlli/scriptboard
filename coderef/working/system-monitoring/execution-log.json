@@ -1,0 +1,120 @@
+[
+  {
+    "timestamp": "2025-12-13T21:39:55.032270",
+    "workorder_id": "WO-SYSTEM-MONITORING-001",
+    "feature_name": "system-monitoring",
+    "task_count": 22,
+    "tasks": [
+      {
+        "content": "PHASE-1-001: Add psutil>=5.9.0 to requirements.txt",
+        "activeForm": "PHASE-1-001: Adding psutil>=5.9.0 to requirements.txt",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-1-002: Add SystemStats model to schemas.py",
+        "activeForm": "PHASE-1-002: Adding SystemStats model to schemas.py",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-1-003: Add ProcessInfo model to schemas.py",
+        "activeForm": "PHASE-1-003: Adding ProcessInfo model to schemas.py",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-1-004: Add ProcessListResponse model to schemas.py",
+        "activeForm": "PHASE-1-004: Adding ProcessListResponse model to schemas.py",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-1-005: Add KillProcessResponse model to schemas.py",
+        "activeForm": "PHASE-1-005: Adding KillProcessResponse model to schemas.py",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-1-006: Add PROTECTED_PROCESSES set to api.py",
+        "activeForm": "PHASE-1-006: Adding PROTECTED_PROCESSES set to api.py",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-1-007: Add GET /system/stats endpoint",
+        "activeForm": "PHASE-1-007: Adding GET /system/stats endpoint",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-1-008: Add GET /system/processes endpoint",
+        "activeForm": "PHASE-1-008: Adding GET /system/processes endpoint",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-1-009: Add GET /system/processes/app endpoint",
+        "activeForm": "PHASE-1-009: Adding GET /system/processes/app endpoint",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-1-010: Add POST /system/processes/kill endpoint",
+        "activeForm": "PHASE-1-010: Adding POST /system/processes/kill endpoint",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-2-001: Add TypeScript interfaces to api.ts",
+        "activeForm": "PHASE-2-001: Adding TypeScript interfaces to api.ts",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-2-002: Add getSystemStats method",
+        "activeForm": "PHASE-2-002: Adding getSystemStats method",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-2-003: Add getProcesses method",
+        "activeForm": "PHASE-2-003: Adding getProcesses method",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-2-004: Add getAppProcesses method",
+        "activeForm": "PHASE-2-004: Adding getAppProcesses method",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-2-005: Add killProcess method",
+        "activeForm": "PHASE-2-005: Adding killProcess method",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-3-001: Create useSystemMonitor.ts hook",
+        "activeForm": "PHASE-3-001: Creating useSystemMonitor.ts hook",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-3-002: Create SystemStatsPanel.tsx",
+        "activeForm": "PHASE-3-002: Creating SystemStatsPanel.tsx",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-3-003: Create ProcessListPanel.tsx",
+        "activeForm": "PHASE-3-003: Creating ProcessListPanel.tsx",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-3-004: Create AppProcessesPanel.tsx",
+        "activeForm": "PHASE-3-004: Creating AppProcessesPanel.tsx",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-4-001: Update test/page.tsx with imports",
+        "activeForm": "PHASE-4-001: Updating test/page.tsx with imports",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-4-002: Add grid layout with panels",
+        "activeForm": "PHASE-4-002: Adding grid layout with panels",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-4-003: Test end-to-end functionality",
+        "activeForm": "PHASE-4-003: Testing end-to-end functionality",
+        "status": "pending"
+      }
+    ]
+  }
+]

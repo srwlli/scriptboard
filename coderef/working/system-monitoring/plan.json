@@ -1,0 +1,335 @@
+{
+  "META_DOCUMENTATION": {
+    "feature_name": "system-monitoring",
+    "schema_version": "1.0.0",
+    "version": "1.0.0",
+    "status": "planned",
+    "generated_by": "AI Assistant",
+    "has_context": true,
+    "has_analysis": true
+  },
+  "UNIVERSAL_PLANNING_STRUCTURE": {
+    "0_preparation": {
+      "foundation_docs": ["BUILD.md"],
+      "coding_standards": ["FastAPI", "Pydantic", "TypeScript", "React hooks", "Tailwind CSS"],
+      "reference_components": ["CollapsibleCard.tsx", "KeyLogPanel.tsx", "GitIntegrationPanel.tsx"],
+      "dependencies": ["psutil (NEW)", "lucide-react (existing)"]
+    },
+    "1_executive_summary": {
+      "description": "Add a system process monitor to the Test page with CPU/RAM/Disk stats, process list with kill functionality",
+      "goal": "Provide developers visibility into system resources and running processes from within the app",
+      "scope": "Backend endpoints for system metrics + Frontend panels on Test page",
+      "out_of_scope": ["Real-time WebSocket streaming", "Process priority modification", "Service management"]
+    },
+    "2_risk_assessment": {
+      "complexity": "medium",
+      "risks": [
+        {
+          "risk": "Killing critical system processes",
+          "severity": "high",
+          "mitigation": "Protected process list + confirmation dialog + 403 response"
+        },
+        {
+          "risk": "High CPU from frequent polling",
+          "severity": "low",
+          "mitigation": "3-second polling interval with pause/resume controls"
+        }
+      ],
+      "dependencies": ["psutil>=5.9.0"],
+      "breaking_changes": false
+    },
+    "3_current_state_analysis": {
+      "files_to_modify": [
+        {
+          "path": "backend/requirements.txt",
+          "purpose": "Add psutil dependency",
+          "changes": "Add psutil>=5.9.0"
+        },
+        {
+          "path": "backend/schemas.py",
+          "purpose": "Add Pydantic models for system monitoring",
+          "changes": "Add SystemStats, ProcessInfo, ProcessListResponse, KillProcessResponse"
+        },
+        {
+          "path": "backend/api.py",
+          "purpose": "Add system monitoring endpoints",
+          "changes": "Add /system/stats, /system/processes, /system/processes/app, /system/processes/kill"
+        },
+        {
+          "path": "frontend/src/lib/api.ts",
+          "purpose": "Add API client methods",
+          "changes": "Add getSystemStats, getProcesses, getAppProcesses, killProcess methods"
+        },
+        {
+          "path": "frontend/src/app/test/page.tsx",
+          "purpose": "Render system monitor panels",
+          "changes": "Import and render SystemStatsPanel, ProcessListPanel, AppProcessesPanel"
+        }
+      ],
+      "files_to_create": [
+        {
+          "path": "frontend/src/hooks/useSystemMonitor.ts",
+          "purpose": "Polling hook for system stats with 3s interval"
+        },
+        {
+          "path": "frontend/src/components/SystemStatsPanel.tsx",
+          "purpose": "CPU/RAM/Disk progress bars with pause/refresh"
+        },
+        {
+          "path": "frontend/src/components/ProcessListPanel.tsx",
+          "purpose": "Sortable/filterable process table with pagination and kill"
+        },
+        {
+          "path": "frontend/src/components/AppProcessesPanel.tsx",
+          "purpose": "Scriptboard-related processes with totals"
+        }
+      ],
+      "files_to_reference": [
+        "frontend/src/components/ui/CollapsibleCard.tsx",
+        "frontend/src/components/ui/ConfirmModal.tsx",
+        "frontend/src/components/KeyLogPanel.tsx"
+      ]
+    },
+    "4_key_features": {
+      "features": [
+        {
+          "name": "System Stats Panel",
+          "description": "Real-time CPU, RAM, Disk usage with progress bars",
+          "requirements": [
+            "3-second polling interval",
+            "Pause/resume controls",
+            "Color-coded thresholds (green/yellow/red)",
+            "Last updated timestamp"
+          ]
+        },
+        {
+          "name": "Process List Panel",
+          "description": "Sortable, filterable table of all running processes",
+          "requirements": [
+            "Pagination (25 per page)",
+            "Sort by name, PID, CPU%, memory",
+            "Filter by name",
+            "Kill button with confirmation",
+            "Protected process indicator"
+          ]
+        },
+        {
+          "name": "App Processes Panel",
+          "description": "Scriptboard-specific processes with aggregated stats",
+          "requirements": [
+            "Show only Scriptboard-related processes",
+            "Total CPU and memory usage",
+            "Protected process badges"
+          ]
+        },
+        {
+          "name": "Kill Process Safeguards",
+          "description": "Prevent accidental termination of critical processes",
+          "requirements": [
+            "Protected process list (system + app)",
+            "Confirmation dialog before kill",
+            "403 Forbidden for protected processes",
+            "SIGTERM first, SIGKILL with force flag"
+          ]
+        }
+      ]
+    },
+    "5_task_id_system": {
+      "workorder": {
+        "id": "WO-SYSTEM-MONITORING-001",
+        "name": "System Process Monitor",
+        "feature_dir": "coderef/working/system-monitoring"
+      },
+      "tasks": [
+        {
+          "id": "SYSMON-001",
+          "workorder_id": "WO-SYSTEM-MONITORING-001",
+          "description": "Add psutil dependency and Pydantic schemas",
+          "files": ["backend/requirements.txt", "backend/schemas.py"],
+          "acceptance_criteria": [
+            "psutil>=5.9.0 in requirements.txt",
+            "SystemStats, ProcessInfo, ProcessListResponse, KillProcessResponse models defined"
+          ]
+        },
+        {
+          "id": "SYSMON-002",
+          "workorder_id": "WO-SYSTEM-MONITORING-001",
+          "description": "Add system monitoring API endpoints",
+          "files": ["backend/api.py"],
+          "acceptance_criteria": [
+            "GET /system/stats returns CPU, RAM, disk usage",
+            "GET /system/processes returns paginated process list",
+            "GET /system/processes/app returns Scriptboard processes",
+            "POST /system/processes/kill terminates process with safeguards"
+          ]
+        },
+        {
+          "id": "SYSMON-003",
+          "workorder_id": "WO-SYSTEM-MONITORING-001",
+          "description": "Add frontend API client methods",
+          "files": ["frontend/src/lib/api.ts"],
+          "acceptance_criteria": [
+            "TypeScript interfaces for all response types",
+            "getSystemStats, getProcesses, getAppProcesses, killProcess methods"
+          ]
+        },
+        {
+          "id": "SYSMON-004",
+          "workorder_id": "WO-SYSTEM-MONITORING-001",
+          "description": "Create useSystemMonitor hook",
+          "files": ["frontend/src/hooks/useSystemMonitor.ts"],
+          "acceptance_criteria": [
+            "3-second polling interval",
+            "Pause/resume controls",
+            "Error handling",
+            "Cleanup on unmount"
+          ]
+        },
+        {
+          "id": "SYSMON-005",
+          "workorder_id": "WO-SYSTEM-MONITORING-001",
+          "description": "Create SystemStatsPanel component",
+          "files": ["frontend/src/components/SystemStatsPanel.tsx"],
+          "acceptance_criteria": [
+            "Progress bars for CPU, RAM, disk",
+            "Color-coded thresholds",
+            "Pause/resume buttons",
+            "Last updated timestamp"
+          ]
+        },
+        {
+          "id": "SYSMON-006",
+          "workorder_id": "WO-SYSTEM-MONITORING-001",
+          "description": "Create ProcessListPanel component",
+          "files": ["frontend/src/components/ProcessListPanel.tsx"],
+          "acceptance_criteria": [
+            "Sortable table with pagination",
+            "Name filter input",
+            "Kill button with ConfirmModal",
+            "Shield icon for protected processes"
+          ]
+        },
+        {
+          "id": "SYSMON-007",
+          "workorder_id": "WO-SYSTEM-MONITORING-001",
+          "description": "Create AppProcessesPanel component",
+          "files": ["frontend/src/components/AppProcessesPanel.tsx"],
+          "acceptance_criteria": [
+            "Shows only Scriptboard-related processes",
+            "Aggregated CPU and memory totals",
+            "Protected process badges"
+          ]
+        },
+        {
+          "id": "SYSMON-008",
+          "workorder_id": "WO-SYSTEM-MONITORING-001",
+          "description": "Update Test page with panels",
+          "files": ["frontend/src/app/test/page.tsx"],
+          "acceptance_criteria": [
+            "Grid layout with 3 panels",
+            "SystemStats and AppProcesses side by side",
+            "ProcessList full width below"
+          ]
+        }
+      ]
+    },
+    "6_implementation_phases": {
+      "phases": [
+        {
+          "phase": 1,
+          "name": "Backend Foundation",
+          "description": "Add psutil, schemas, and API endpoints",
+          "tasks": ["SYSMON-001", "SYSMON-002"],
+          "deliverables": ["Working API endpoints testable via curl"]
+        },
+        {
+          "phase": 2,
+          "name": "Frontend API Layer",
+          "description": "Add TypeScript interfaces and API client methods",
+          "tasks": ["SYSMON-003"],
+          "deliverables": ["Type-safe API client methods"]
+        },
+        {
+          "phase": 3,
+          "name": "Frontend Components",
+          "description": "Create hook and panel components",
+          "tasks": ["SYSMON-004", "SYSMON-005", "SYSMON-006", "SYSMON-007"],
+          "deliverables": ["All panel components ready"]
+        },
+        {
+          "phase": 4,
+          "name": "Integration",
+          "description": "Wire up panels on Test page",
+          "tasks": ["SYSMON-008"],
+          "deliverables": ["Complete working feature"]
+        }
+      ]
+    },
+    "7_testing_strategy": {
+      "manual_testing": [
+        "Verify system stats update every 3 seconds",
+        "Verify pause/resume controls work",
+        "Verify process list pagination and sorting",
+        "Verify filter works correctly",
+        "Verify protected processes show shield icon",
+        "Verify kill confirmation dialog appears",
+        "Verify protected processes cannot be killed",
+        "Verify killed process disappears from list"
+      ]
+    },
+    "8_success_criteria": {
+      "functional": [
+        "System stats display and auto-refresh",
+        "Process list with sorting, filtering, pagination",
+        "App processes panel shows Scriptboard processes",
+        "Kill process works with safeguards"
+      ],
+      "visual": [
+        "Progress bars with color thresholds",
+        "Shield icons on protected processes",
+        "Responsive grid layout"
+      ],
+      "performance": [
+        "No UI lag during polling",
+        "Polling pauses when panel collapsed"
+      ]
+    },
+    "9_implementation_checklist": {
+      "phase_1": [
+        "Add psutil>=5.9.0 to requirements.txt",
+        "Add SystemStats model to schemas.py",
+        "Add ProcessInfo model to schemas.py",
+        "Add ProcessListResponse model to schemas.py",
+        "Add KillProcessResponse model to schemas.py",
+        "Add PROTECTED_PROCESSES set to api.py",
+        "Add GET /system/stats endpoint",
+        "Add GET /system/processes endpoint",
+        "Add GET /system/processes/app endpoint",
+        "Add POST /system/processes/kill endpoint"
+      ],
+      "phase_2": [
+        "Add TypeScript interfaces to api.ts",
+        "Add getSystemStats method",
+        "Add getProcesses method",
+        "Add getAppProcesses method",
+        "Add killProcess method"
+      ],
+      "phase_3": [
+        "Create useSystemMonitor.ts hook",
+        "Create SystemStatsPanel.tsx",
+        "Create ProcessListPanel.tsx",
+        "Create AppProcessesPanel.tsx"
+      ],
+      "phase_4": [
+        "Update test/page.tsx with imports",
+        "Add grid layout with panels",
+        "Test end-to-end functionality"
+      ]
+    }
+  },
+  "PROTECTED_PROCESSES": [
+    "System", "csrss.exe", "wininit.exe", "smss.exe", "services.exe",
+    "lsass.exe", "svchost.exe", "explorer.exe", "winlogon.exe",
+    "Scriptboard.exe", "scriptboard-backend.exe", "node.exe", "python.exe", "pythonw.exe"
+  ]
+}
