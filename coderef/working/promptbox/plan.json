@@ -1,0 +1,504 @@
+{
+  "META_DOCUMENTATION": {
+    "feature_name": "promptbox",
+    "schema_version": "1.0.0",
+    "version": "1.0.0",
+    "status": "complete",
+    "generated_by": "AI Assistant",
+    "generated_at": "2025-12-14T04:06:00Z",
+    "has_context": true,
+    "has_analysis": true
+  },
+  "UNIVERSAL_PLANNING_STRUCTURE": {
+    "0_preparation": {
+      "foundation_docs_reviewed": ["README.md"],
+      "coding_standards_reviewed": ["BEHAVIOR-STANDARDS.md", "UI-STANDARDS.md", "UX-PATTERNS.md"],
+      "reference_components": [
+        "frontend/src/components/PromptingWorkflowStandalone.tsx",
+        "shell/main.js",
+        "backend/core.py"
+      ],
+      "technology_stack": {
+        "frontend": "React + Vite + TypeScript",
+        "backend": "Electron (Node.js)",
+        "storage": "Markdown files + JSON",
+        "git": "simple-git library"
+      }
+    },
+    "1_executive_summary": {
+      "feature_name": "PromptBox",
+      "description": "Standalone Prompt Library App - a lightweight Electron app for managing prompts with GitHub sync, separate from Scriptboard",
+      "goal": "Create a distributable standalone .exe that provides prompt management, attachments, responses, and sessions with GitHub-synced prompt storage",
+      "target_size": "~50-80MB (minimal Electron build)",
+      "key_differentiators": [
+        "GitHub-synced prompt storage",
+        "Markdown files with YAML frontmatter",
+        "MCP server integration",
+        "Template variable expansion"
+      ]
+    },
+    "2_risk_assessment": {
+      "complexity": "medium-high",
+      "estimated_effort": "3-4 weeks",
+      "risks": [
+        {
+          "risk": "Electron bundle size optimization",
+          "mitigation": "Use electron-builder with asar compression, tree-shaking",
+          "severity": "medium"
+        },
+        {
+          "risk": "Git credential handling across platforms",
+          "mitigation": "Use system git credentials, document setup",
+          "severity": "medium"
+        },
+        {
+          "risk": "YAML frontmatter parsing edge cases",
+          "mitigation": "Use established gray-matter library",
+          "severity": "low"
+        },
+        {
+          "risk": "New repo setup complexity",
+          "mitigation": "Bootstrap from Scriptboard patterns",
+          "severity": "low"
+        }
+      ],
+      "dependencies": [
+        "Electron",
+        "Vite",
+        "React",
+        "simple-git",
+        "gray-matter (YAML frontmatter)"
+      ]
+    },
+    "3_current_state_analysis": {
+      "files_to_create": [
+        {"path": "promptbox/electron/main.js", "purpose": "Electron main process entry"},
+        {"path": "promptbox/electron/preload.js", "purpose": "IPC bridge to renderer"},
+        {"path": "promptbox/electron/prompts.js", "purpose": "Prompt file operations"},
+        {"path": "promptbox/electron/git.js", "purpose": "Git sync via simple-git"},
+        {"path": "promptbox/electron/clipboard.js", "purpose": "Clipboard access"},
+        {"path": "promptbox/src/App.tsx", "purpose": "Main React app"},
+        {"path": "promptbox/src/components/PromptLibrary.tsx", "purpose": "Browse/search prompts"},
+        {"path": "promptbox/src/components/PromptEditor.tsx", "purpose": "View/edit prompt"},
+        {"path": "promptbox/src/components/AttachmentsPanel.tsx", "purpose": "File attachments"},
+        {"path": "promptbox/src/components/ResponsesPanel.tsx", "purpose": "LLM responses"},
+        {"path": "promptbox/src/components/SessionManager.tsx", "purpose": "Save/load sessions"},
+        {"path": "promptbox/src/components/GitSync.tsx", "purpose": "Sync status/controls"},
+        {"path": "promptbox/src/hooks/usePrompts.ts", "purpose": "Prompt CRUD via IPC"},
+        {"path": "promptbox/src/hooks/useGitSync.ts", "purpose": "Git operations via IPC"},
+        {"path": "promptbox/src/hooks/useSession.ts", "purpose": "Session management"},
+        {"path": "promptbox/src/lib/electron.ts", "purpose": "Electron IPC bindings"},
+        {"path": "promptbox/package.json", "purpose": "Project dependencies"},
+        {"path": "promptbox/electron-builder.yml", "purpose": "Build configuration"},
+        {"path": "promptbox/vite.config.ts", "purpose": "Vite bundler config"},
+        {"path": "promptbox-mcp/server.py", "purpose": "MCP server for Claude Code"}
+      ],
+      "files_to_modify": [],
+      "reference_files": [
+        {"path": "frontend/src/components/PromptingWorkflowStandalone.tsx", "reason": "UI patterns to adapt"},
+        {"path": "shell/main.js", "reason": "Electron patterns"},
+        {"path": "backend/core.py", "reason": "Session/attachment logic"}
+      ]
+    },
+    "4_key_features": {
+      "features": [
+        {
+          "id": "F1",
+          "name": "Prompt Library",
+          "description": "Browse, search, categorize, and favorite prompts stored as markdown files",
+          "priority": "high"
+        },
+        {
+          "id": "F2",
+          "name": "GitHub Sync",
+          "description": "Clone, pull, push prompts to/from GitHub repository",
+          "priority": "high"
+        },
+        {
+          "id": "F3",
+          "name": "Template Variables",
+          "description": "Expand {{clipboard}}, {{attachments}}, {{selection}} in prompts",
+          "priority": "high"
+        },
+        {
+          "id": "F4",
+          "name": "Attachments Panel",
+          "description": "Add, remove, view file attachments for context",
+          "priority": "medium"
+        },
+        {
+          "id": "F5",
+          "name": "Responses Panel",
+          "description": "Collect and manage LLM responses",
+          "priority": "medium"
+        },
+        {
+          "id": "F6",
+          "name": "Sessions",
+          "description": "Save and load workflow state (prompt, attachments, responses)",
+          "priority": "medium"
+        },
+        {
+          "id": "F7",
+          "name": "LLM Quick Links",
+          "description": "Open ChatGPT, Claude, Gemini in browser",
+          "priority": "low"
+        },
+        {
+          "id": "F8",
+          "name": "MCP Integration",
+          "description": "MCP server for Claude Code to access prompts",
+          "priority": "medium"
+        }
+      ]
+    },
+    "5_task_id_system": {
+      "workorder": {
+        "id": "WO-PROMPTBOX-001",
+        "name": "PromptBox Standalone App",
+        "feature_dir": "coderef/working/promptbox"
+      },
+      "tasks": [
+        {
+          "id": "SETUP-001",
+          "workorder_id": "WO-PROMPTBOX-001",
+          "description": "Create new GitHub repo 'promptbox'",
+          "feature": "F1",
+          "type": "setup",
+          "estimated_hours": 0.5
+        },
+        {
+          "id": "SETUP-002",
+          "workorder_id": "WO-PROMPTBOX-001",
+          "description": "Initialize Electron + Vite + React project",
+          "feature": "F1",
+          "type": "setup",
+          "estimated_hours": 2
+        },
+        {
+          "id": "SETUP-003",
+          "workorder_id": "WO-PROMPTBOX-001",
+          "description": "Create sample prompts repo structure",
+          "feature": "F1",
+          "type": "setup",
+          "estimated_hours": 1
+        },
+        {
+          "id": "SETUP-004",
+          "workorder_id": "WO-PROMPTBOX-001",
+          "description": "Basic Electron shell with window management",
+          "feature": "F1",
+          "type": "implementation",
+          "estimated_hours": 2
+        },
+        {
+          "id": "PROMPT-001",
+          "workorder_id": "WO-PROMPTBOX-001",
+          "description": "Implement prompt file reader (markdown + gray-matter)",
+          "feature": "F1",
+          "type": "implementation",
+          "estimated_hours": 3
+        },
+        {
+          "id": "PROMPT-002",
+          "workorder_id": "WO-PROMPTBOX-001",
+          "description": "Create PromptLibrary component (list, categories, search)",
+          "feature": "F1",
+          "type": "implementation",
+          "estimated_hours": 4
+        },
+        {
+          "id": "PROMPT-003",
+          "workorder_id": "WO-PROMPTBOX-001",
+          "description": "Create PromptEditor component with preview",
+          "feature": "F1",
+          "type": "implementation",
+          "estimated_hours": 3
+        },
+        {
+          "id": "PROMPT-004",
+          "workorder_id": "WO-PROMPTBOX-001",
+          "description": "Implement favorites functionality",
+          "feature": "F1",
+          "type": "implementation",
+          "estimated_hours": 1
+        },
+        {
+          "id": "TMPL-001",
+          "workorder_id": "WO-PROMPTBOX-001",
+          "description": "Implement template variable expansion",
+          "feature": "F3",
+          "type": "implementation",
+          "estimated_hours": 2
+        },
+        {
+          "id": "CLIP-001",
+          "workorder_id": "WO-PROMPTBOX-001",
+          "description": "Clipboard integration (copy expanded prompt)",
+          "feature": "F3",
+          "type": "implementation",
+          "estimated_hours": 1
+        },
+        {
+          "id": "LLM-001",
+          "workorder_id": "WO-PROMPTBOX-001",
+          "description": "LLM quick links (open browser)",
+          "feature": "F7",
+          "type": "implementation",
+          "estimated_hours": 1
+        },
+        {
+          "id": "ATTACH-001",
+          "workorder_id": "WO-PROMPTBOX-001",
+          "description": "Create AttachmentsPanel component",
+          "feature": "F4",
+          "type": "implementation",
+          "estimated_hours": 3
+        },
+        {
+          "id": "ATTACH-002",
+          "workorder_id": "WO-PROMPTBOX-001",
+          "description": "Implement drag-drop file support",
+          "feature": "F4",
+          "type": "implementation",
+          "estimated_hours": 2
+        },
+        {
+          "id": "RESP-001",
+          "workorder_id": "WO-PROMPTBOX-001",
+          "description": "Create ResponsesPanel component",
+          "feature": "F5",
+          "type": "implementation",
+          "estimated_hours": 3
+        },
+        {
+          "id": "SESS-001",
+          "workorder_id": "WO-PROMPTBOX-001",
+          "description": "Implement session save/load to JSON",
+          "feature": "F6",
+          "type": "implementation",
+          "estimated_hours": 2
+        },
+        {
+          "id": "SESS-002",
+          "workorder_id": "WO-PROMPTBOX-001",
+          "description": "Create SessionManager component",
+          "feature": "F6",
+          "type": "implementation",
+          "estimated_hours": 2
+        },
+        {
+          "id": "GIT-001",
+          "workorder_id": "WO-PROMPTBOX-001",
+          "description": "Implement git operations via simple-git",
+          "feature": "F2",
+          "type": "implementation",
+          "estimated_hours": 4
+        },
+        {
+          "id": "GIT-002",
+          "workorder_id": "WO-PROMPTBOX-001",
+          "description": "Create GitSync component (status, pull, push)",
+          "feature": "F2",
+          "type": "implementation",
+          "estimated_hours": 3
+        },
+        {
+          "id": "GIT-003",
+          "workorder_id": "WO-PROMPTBOX-001",
+          "description": "Auto-sync option (on open/close)",
+          "feature": "F2",
+          "type": "implementation",
+          "estimated_hours": 2
+        },
+        {
+          "id": "MCP-001",
+          "workorder_id": "WO-PROMPTBOX-001",
+          "description": "Create promptbox-mcp server",
+          "feature": "F8",
+          "type": "implementation",
+          "estimated_hours": 3
+        },
+        {
+          "id": "MCP-002",
+          "workorder_id": "WO-PROMPTBOX-001",
+          "description": "Add MCP tools: list_prompts, get_prompt, search_prompts",
+          "feature": "F8",
+          "type": "implementation",
+          "estimated_hours": 2
+        },
+        {
+          "id": "BUILD-001",
+          "workorder_id": "WO-PROMPTBOX-001",
+          "description": "Configure electron-builder for Windows",
+          "feature": "F1",
+          "type": "build",
+          "estimated_hours": 2
+        },
+        {
+          "id": "BUILD-002",
+          "workorder_id": "WO-PROMPTBOX-001",
+          "description": "Optimize bundle size (tree-shaking)",
+          "feature": "F1",
+          "type": "build",
+          "estimated_hours": 2
+        },
+        {
+          "id": "BUILD-003",
+          "workorder_id": "WO-PROMPTBOX-001",
+          "description": "Create installer (.exe)",
+          "feature": "F1",
+          "type": "build",
+          "estimated_hours": 1
+        },
+        {
+          "id": "DOC-001",
+          "workorder_id": "WO-PROMPTBOX-001",
+          "description": "Write README and documentation",
+          "feature": "F1",
+          "type": "documentation",
+          "estimated_hours": 2
+        }
+      ]
+    },
+    "6_implementation_phases": {
+      "phases": [
+        {
+          "phase": 1,
+          "name": "Project Setup",
+          "description": "Create repo, initialize project, basic Electron shell",
+          "tasks": ["SETUP-001", "SETUP-002", "SETUP-003", "SETUP-004"],
+          "deliverables": [
+            "GitHub repo created",
+            "Electron + Vite + React project initialized",
+            "Sample prompts structure",
+            "Basic window management"
+          ],
+          "estimated_hours": 5.5
+        },
+        {
+          "phase": 2,
+          "name": "Core Prompt Features",
+          "description": "Prompt library UI, template variables, clipboard, LLM links",
+          "tasks": ["PROMPT-001", "PROMPT-002", "PROMPT-003", "PROMPT-004", "TMPL-001", "CLIP-001", "LLM-001"],
+          "deliverables": [
+            "Prompt file reader with frontmatter parsing",
+            "PromptLibrary component with search/categories",
+            "PromptEditor with preview",
+            "Template variable expansion",
+            "Copy to clipboard functionality",
+            "LLM quick links"
+          ],
+          "estimated_hours": 15
+        },
+        {
+          "phase": 3,
+          "name": "Full Workflow",
+          "description": "Attachments, responses, sessions, GitHub sync",
+          "tasks": ["ATTACH-001", "ATTACH-002", "RESP-001", "SESS-001", "SESS-002", "GIT-001", "GIT-002", "GIT-003"],
+          "deliverables": [
+            "AttachmentsPanel with drag-drop",
+            "ResponsesPanel for LLM outputs",
+            "Session save/load",
+            "Git sync (clone, pull, push)",
+            "Sync status indicator"
+          ],
+          "estimated_hours": 21
+        },
+        {
+          "phase": 4,
+          "name": "MCP & Distribution",
+          "description": "MCP server integration, build optimization, packaging",
+          "tasks": ["MCP-001", "MCP-002", "BUILD-001", "BUILD-002", "BUILD-003", "DOC-001"],
+          "deliverables": [
+            "promptbox-mcp server",
+            "MCP tools for Claude Code",
+            "Optimized Electron build",
+            "Windows installer (.exe)",
+            "Documentation"
+          ],
+          "estimated_hours": 12
+        }
+      ]
+    },
+    "7_testing_strategy": {
+      "unit_tests": [
+        "Prompt file reader (markdown parsing, frontmatter extraction)",
+        "Template variable expansion",
+        "Session serialization/deserialization"
+      ],
+      "integration_tests": [
+        "Git operations (clone, pull, push)",
+        "Electron IPC communication",
+        "MCP server tool responses"
+      ],
+      "e2e_tests": [
+        "Full workflow: load prompt, add attachment, copy to clipboard",
+        "GitHub sync: pull changes, edit prompt, push changes",
+        "Session: save workflow state, reload app, restore session"
+      ],
+      "manual_tests": [
+        "Verify bundle size target (~50-80MB)",
+        "Test on clean Windows installation",
+        "MCP integration with Claude Code"
+      ]
+    },
+    "8_success_criteria": {
+      "functional": [
+        "User can browse, search, and filter prompts by category",
+        "User can copy expanded prompt to clipboard",
+        "User can sync prompts with GitHub (pull/push)",
+        "User can save and restore sessions",
+        "Claude Code can access prompts via MCP"
+      ],
+      "performance": [
+        "App bundle size under 80MB",
+        "App startup time under 3 seconds",
+        "Prompt library loads under 1 second"
+      ],
+      "quality": [
+        "No critical bugs on Windows",
+        "Git operations handle conflicts gracefully",
+        "Clear error messages for common issues"
+      ]
+    },
+    "9_implementation_checklist": {
+      "phase_1_checklist": [
+        "[ ] Create GitHub repo 'promptbox'",
+        "[ ] Initialize Electron + Vite + React",
+        "[ ] Set up prompts folder structure",
+        "[ ] Basic Electron window management",
+        "[ ] Verify dev environment works"
+      ],
+      "phase_2_checklist": [
+        "[ ] Prompt file reader with gray-matter",
+        "[ ] PromptLibrary component",
+        "[ ] PromptEditor component",
+        "[ ] Search and category filtering",
+        "[ ] Favorites functionality",
+        "[ ] Template variable expansion",
+        "[ ] Clipboard integration",
+        "[ ] LLM quick links"
+      ],
+      "phase_3_checklist": [
+        "[ ] AttachmentsPanel component",
+        "[ ] Drag-drop file support",
+        "[ ] ResponsesPanel component",
+        "[ ] Session save/load",
+        "[ ] SessionManager component",
+        "[ ] Git operations (simple-git)",
+        "[ ] GitSync component",
+        "[ ] Auto-sync option"
+      ],
+      "phase_4_checklist": [
+        "[ ] Create promptbox-mcp server",
+        "[ ] MCP tools implementation",
+        "[ ] Test MCP with Claude Code",
+        "[ ] electron-builder configuration",
+        "[ ] Bundle size optimization",
+        "[ ] Create Windows installer",
+        "[ ] Write documentation"
+      ]
+    }
+  }
+}

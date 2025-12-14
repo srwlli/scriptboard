@@ -1,0 +1,36 @@
+{
+  "feature_name": "promptbox",
+  "description": "Standalone Prompt Library App - a lightweight Electron app for managing prompts with GitHub sync, separate from Scriptboard",
+  "goal": "Create a distributable standalone .exe that provides prompt management, attachments, responses, and sessions with GitHub-synced prompt storage",
+  "requirements": [
+    "Lightweight Electron app (~50-80MB)",
+    "GitHub-synced prompt storage (markdown files with YAML frontmatter)",
+    "Prompt library UI with categories, search, favorites",
+    "Attachments panel for file management",
+    "Responses panel for collecting LLM outputs",
+    "Session save/load functionality",
+    "Template variables ({{clipboard}}, {{attachments}})",
+    "MCP server integration for Claude Code",
+    "LLM quick links (ChatGPT, Claude, Gemini)"
+  ],
+  "out_of_scope": [
+    "Direct LLM API calls",
+    "Cloud sync beyond GitHub",
+    "Mobile version",
+    "Browser extension"
+  ],
+  "constraints": [
+    "Must be separate repo from Scriptboard",
+    "Use Electron minimal build for smaller size",
+    "Prompts stored as markdown with YAML frontmatter",
+    "Use simple-git for GitHub operations",
+    "Reuse patterns from existing PromptingWorkflowStandalone component"
+  ],
+  "decisions": {},
+  "success_criteria": {},
+  "_metadata": {
+    "workorder_id": "WO-PROMPTBOX-001",
+    "workorder_assigned_at": "2025-12-14T09:05:35.114691+00:00",
+    "workorder_assigned_by": "gather_context"
+  }
+}

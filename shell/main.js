@@ -34,6 +34,7 @@ function spawnBackend() {
     backendProcess = spawn(venvPython, ["-m", "uvicorn", "api:app", "--host", "127.0.0.1", "--port", BACKEND_PORT.toString()], {
       cwd: backendPath,
       stdio: ["ignore", "pipe", "pipe"], // Capture stdout and stderr
+      windowsHide: true,
     });
 
     // Log backend output for debugging
@@ -73,10 +74,20 @@ function spawnBackend() {
     // First, try bundled executable (if packaged with PyInstaller)
     const bundledBackend = path.join(process.resourcesPath, "backend", "scriptboard-backend.exe");
     if (fs.existsSync(bundledBackend)) {
-      console.log("Using bundled backend executable");
+      console.log("Using bundled backend executable:", bundledBackend);
       backendProcess = spawn(bundledBackend, [], {
         cwd: path.dirname(bundledBackend),
-        stdio: "inherit",
+        stdio: ["ignore", "pipe", "pipe"],
+        windowsHide: true,
+      });
+
+      // Log backend output for debugging
+      backendProcess.stdout.on("data", (data) => {
+        console.log(`[Backend] ${data.toString()}`);
+      });
+
+      backendProcess.stderr.on("data", (data) => {
+        console.error(`[Backend Error] ${data.toString()}`);
       });
     } else {
       // Fallback: use system Python (requires Python to be installed)
@@ -86,8 +97,9 @@ function spawnBackend() {
       console.log("Using system Python for backend");
       backendProcess = spawn(pythonCmd, ["-m", "uvicorn", "api:app", "--host", "127.0.0.1", "--port", BACKEND_PORT.toString()], {
         cwd: backendPath,
-        stdio: "inherit",
+        stdio: ["ignore", "pipe", "pipe"],
         env: { ...process.env, PYTHONUNBUFFERED: "1" },
+        windowsHide: true,
       });
     }
   }
@@ -247,6 +259,7 @@ function createWindow() {
               HOSTNAME: "localhost"
             },
             stdio: ["ignore", "pipe", "pipe"],
+            windowsHide: true,
           });
 
           frontendProcess.stdout.on("data", (data) => {

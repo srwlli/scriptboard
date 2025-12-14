@@ -1,0 +1,420 @@
+{
+  "META_DOCUMENTATION": {
+    "feature_name": "system-monitor-v2",
+    "schema_version": "1.0.0",
+    "version": "1.0.0",
+    "status": "complete",
+    "generated_by": "AI Assistant",
+    "generated_at": "2025-12-14T04:20:00Z",
+    "has_context": true,
+    "has_analysis": true
+  },
+  "UNIVERSAL_PLANNING_STRUCTURE": {
+    "0_preparation": {
+      "foundation_docs_reviewed": ["README.md"],
+      "coding_standards_reviewed": ["UI-STANDARDS.md", "UX-PATTERNS.md", "COMPONENT-INDEX.md"],
+      "reference_components": [
+        "frontend/src/components/SystemMonitor.tsx",
+        "frontend/src/components/SystemStatsPanel.tsx",
+        "frontend/src/components/ProcessListPanel.tsx",
+        "frontend/src/components/AppProcessesPanel.tsx",
+        "frontend/src/hooks/useSystemMonitor.ts",
+        "backend/api.py (system endpoints)"
+      ],
+      "technology_stack": {
+        "frontend": "React + TypeScript + Tailwind CSS",
+        "backend": "Python + FastAPI + psutil",
+        "charts": "Recharts or custom SVG sparklines"
+      }
+    },
+    "1_executive_summary": {
+      "feature_name": "System Monitor v2",
+      "description": "Enhanced System Monitor with better process understanding, categorization, expandable details, resource history, and improved UX",
+      "goal": "Provide users with comprehensive understanding of running processes through categorization, descriptions, parent/child relationships, command line details, resource history charts, and cleaner grouped UI with quick filters",
+      "key_enhancements": [
+        "Process categorization with icons (Browser, Dev Tools, System, Apps)",
+        "Expandable row details (path, command line, threads, children)",
+        "Resource history tracking with mini sparkline charts",
+        "Quick filter buttons and collapsible category grouping",
+        "Cleaner visual hierarchy"
+      ]
+    },
+    "2_risk_assessment": {
+      "complexity": "medium",
+      "estimated_effort": "4-6 hours",
+      "risks": [
+        {
+          "risk": "Performance impact from detailed process queries",
+          "mitigation": "Fetch detailed info only on row expansion, not for all processes",
+          "severity": "medium"
+        },
+        {
+          "risk": "Memory usage from history tracking",
+          "mitigation": "Limit history to 60 samples, use circular buffer, only track visible processes",
+          "severity": "low"
+        },
+        {
+          "risk": "Category mapping maintenance",
+          "mitigation": "Use extensible JSON config for process-to-category mapping",
+          "severity": "low"
+        }
+      ],
+      "dependencies": ["psutil (existing)", "Recharts or custom sparklines (new)"]
+    },
+    "3_current_state_analysis": {
+      "files_to_modify": [
+        {"path": "backend/api.py", "purpose": "Add detailed process endpoint, history tracking, categories"},
+        {"path": "frontend/src/components/ProcessListPanel.tsx", "purpose": "Complete redesign with expandable rows, grouping"},
+        {"path": "frontend/src/components/SystemStatsPanel.tsx", "purpose": "Add compact overview bar mode"},
+        {"path": "frontend/src/components/SystemMonitor.tsx", "purpose": "Integrate new layout with filters"},
+        {"path": "frontend/src/hooks/useSystemMonitor.ts", "purpose": "Add history tracking, detailed fetch"},
+        {"path": "frontend/src/lib/api.ts", "purpose": "Add new API types and endpoints"}
+      ],
+      "files_to_create": [
+        {"path": "backend/process_categories.py", "purpose": "Process categorization and descriptions"},
+        {"path": "frontend/src/components/ProcessRow.tsx", "purpose": "Expandable process row component"},
+        {"path": "frontend/src/components/ProcessDetails.tsx", "purpose": "Expanded details panel"},
+        {"path": "frontend/src/components/Sparkline.tsx", "purpose": "Mini chart component"},
+        {"path": "frontend/src/components/QuickFilters.tsx", "purpose": "Filter button bar"},
+        {"path": "frontend/src/components/ProcessGroup.tsx", "purpose": "Collapsible category group"}
+      ],
+      "reference_files": [
+        {"path": "frontend/src/components/filemanager/ProgressIndicator.tsx", "reason": "Progress bar patterns"},
+        {"path": "frontend/src/components/ui/CollapsibleCard.tsx", "reason": "Collapsible UI pattern"}
+      ]
+    },
+    "4_key_features": {
+      "features": [
+        {
+          "id": "F1",
+          "name": "Process Categorization",
+          "description": "Categorize processes (Browser, Dev Tools, System, Apps, Other) with icons and descriptions",
+          "priority": "high"
+        },
+        {
+          "id": "F2",
+          "name": "Expandable Details",
+          "description": "Click row to expand and see path, command line, threads, handles, children",
+          "priority": "high"
+        },
+        {
+          "id": "F3",
+          "name": "Resource History",
+          "description": "Track CPU/memory over last 60 seconds, display as mini sparkline",
+          "priority": "medium"
+        },
+        {
+          "id": "F4",
+          "name": "Quick Filters",
+          "description": "One-click filter buttons: All, Apps, Browsers, System, High CPU, Recently Started",
+          "priority": "high"
+        },
+        {
+          "id": "F5",
+          "name": "Category Grouping",
+          "description": "Collapsible sections grouping processes by category",
+          "priority": "medium"
+        },
+        {
+          "id": "F6",
+          "name": "Cleaner Layout",
+          "description": "Compact overview bar, better visual hierarchy, less clutter",
+          "priority": "high"
+        },
+        {
+          "id": "F7",
+          "name": "Sort by Start Time",
+          "description": "Sort processes by launch time, most recently started first",
+          "priority": "high"
+        },
+        {
+          "id": "F8",
+          "name": "New Process Highlighting",
+          "description": "Visual indicator (glow/badge) for processes started in last 5 minutes",
+          "priority": "medium"
+        },
+        {
+          "id": "F9",
+          "name": "Show All Processes",
+          "description": "Toggle to show hidden/system processes normally filtered out",
+          "priority": "medium"
+        },
+        {
+          "id": "F10",
+          "name": "Process Count Badge",
+          "description": "Display total running processes count in header",
+          "priority": "low"
+        }
+      ]
+    },
+    "5_task_id_system": {
+      "workorder": {
+        "id": "WO-SYSMON-001",
+        "name": "System Monitor v2 Enhancement",
+        "feature_dir": "coderef/working/system-monitor-v2"
+      },
+      "tasks": [
+        {
+          "id": "CAT-001",
+          "workorder_id": "WO-SYSMON-001",
+          "description": "Create process_categories.py with category mappings and descriptions",
+          "feature": "F1",
+          "type": "implementation",
+          "estimated_hours": 1
+        },
+        {
+          "id": "API-001",
+          "workorder_id": "WO-SYSMON-001",
+          "description": "Add /system/processes/detailed endpoint with full process info",
+          "feature": "F2",
+          "type": "implementation",
+          "estimated_hours": 1
+        },
+        {
+          "id": "API-002",
+          "workorder_id": "WO-SYSMON-001",
+          "description": "Add process tree endpoint with parent/child relationships",
+          "feature": "F2",
+          "type": "implementation",
+          "estimated_hours": 0.5
+        },
+        {
+          "id": "API-003",
+          "workorder_id": "WO-SYSMON-001",
+          "description": "Add resource history tracking in backend",
+          "feature": "F3",
+          "type": "implementation",
+          "estimated_hours": 1
+        },
+        {
+          "id": "UI-001",
+          "workorder_id": "WO-SYSMON-001",
+          "description": "Create Sparkline component for mini charts",
+          "feature": "F3",
+          "type": "implementation",
+          "estimated_hours": 0.5
+        },
+        {
+          "id": "UI-002",
+          "workorder_id": "WO-SYSMON-001",
+          "description": "Create ProcessRow component with expand/collapse",
+          "feature": "F2",
+          "type": "implementation",
+          "estimated_hours": 1
+        },
+        {
+          "id": "UI-003",
+          "workorder_id": "WO-SYSMON-001",
+          "description": "Create ProcessDetails component for expanded view",
+          "feature": "F2",
+          "type": "implementation",
+          "estimated_hours": 1
+        },
+        {
+          "id": "UI-004",
+          "workorder_id": "WO-SYSMON-001",
+          "description": "Create QuickFilters component with filter buttons",
+          "feature": "F4",
+          "type": "implementation",
+          "estimated_hours": 0.5
+        },
+        {
+          "id": "UI-005",
+          "workorder_id": "WO-SYSMON-001",
+          "description": "Create ProcessGroup component for category sections",
+          "feature": "F5",
+          "type": "implementation",
+          "estimated_hours": 0.5
+        },
+        {
+          "id": "UI-006",
+          "workorder_id": "WO-SYSMON-001",
+          "description": "Redesign ProcessListPanel with new components",
+          "feature": "F6",
+          "type": "implementation",
+          "estimated_hours": 1.5
+        },
+        {
+          "id": "UI-007",
+          "workorder_id": "WO-SYSMON-001",
+          "description": "Update SystemStatsPanel with compact overview mode",
+          "feature": "F6",
+          "type": "implementation",
+          "estimated_hours": 0.5
+        },
+        {
+          "id": "HOOK-001",
+          "workorder_id": "WO-SYSMON-001",
+          "description": "Update useSystemMonitor hook with history and detailed fetch",
+          "feature": "F3",
+          "type": "implementation",
+          "estimated_hours": 0.5
+        },
+        {
+          "id": "INT-001",
+          "workorder_id": "WO-SYSMON-001",
+          "description": "Integrate all components in SystemMonitor.tsx",
+          "feature": "F6",
+          "type": "integration",
+          "estimated_hours": 0.5
+        },
+        {
+          "id": "TEST-001",
+          "workorder_id": "WO-SYSMON-001",
+          "description": "Test and refine UX",
+          "feature": "F6",
+          "type": "testing",
+          "estimated_hours": 1
+        },
+        {
+          "id": "API-004",
+          "workorder_id": "WO-SYSMON-001",
+          "description": "Add start_time field and sort_by=start_time option to process endpoint",
+          "feature": "F7",
+          "type": "implementation",
+          "estimated_hours": 0.5
+        },
+        {
+          "id": "UI-008",
+          "workorder_id": "WO-SYSMON-001",
+          "description": "Add 'NEW' badge/glow for processes started in last 5 minutes",
+          "feature": "F8",
+          "type": "implementation",
+          "estimated_hours": 0.5
+        },
+        {
+          "id": "UI-009",
+          "workorder_id": "WO-SYSMON-001",
+          "description": "Add 'Show All' toggle to include hidden/system processes",
+          "feature": "F9",
+          "type": "implementation",
+          "estimated_hours": 0.5
+        },
+        {
+          "id": "UI-010",
+          "workorder_id": "WO-SYSMON-001",
+          "description": "Add process count badge to header (e.g., '142 processes')",
+          "feature": "F10",
+          "type": "implementation",
+          "estimated_hours": 0.25
+        },
+        {
+          "id": "UI-011",
+          "workorder_id": "WO-SYSMON-001",
+          "description": "Add 'Recently Started' quick filter button",
+          "feature": "F7",
+          "type": "implementation",
+          "estimated_hours": 0.25
+        }
+      ]
+    },
+    "6_implementation_phases": {
+      "phases": [
+        {
+          "phase": 1,
+          "name": "Backend Enhancements",
+          "description": "Add process categories, detailed endpoint, and history tracking",
+          "tasks": ["CAT-001", "API-001", "API-002", "API-003"],
+          "deliverables": [
+            "process_categories.py with mappings",
+            "/system/processes/detailed endpoint",
+            "Resource history tracking"
+          ],
+          "estimated_hours": 3.5
+        },
+        {
+          "phase": 2,
+          "name": "UI Components",
+          "description": "Create new UI components for enhanced display",
+          "tasks": ["UI-001", "UI-002", "UI-003", "UI-004", "UI-005"],
+          "deliverables": [
+            "Sparkline component",
+            "ProcessRow with expand/collapse",
+            "ProcessDetails panel",
+            "QuickFilters bar",
+            "ProcessGroup sections"
+          ],
+          "estimated_hours": 3.5
+        },
+        {
+          "phase": 3,
+          "name": "Integration & Polish",
+          "description": "Integrate components and refine UX",
+          "tasks": ["UI-006", "UI-007", "HOOK-001", "INT-001", "TEST-001"],
+          "deliverables": [
+            "Redesigned ProcessListPanel",
+            "Compact SystemStatsPanel",
+            "Updated hook",
+            "Complete SystemMonitor v2"
+          ],
+          "estimated_hours": 4
+        }
+      ]
+    },
+    "7_testing_strategy": {
+      "unit_tests": [
+        "Process categorization mapping",
+        "Sparkline data normalization",
+        "Filter logic"
+      ],
+      "integration_tests": [
+        "Detailed process endpoint returns correct data",
+        "History tracking accumulates correctly",
+        "Expand/collapse state management"
+      ],
+      "manual_tests": [
+        "Verify all process categories display correctly",
+        "Test expand/collapse on multiple rows",
+        "Verify sparklines update in real-time",
+        "Test quick filters work as expected",
+        "Verify performance with 100+ processes"
+      ]
+    },
+    "8_success_criteria": {
+      "functional": [
+        "User can identify process category at a glance via icons",
+        "User can expand any process to see full details",
+        "User can see CPU/memory history as sparkline",
+        "User can filter by category with one click",
+        "User can collapse/expand category groups"
+      ],
+      "performance": [
+        "Process list refresh under 500ms",
+        "Expand details under 200ms",
+        "No memory leaks from history tracking"
+      ],
+      "ux": [
+        "Cleaner visual hierarchy than v1",
+        "Intuitive expand/collapse interaction",
+        "Quick filters reduce cognitive load"
+      ]
+    },
+    "9_implementation_checklist": {
+      "phase_1_checklist": [
+        "[ ] Create process_categories.py",
+        "[ ] Add category and icon mappings for common processes",
+        "[ ] Add descriptions for known processes",
+        "[ ] Create /system/processes/detailed endpoint",
+        "[ ] Add parent_pid, cmdline, path, threads to response",
+        "[ ] Add history tracking with circular buffer",
+        "[ ] Test backend endpoints"
+      ],
+      "phase_2_checklist": [
+        "[ ] Create Sparkline.tsx component",
+        "[ ] Create ProcessRow.tsx with expand toggle",
+        "[ ] Create ProcessDetails.tsx panel",
+        "[ ] Create QuickFilters.tsx bar",
+        "[ ] Create ProcessGroup.tsx sections",
+        "[ ] Add types to api.ts"
+      ],
+      "phase_3_checklist": [
+        "[ ] Redesign ProcessListPanel.tsx",
+        "[ ] Update SystemStatsPanel.tsx compact mode",
+        "[ ] Update useSystemMonitor.ts hook",
+        "[ ] Integrate in SystemMonitor.tsx",
+        "[ ] Test all features",
+        "[ ] Polish styling and interactions"
+      ]
+    }
+  }
+}

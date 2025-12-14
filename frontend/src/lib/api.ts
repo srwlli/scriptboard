@@ -428,6 +428,209 @@ class ApiClient {
   async getProtectedProcesses() {
     return this.request<{ protected: string[] }>("/system/protected-processes");
   }
+
+  // =========================================================================
+  // FileManager endpoints
+  // =========================================================================
+
+  async filemanOrganize(params: OrganizeParams): Promise<PreviewResponse> {
+    return this.request<PreviewResponse>("/fileman/organize", {
+      method: "POST",
+      body: JSON.stringify(params),
+    });
+  }
+
+  async filemanRename(params: RenameParams): Promise<PreviewResponse> {
+    return this.request<PreviewResponse>("/fileman/rename", {
+      method: "POST",
+      body: JSON.stringify(params),
+    });
+  }
+
+  async filemanClean(params: CleanParams): Promise<PreviewResponse> {
+    return this.request<PreviewResponse>("/fileman/clean", {
+      method: "POST",
+      body: JSON.stringify(params),
+    });
+  }
+
+  async filemanIndex(params: IndexParams): Promise<IndexResponse> {
+    return this.request<IndexResponse>("/fileman/index", {
+      method: "POST",
+      body: JSON.stringify(params),
+    });
+  }
+
+  async filemanDupes(params: DupesParams): Promise<DupesResponse> {
+    return this.request<DupesResponse>("/fileman/dupes", {
+      method: "POST",
+      body: JSON.stringify(params),
+    });
+  }
+
+  async filemanGetHistory(): Promise<ActionHistoryResponse> {
+    return this.request<ActionHistoryResponse>("/fileman/history");
+  }
+
+  async filemanUndo(batchIndex?: number, apply: boolean = false): Promise<PreviewResponse> {
+    return this.request<PreviewResponse>("/fileman/undo", {
+      method: "POST",
+      body: JSON.stringify({ batch_index: batchIndex, apply }),
+    });
+  }
+
+  async filemanClearHistory(): Promise<{ message: string }> {
+    return this.request<{ message: string }>("/fileman/history", {
+      method: "DELETE",
+    });
+  }
+
+  // SSE stream URLs for FileManager
+  getFilemanIndexStreamUrl(params: IndexParams): string {
+    const searchParams = new URLSearchParams();
+    searchParams.set("path", params.path);
+    if (params.include_hash) searchParams.set("include_hash", "true");
+    if (params.hash_algo) searchParams.set("hash_algo", params.hash_algo);
+    if (params.recursive !== undefined) searchParams.set("recursive", String(params.recursive));
+    if (params.exclude?.length) searchParams.set("exclude", params.exclude.join(","));
+    return `${this.baseUrl}/fileman/index/stream?${searchParams}`;
+  }
+
+  getFilemanDupesStreamUrl(params: DupesStreamParams): string {
+    const searchParams = new URLSearchParams();
+    searchParams.set("path", params.path);
+    if (params.hash_algo) searchParams.set("hash_algo", params.hash_algo);
+    if (params.recursive !== undefined) searchParams.set("recursive", String(params.recursive));
+    if (params.exclude?.length) searchParams.set("exclude", params.exclude.join(","));
+    return `${this.baseUrl}/fileman/dupes/stream?${searchParams}`;
+  }
+}
+
+// =========================================================================
+// FileManager interfaces
+// =========================================================================
+
+export interface FileAction {
+  op: string;
+  src: string;
+  dst?: string;
+  meta?: Record<string, unknown>;
+}
+
+export interface PreviewResponse {
+  actions: FileAction[];
+  files_scanned: number;
+  total_size_bytes: number;
+  message?: string;
+}
+
+export interface OrganizeParams {
+  path: string;
+  by?: "ext" | "date" | "month";
+  dest?: string;
+  recursive?: boolean;
+  exclude?: string[];
+  include?: string[];
+  remove_empty?: boolean;
+  apply?: boolean;
+}
+
+export interface RenameParams {
+  path: string;
+  pattern?: string;
+  replace?: string;
+  prefix?: string;
+  suffix?: string;
+  lower?: boolean;
+  upper?: boolean;
+  sanitize?: boolean;
+  enumerate_files?: boolean;
+  start?: number;
+  step?: number;
+  width?: number;
+  ext_filter?: string;
+  recursive?: boolean;
+  exclude?: string[];
+  apply?: boolean;
+}
+
+export interface CleanParams {
+  path: string;
+  older_than_days?: number;
+  larger_than_mb?: number;
+  archive_dir?: string;
+  use_trash?: boolean;
+  delete_permanently?: boolean;
+  remove_empty?: boolean;
+  recursive?: boolean;
+  exclude?: string[];
+  apply?: boolean;
+}
+
+export interface IndexParams {
+  path: string;
+  include_hash?: boolean;
+  hash_algo?: string;
+  recursive?: boolean;
+  exclude?: string[];
+}
+
+export interface IndexResponse {
+  files: Array<{
+    path: string;
+    name: string;
+    size_bytes: number;
+    mtime_epoch: number;
+    [key: string]: unknown; // hash field
+  }>;
+  total_files: number;
+  total_size_bytes: number;
+}
+
+export interface DupesParams {
+  path: string;
+  hash_algo?: string;
+  action?: "list" | "trash" | "delete" | "archive";
+  archive_dir?: string;
+  recursive?: boolean;
+  exclude?: string[];
+  apply?: boolean;
+}
+
+export interface DupesStreamParams {
+  path: string;
+  hash_algo?: string;
+  recursive?: boolean;
+  exclude?: string[];
+}
+
+export interface DupeGroup {
+  hash: string;
+  hash_algo: string;
+  size_bytes: number;
+  count: number;
+  keep: string;
+  duplicates: string[];
+  wasted_bytes?: number;
+  actions?: Array<Record<string, unknown>>;
+}
+
+export interface DupesResponse {
+  groups: DupeGroup[];
+  total_groups: number;
+  total_duplicates: number;
+  total_wasted_bytes: number;
+}
+
+export interface ActionHistoryBatch {
+  index: number;
+  actions: FileAction[];
+  count: number;
+}
+
+export interface ActionHistoryResponse {
+  batches: ActionHistoryBatch[];
+  total_batches: number;
 }
 
 // System Monitor interfaces

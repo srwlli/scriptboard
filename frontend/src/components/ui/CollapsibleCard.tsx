@@ -19,6 +19,9 @@ export interface CollapsibleCardProps {
 /**
  * CollapsibleCard - A card with a clickable header that toggles content visibility.
  *
+ * NOTE: Default state is COLLAPSED (defaultCollapsed = true).
+ * Pass defaultCollapsed={false} to start expanded.
+ *
  * Features:
  * - Header with title and chevron toggle
  * - Click anywhere on header to toggle
@@ -28,6 +31,12 @@ export interface CollapsibleCardProps {
  *
  * @example
  * ```tsx
+ * // Starts collapsed (default)
+ * <CollapsibleCard title="Settings">
+ *   <p>Card content here</p>
+ * </CollapsibleCard>
+ *
+ * // Starts expanded
  * <CollapsibleCard title="Settings" defaultCollapsed={false}>
  *   <p>Card content here</p>
  * </CollapsibleCard>
