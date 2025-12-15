@@ -1604,6 +1604,92 @@ async def git_push(payload: dict):
         raise HTTPException(status_code=500, detail=f"Push failed: {str(e)}")
 
 
+@app.post("/git/scan")
+async def scan_for_git_repos(payload: dict):
+    """
+    Scan a directory tree for git repositories.
+
+    Request body:
+        root: Base directory to scan
+        max_depth: Maximum recursion depth (default 3, max 5)
+
+    Returns list of discovered repos with path and name.
+    """
+    root = payload.get("root", "")
+    max_depth = min(payload.get("max_depth", 3), 5)  # Cap at 5 for safety
+
+    if not root:
+        raise HTTPException(status_code=400, detail="Root path is required")
+
+    root_path = Path(root).expanduser().resolve()
+    if not root_path.exists():
+        raise HTTPException(status_code=400, detail="Root path does not exist")
+    if not root_path.is_dir():
+        raise HTTPException(status_code=400, detail="Root path is not a directory")
+
+    # Directories to skip during scan
+    skip_dirs = {
+        "node_modules", ".git", "__pycache__", "venv", ".venv",
+        "env", ".env", "dist", "build", ".next", "target",
+        "vendor", "packages", ".cargo", ".rustup"
+    }
+
+    repos = []
+
+    def scan_directory(path: Path, depth: int):
+        """Recursively scan for .git directories."""
+        if depth > max_depth:
+            return
+
+        try:
+            for entry in path.iterdir():
+                if not entry.is_dir():
+                    continue
+
+                # Skip common non-project directories
+                if entry.name in skip_dirs:
+                    continue
+
+                # Check if this directory is a git repo
+                git_dir = entry / ".git"
+                if git_dir.exists() and git_dir.is_dir():
+                    repos.append({
+                        "path": str(entry),
+                        "name": entry.name
+                    })
+                    # Don't recurse into git repos (nested repos are rare)
+                    continue
+
+                # Recurse into subdirectory
+                scan_directory(entry, depth + 1)
+
+        except PermissionError:
+            # Skip directories we can't access
+            pass
+        except Exception:
+            # Skip any other errors and continue scanning
+            pass
+
+    # Start scanning
+    scan_directory(root_path, 0)
+
+    # Also check if root itself is a git repo
+    if (root_path / ".git").exists():
+        repos.insert(0, {
+            "path": str(root_path),
+            "name": root_path.name
+        })
+
+    # Sort by name
+    repos.sort(key=lambda r: r["name"].lower())
+
+    return {
+        "repos": repos,
+        "scanned_path": str(root_path),
+        "count": len(repos)
+    }
+
+
 # --------------------------------------------------------------------------- #
 # Config Endpoints
 # --------------------------------------------------------------------------- #

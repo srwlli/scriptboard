@@ -173,6 +173,7 @@
 | DELETE | `/git/branches/{name}` | Delete branch |
 | POST | `/git/pull` | Pull from remote |
 | POST | `/git/push` | Push to remote |
+| POST | `/git/scan` | Scan directory for git repos |
 
 ### Favorites & Config
 

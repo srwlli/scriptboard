@@ -3,7 +3,7 @@
   "title": "Git Repo Scanner Feature",
   "description": "Add ability to scan a directory for git repositories and show them as quick-select options",
   "created": "2024-12-15",
-  "status": "PLANNED",
+  "status": "COMPLETE",
   "features": [
     "Backend endpoint to scan for .git folders",
     "Frontend dropdown showing discovered repos",

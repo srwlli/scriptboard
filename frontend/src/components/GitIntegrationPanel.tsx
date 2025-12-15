@@ -1,9 +1,8 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { api, GitStatus, GitBranch, GitBranchesResponse } from "@/lib/api";
+import { api, GitStatus, GitBranch, GitBranchesResponse, GitRepo } from "@/lib/api";
 import { CollapsibleCard } from "@/components/ui";
-import { FolderPicker } from "./filemanager/FolderPicker";
 import { useConfirmModal } from "@/components/ui/ConfirmModal";
 import {
   RefreshCw,
@@ -17,9 +16,12 @@ import {
   AlertCircle,
   FolderGit,
   ChevronDown,
+  Search,
+  FolderOpen,
 } from "lucide-react";
 
 const STORAGE_KEY = "scriptboard_git_repo_path";
+const DISCOVERED_REPOS_KEY = "scriptboard_discovered_repos";
 
 /**
  * Enhanced Git Integration Panel with user-selectable repositories
@@ -30,6 +32,9 @@ const STORAGE_KEY = "scriptboard_git_repo_path";
 export function GitIntegrationPanel() {
   // Repo selection
   const [repoPath, setRepoPath] = useState<string>("");
+  const [discoveredRepos, setDiscoveredRepos] = useState<GitRepo[]>([]);
+  const [showRepoDropdown, setShowRepoDropdown] = useState(false);
+  const [scanning, setScanning] = useState(false);
 
   // Status
   const [status, setStatus] = useState<GitStatus | null>(null);
@@ -48,11 +53,20 @@ export function GitIntegrationPanel() {
 
   const [ConfirmModalComponent, confirm] = useConfirmModal();
 
-  // Load saved repo path on mount
+  // Load saved repo path and discovered repos on mount
   useEffect(() => {
     const saved = localStorage.getItem(STORAGE_KEY);
     if (saved) {
       setRepoPath(saved);
+    }
+
+    const savedRepos = localStorage.getItem(DISCOVERED_REPOS_KEY);
+    if (savedRepos) {
+      try {
+        setDiscoveredRepos(JSON.parse(savedRepos));
+      } catch (e) {
+        console.error("Failed to parse discovered repos:", e);
+      }
     }
   }, []);
 
@@ -199,8 +213,63 @@ export function GitIntegrationPanel() {
     }
   };
 
+  const handleScanFolder = async () => {
+    // Use Electron dialog if available, otherwise prompt
+    let scanPath: string | null = null;
+
+    if (typeof window !== "undefined" && (window as any).electronAPI?.selectFolder) {
+      try {
+        const result = await (window as any).electronAPI.selectFolder();
+        if (result?.path) {
+          scanPath = result.path;
+        }
+      } catch (err) {
+        console.error("Failed to open folder dialog:", err);
+      }
+    } else {
+      scanPath = prompt("Enter folder path to scan for git repos:");
+    }
+
+    if (!scanPath) return;
+
+    setScanning(true);
+    setError(null);
+    setShowRepoDropdown(false);
+
+    try {
+      const result = await api.scanForGitRepos(scanPath, 3);
+      if (result.repos.length === 0) {
+        setError(`No git repos found in ${result.scanned_path}`);
+      } else {
+        // Merge with existing repos (avoid duplicates)
+        const existingPaths = new Set(discoveredRepos.map(r => r.path));
+        const newRepos = result.repos.filter(r => !existingPaths.has(r.path));
+        const merged = [...discoveredRepos, ...newRepos];
+        merged.sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()));
+
+        setDiscoveredRepos(merged);
+        localStorage.setItem(DISCOVERED_REPOS_KEY, JSON.stringify(merged));
+      }
+    } catch (err: any) {
+      setError(err.message || "Scan failed");
+    } finally {
+      setScanning(false);
+    }
+  };
+
+  const handleSelectRepo = (repo: GitRepo) => {
+    setRepoPath(repo.path);
+    setShowRepoDropdown(false);
+  };
+
+  const handleClearRepos = () => {
+    setDiscoveredRepos([]);
+    localStorage.removeItem(DISCOVERED_REPOS_KEY);
+  };
+
   const localBranches = branches.filter((b) => !b.is_remote);
   const currentBranch = status?.branch || branches.find((b) => b.is_current)?.name;
+  const currentRepoName = discoveredRepos.find(r => r.path === repoPath)?.name;
 
   return (
     <CollapsibleCard
@@ -223,15 +292,84 @@ export function GitIntegrationPanel() {
       {ConfirmModalComponent}
 
       <div className="space-y-3">
-        {/* Repo Selector */}
+        {/* Repo Selector with Dropdown */}
         <div>
-          <label className="block text-xs text-muted-foreground mb-1">Repository</label>
-          <FolderPicker
-            value={repoPath}
-            onChange={setRepoPath}
-            placeholder="Select a git repository..."
-            disabled={!!operating}
-          />
+          <label className="block text-xs text-muted-foreground mb-1">
+            Repository {discoveredRepos.length > 0 && `(${discoveredRepos.length} found)`}
+          </label>
+          <div className="relative">
+            <button
+              onClick={() => setShowRepoDropdown(!showRepoDropdown)}
+              disabled={!!operating || scanning}
+              className="w-full flex items-center justify-between px-3 py-2 text-sm border border-border rounded-md bg-background hover:bg-muted/50 transition-colors disabled:opacity-50 text-left"
+            >
+              <span className={repoPath ? "text-foreground" : "text-muted-foreground"}>
+                {scanning ? "Scanning..." : currentRepoName || repoPath || "Select a repository..."}
+              </span>
+              <ChevronDown size={14} className={`transition-transform ${showRepoDropdown ? "rotate-180" : ""}`} />
+            </button>
+
+            {showRepoDropdown && (
+              <div className="absolute top-full left-0 right-0 mt-1 bg-background border border-border rounded-md shadow-lg z-50 max-h-64 overflow-y-auto">
+                {/* Scan for repos option */}
+                <button
+                  onClick={handleScanFolder}
+                  className="w-full flex items-center gap-2 px-3 py-2 text-xs hover:bg-muted transition-colors text-primary"
+                >
+                  <Search size={12} />
+                  Scan folder for repos...
+                </button>
+
+                {discoveredRepos.length > 0 && (
+                  <>
+                    <div className="border-t border-border" />
+
+                    {/* Discovered repos */}
+                    {discoveredRepos.map((repo) => (
+                      <button
+                        key={repo.path}
+                        onClick={() => handleSelectRepo(repo)}
+                        className="w-full flex items-center gap-2 px-3 py-2 text-xs hover:bg-muted transition-colors group"
+                      >
+                        {repo.path === repoPath ? (
+                          <Check size={12} className="text-green-500" />
+                        ) : (
+                          <FolderGit size={12} className="text-muted-foreground" />
+                        )}
+                        <div className="flex-1 text-left">
+                          <div className={repo.path === repoPath ? "font-medium" : ""}>{repo.name}</div>
+                          <div className="text-[10px] text-muted-foreground truncate">{repo.path}</div>
+                        </div>
+                      </button>
+                    ))}
+
+                    {/* Clear all repos */}
+                    <div className="border-t border-border" />
+                    <button
+                      onClick={handleClearRepos}
+                      className="w-full flex items-center gap-2 px-3 py-2 text-xs hover:bg-muted transition-colors text-muted-foreground"
+                    >
+                      <Trash2 size={12} />
+                      Clear saved repos
+                    </button>
+                  </>
+                )}
+
+                {/* Manual path entry */}
+                <div className="border-t border-border" />
+                <div className="px-3 py-2">
+                  <input
+                    type="text"
+                    value={repoPath}
+                    onChange={(e) => setRepoPath(e.target.value)}
+                    placeholder="Or enter path manually..."
+                    className="w-full px-2 py-1 text-xs border border-border rounded bg-background"
+                    onClick={(e) => e.stopPropagation()}
+                  />
+                </div>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Error Message */}

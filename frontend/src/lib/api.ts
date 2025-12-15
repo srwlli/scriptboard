@@ -408,6 +408,16 @@ class ApiClient {
     });
   }
 
+  async scanForGitRepos(root: string, maxDepth?: number): Promise<GitScanResponse> {
+    return this.request<GitScanResponse>("/git/scan", {
+      method: "POST",
+      body: JSON.stringify({
+        root,
+        max_depth: maxDepth ?? 3,
+      }),
+    });
+  }
+
   // Direct LLM API Mode (Phase-2)
   async callLLM(provider: string, model: string, prompt: string) {
     return this.request("/llm/call", {
@@ -944,6 +954,17 @@ export interface GitOperationResponse {
   checked_out?: boolean;
   deleted?: string;
   had_uncommitted_changes?: boolean;
+}
+
+export interface GitRepo {
+  path: string;
+  name: string;
+}
+
+export interface GitScanResponse {
+  repos: GitRepo[];
+  scanned_path: string;
+  count: number;
 }
 
 export const api = new ApiClient(API_BASE_URL);
