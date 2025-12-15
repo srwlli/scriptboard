@@ -429,6 +429,28 @@ class ApiClient {
     return this.request<{ protected: string[] }>("/system/protected-processes");
   }
 
+  async getDetailedProcesses(params?: {
+    page?: number;
+    page_size?: number;
+    sort_by?: string;
+    sort_order?: string;
+    filter_name?: string;
+    filter_category?: string;
+    include_system?: boolean;
+  }) {
+    const searchParams = new URLSearchParams();
+    if (params?.page) searchParams.set("page", params.page.toString());
+    if (params?.page_size) searchParams.set("page_size", params.page_size.toString());
+    if (params?.sort_by) searchParams.set("sort_by", params.sort_by);
+    if (params?.sort_order) searchParams.set("sort_order", params.sort_order);
+    if (params?.filter_name) searchParams.set("filter_name", params.filter_name);
+    if (params?.filter_category) searchParams.set("filter_category", params.filter_category);
+    if (params?.include_system !== undefined) searchParams.set("include_system", params.include_system.toString());
+
+    const query = searchParams.toString();
+    return this.request<DetailedProcessListResponse>(`/system/processes/detailed${query ? `?${query}` : ""}`);
+  }
+
   // =========================================================================
   // FileManager endpoints
   // =========================================================================
@@ -665,6 +687,58 @@ export interface KillProcessResponse {
   success: boolean;
   pid: number;
   message: string;
+}
+
+// System Monitor v2 - Detailed Process interfaces
+export type ProcessCategory =
+  | "browser"
+  | "dev"
+  | "system"
+  | "app"
+  | "media"
+  | "communication"
+  | "security"
+  | "other";
+
+export interface DetailedProcessInfo {
+  // Basic info
+  pid: number;
+  name: string;
+  cpu_percent: number;
+  memory_percent: number;
+  memory_mb: number;
+  status: string;
+  is_protected: boolean;
+
+  // Category and description
+  category: ProcessCategory;
+  description: string;
+  icon: string;
+
+  // Extended details
+  path: string | null;
+  cmdline: string | null;
+  parent_pid: number | null;
+  children_count: number;
+  threads: number;
+  handles: number;
+  start_time: string | null;
+  uptime_seconds: number;
+
+  // History (last 60 samples)
+  cpu_history: number[];
+  memory_history: number[];
+
+  // Flags
+  is_new: boolean; // Started within last 5 minutes
+}
+
+export interface DetailedProcessListResponse {
+  processes: DetailedProcessInfo[];
+  total_count: number;
+  page: number;
+  page_size: number;
+  categories: Record<string, number>;
 }
 
 export const api = new ApiClient(API_BASE_URL);

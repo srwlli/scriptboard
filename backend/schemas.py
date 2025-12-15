@@ -428,6 +428,18 @@ class SystemStats(BaseModel):
     disk_total_gb: float = Field(..., description="Total disk in GB")
 
 
+class ProcessCategory(str, Enum):
+    """Process category for grouping."""
+    BROWSER = "browser"
+    DEV_TOOLS = "dev"
+    SYSTEM = "system"
+    APP = "app"
+    MEDIA = "media"
+    COMMUNICATION = "communication"
+    SECURITY = "security"
+    OTHER = "other"
+
+
 class ProcessInfo(BaseModel):
     """Information about a running process."""
     pid: int = Field(..., description="Process ID")
@@ -437,6 +449,49 @@ class ProcessInfo(BaseModel):
     memory_mb: float = Field(..., description="Memory usage in MB")
     status: str = Field(..., description="Process status (running, sleeping, etc.)")
     is_protected: bool = Field(default=False, description="Whether this is a protected process")
+
+
+class DetailedProcessInfo(BaseModel):
+    """Extended process information with category, description, and history."""
+    # Basic info
+    pid: int = Field(..., description="Process ID")
+    name: str = Field(..., description="Process name")
+    cpu_percent: float = Field(..., description="CPU usage percentage")
+    memory_percent: float = Field(..., description="Memory usage percentage")
+    memory_mb: float = Field(..., description="Memory usage in MB")
+    status: str = Field(..., description="Process status (running, sleeping, etc.)")
+    is_protected: bool = Field(default=False, description="Whether this is a protected process")
+
+    # Category and description
+    category: ProcessCategory = Field(default=ProcessCategory.OTHER, description="Process category")
+    description: str = Field(default="", description="Human-readable description")
+    icon: str = Field(default="❓", description="Category icon (emoji)")
+
+    # Extended details
+    path: Optional[str] = Field(default=None, description="Full executable path")
+    cmdline: Optional[str] = Field(default=None, description="Command line arguments")
+    parent_pid: Optional[int] = Field(default=None, description="Parent process ID")
+    children_count: int = Field(default=0, description="Number of child processes")
+    threads: int = Field(default=0, description="Number of threads")
+    handles: int = Field(default=0, description="Number of handles (Windows)")
+    start_time: Optional[str] = Field(default=None, description="Process start time (ISO 8601)")
+    uptime_seconds: int = Field(default=0, description="Process uptime in seconds")
+
+    # History (last 60 samples)
+    cpu_history: List[float] = Field(default_factory=list, description="CPU usage history")
+    memory_history: List[float] = Field(default_factory=list, description="Memory usage history (MB)")
+
+    # Flags
+    is_new: bool = Field(default=False, description="Started within last 5 minutes")
+
+
+class DetailedProcessListResponse(BaseModel):
+    """Response containing list of detailed processes."""
+    processes: List[DetailedProcessInfo]
+    total_count: int
+    page: int = Field(default=1)
+    page_size: int = Field(default=50)
+    categories: Dict[str, int] = Field(default_factory=dict, description="Process count per category")
 
 
 class ProcessListResponse(BaseModel):

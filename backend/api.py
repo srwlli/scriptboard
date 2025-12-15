@@ -19,6 +19,7 @@ from fastapi.responses import JSONResponse, RedirectResponse, StreamingResponse
 from fastapi.exceptions import RequestValidationError
 
 from core import ScriptboardCore
+from fileman import fileman_router
 from schemas import (
     AddPromptPayload,
     AttachmentTextPayload,
@@ -64,6 +65,9 @@ app.add_middleware(
     allow_headers=["*"],
     expose_headers=["*"],
 )
+
+# Include FileManager router
+app.include_router(fileman_router)
 
 
 def get_config_path() -> Path:
@@ -1699,6 +1703,56 @@ async def save_macro(payload: MacroSavePayload):
 # System Process Monitor Endpoints
 # --------------------------------------------------------------------------- #
 
+from collections import deque
+import time as time_module
+
+# Process history tracking (circular buffer for CPU/memory samples)
+# Key: PID, Value: {"cpu": deque, "memory": deque, "last_update": timestamp}
+PROCESS_HISTORY: dict = {}
+HISTORY_MAX_SAMPLES = 60  # Keep last 60 samples
+HISTORY_CLEANUP_INTERVAL = 300  # Clean up dead processes every 5 minutes
+_last_history_cleanup = time_module.time()
+
+
+def update_process_history(pid: int, cpu_percent: float, memory_mb: float):
+    """Update history for a process."""
+    global _last_history_cleanup
+
+    if pid not in PROCESS_HISTORY:
+        PROCESS_HISTORY[pid] = {
+            "cpu": deque(maxlen=HISTORY_MAX_SAMPLES),
+            "memory": deque(maxlen=HISTORY_MAX_SAMPLES),
+            "last_update": time_module.time(),
+        }
+
+    PROCESS_HISTORY[pid]["cpu"].append(cpu_percent)
+    PROCESS_HISTORY[pid]["memory"].append(memory_mb)
+    PROCESS_HISTORY[pid]["last_update"] = time_module.time()
+
+    # Periodic cleanup of dead processes
+    if time_module.time() - _last_history_cleanup > HISTORY_CLEANUP_INTERVAL:
+        cleanup_dead_process_history()
+        _last_history_cleanup = time_module.time()
+
+
+def get_process_history(pid: int) -> tuple[list[float], list[float]]:
+    """Get CPU and memory history for a process."""
+    if pid in PROCESS_HISTORY:
+        return (
+            list(PROCESS_HISTORY[pid]["cpu"]),
+            list(PROCESS_HISTORY[pid]["memory"]),
+        )
+    return [], []
+
+
+def cleanup_dead_process_history():
+    """Remove history entries for processes that haven't updated recently."""
+    cutoff = time_module.time() - HISTORY_CLEANUP_INTERVAL
+    dead_pids = [pid for pid, data in PROCESS_HISTORY.items() if data["last_update"] < cutoff]
+    for pid in dead_pids:
+        del PROCESS_HISTORY[pid]
+
+
 # Protected processes that cannot be killed
 PROTECTED_PROCESSES = {
     # Windows system-critical
@@ -1868,6 +1922,268 @@ async def get_app_processes():
         total_count=len(processes),
         page=1,
         page_size=len(processes),
+    )
+
+
+@app.get("/system/processes/detailed")
+async def get_detailed_processes(
+    page: int = 1,
+    page_size: int = 50,
+    sort_by: str = "cpu_percent",
+    sort_order: str = "desc",
+    filter_name: Optional[str] = None,
+    filter_category: Optional[str] = None,
+    include_system: bool = True,
+):
+    """
+    Get detailed process list with categories, descriptions, and history.
+
+    Enhanced endpoint for System Monitor v2 with:
+    - Process categorization (browser, dev, system, app, etc.)
+    - Human-readable descriptions
+    - Extended details (path, cmdline, threads, parent)
+    - CPU/memory history (last 60 samples)
+    - "New process" flag (started < 5 min ago)
+    """
+    try:
+        import psutil
+    except ImportError:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="psutil not installed"
+        )
+
+    from datetime import datetime, timezone
+    from schemas import DetailedProcessInfo, DetailedProcessListResponse, ProcessCategory
+    from process_categories import get_process_info, ProcessCategory as PCat
+
+    # 5 minutes threshold for "new" processes
+    NEW_PROCESS_THRESHOLD = 300
+    current_time = time_module.time()
+
+    processes = []
+    category_counts: dict[str, int] = {}
+
+    for proc in psutil.process_iter([
+        'pid', 'name', 'cpu_percent', 'memory_percent', 'memory_info',
+        'status', 'exe', 'cmdline', 'ppid', 'num_threads', 'create_time'
+    ]):
+        try:
+            info = proc.info
+            name = info['name'] or ''
+
+            # Apply name filter if provided
+            if filter_name and filter_name.lower() not in name.lower():
+                continue
+
+            # Get category info
+            proc_info = get_process_info(name)
+            category_str = proc_info.category.value
+
+            # Filter by category if specified
+            if filter_category and category_str != filter_category:
+                continue
+
+            # Skip system processes if include_system is False
+            if not include_system and proc_info.category == PCat.SYSTEM:
+                continue
+
+            # Memory calculation
+            memory_mb = 0.0
+            if info['memory_info']:
+                memory_mb = round(info['memory_info'].rss / (1024**2), 2)
+
+            # Update history
+            update_process_history(info['pid'], info['cpu_percent'] or 0.0, memory_mb)
+
+            # Get history for this process
+            cpu_history, memory_history = get_process_history(info['pid'])
+
+            # Calculate uptime and check if "new"
+            start_time = None
+            uptime_seconds = 0
+            is_new = False
+            if info['create_time']:
+                try:
+                    start_time = datetime.fromtimestamp(
+                        info['create_time'], tz=timezone.utc
+                    ).isoformat()
+                    uptime_seconds = int(current_time - info['create_time'])
+                    is_new = uptime_seconds < NEW_PROCESS_THRESHOLD
+                except (OSError, ValueError):
+                    pass
+
+            # Get children count
+            children_count = 0
+            try:
+                children_count = len(proc.children())
+            except (psutil.NoSuchProcess, psutil.AccessDenied):
+                pass
+
+            # Get handles (Windows) or file descriptors (Unix)
+            handles = 0
+            try:
+                handles = proc.num_handles() if hasattr(proc, 'num_handles') else proc.num_fds()
+            except (psutil.NoSuchProcess, psutil.AccessDenied, AttributeError):
+                pass
+
+            # Build cmdline string
+            cmdline_str = None
+            if info['cmdline']:
+                cmdline_str = ' '.join(info['cmdline'][:10])  # Limit to first 10 args
+                if len(cmdline_str) > 500:
+                    cmdline_str = cmdline_str[:500] + "..."
+
+            # Map category enum
+            category_enum = ProcessCategory(category_str)
+
+            # Count categories
+            category_counts[category_str] = category_counts.get(category_str, 0) + 1
+
+            processes.append(DetailedProcessInfo(
+                pid=info['pid'],
+                name=name,
+                cpu_percent=info['cpu_percent'] or 0.0,
+                memory_percent=info['memory_percent'] or 0.0,
+                memory_mb=memory_mb,
+                status=info['status'] or 'unknown',
+                is_protected=is_protected_process(name),
+                category=category_enum,
+                description=proc_info.description,
+                icon=proc_info.icon,
+                path=info['exe'],
+                cmdline=cmdline_str,
+                parent_pid=info['ppid'],
+                children_count=children_count,
+                threads=info['num_threads'] or 0,
+                handles=handles,
+                start_time=start_time,
+                uptime_seconds=uptime_seconds,
+                cpu_history=cpu_history,
+                memory_history=memory_history,
+                is_new=is_new,
+            ))
+        except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+            continue
+
+    # Sort processes
+    reverse = sort_order == "desc"
+    if sort_by in ['cpu_percent', 'memory_percent', 'memory_mb', 'pid', 'uptime_seconds', 'threads']:
+        processes.sort(key=lambda p: getattr(p, sort_by), reverse=reverse)
+    elif sort_by == 'name':
+        processes.sort(key=lambda p: p.name.lower(), reverse=reverse)
+    elif sort_by == 'start_time':
+        # Sort by uptime (newest first when desc)
+        processes.sort(key=lambda p: p.uptime_seconds, reverse=not reverse)
+    elif sort_by == 'category':
+        processes.sort(key=lambda p: p.category.value, reverse=reverse)
+
+    # Paginate
+    total = len(processes)
+    start = (page - 1) * page_size
+    end = start + page_size
+    paginated = processes[start:end]
+
+    return DetailedProcessListResponse(
+        processes=paginated,
+        total_count=total,
+        page=page,
+        page_size=page_size,
+        categories=category_counts,
+    )
+
+
+@app.get("/system/processes/{pid}/details")
+async def get_process_details(pid: int):
+    """Get detailed information for a single process by PID."""
+    try:
+        import psutil
+    except ImportError:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="psutil not installed"
+        )
+
+    from datetime import datetime, timezone
+    from schemas import DetailedProcessInfo, ProcessCategory
+    from process_categories import get_process_info
+
+    NEW_PROCESS_THRESHOLD = 300
+    current_time = time_module.time()
+
+    try:
+        proc = psutil.Process(pid)
+        info = proc.as_dict(attrs=[
+            'pid', 'name', 'cpu_percent', 'memory_percent', 'memory_info',
+            'status', 'exe', 'cmdline', 'ppid', 'num_threads', 'create_time'
+        ])
+    except psutil.NoSuchProcess:
+        raise HTTPException(status_code=404, detail=f"Process {pid} not found")
+    except psutil.AccessDenied:
+        raise HTTPException(status_code=403, detail=f"Access denied to process {pid}")
+
+    name = info['name'] or ''
+    proc_info = get_process_info(name)
+
+    memory_mb = 0.0
+    if info['memory_info']:
+        memory_mb = round(info['memory_info'].rss / (1024**2), 2)
+
+    # Update and get history
+    update_process_history(pid, info['cpu_percent'] or 0.0, memory_mb)
+    cpu_history, memory_history = get_process_history(pid)
+
+    start_time = None
+    uptime_seconds = 0
+    is_new = False
+    if info['create_time']:
+        try:
+            start_time = datetime.fromtimestamp(info['create_time'], tz=timezone.utc).isoformat()
+            uptime_seconds = int(current_time - info['create_time'])
+            is_new = uptime_seconds < NEW_PROCESS_THRESHOLD
+        except (OSError, ValueError):
+            pass
+
+    children_count = 0
+    try:
+        children_count = len(proc.children())
+    except (psutil.NoSuchProcess, psutil.AccessDenied):
+        pass
+
+    handles = 0
+    try:
+        handles = proc.num_handles() if hasattr(proc, 'num_handles') else proc.num_fds()
+    except (psutil.NoSuchProcess, psutil.AccessDenied, AttributeError):
+        pass
+
+    cmdline_str = None
+    if info['cmdline']:
+        cmdline_str = ' '.join(info['cmdline'])
+        if len(cmdline_str) > 1000:
+            cmdline_str = cmdline_str[:1000] + "..."
+
+    return DetailedProcessInfo(
+        pid=info['pid'],
+        name=name,
+        cpu_percent=info['cpu_percent'] or 0.0,
+        memory_percent=info['memory_percent'] or 0.0,
+        memory_mb=memory_mb,
+        status=info['status'] or 'unknown',
+        is_protected=is_protected_process(name),
+        category=ProcessCategory(proc_info.category.value),
+        description=proc_info.description,
+        icon=proc_info.icon,
+        path=info['exe'],
+        cmdline=cmdline_str,
+        parent_pid=info['ppid'],
+        children_count=children_count,
+        threads=info['num_threads'] or 0,
+        handles=handles,
+        start_time=start_time,
+        uptime_seconds=uptime_seconds,
+        cpu_history=cpu_history,
+        memory_history=memory_history,
+        is_new=is_new,
     )
 
 
