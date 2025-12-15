@@ -1,0 +1,167 @@
+{
+  "id": "system-monitor-v3",
+  "title": "System Monitor v3 - Comprehensive Enhancement",
+  "overview": "Enhance System Monitor with network/port monitoring, memory filters, disk usage analysis, safe-kill indicators, and startup impact tracking.",
+  "phases": [
+    {
+      "id": 1,
+      "name": "Quick Filters",
+      "effort": "15 min",
+      "tasks": [
+        {
+          "id": "1.1",
+          "description": "Add High Memory Filter",
+          "files": [
+            "frontend/src/components/system-monitor/QuickFilters.tsx",
+            "frontend/src/components/system-monitor/ProcessListV2.tsx"
+          ],
+          "actions": [
+            "Add high_memory to QuickFilter type",
+            "Add filter button with MemoryStick icon",
+            "Threshold: processes using >500MB or >5% memory",
+            "Add high_memory case to filteredProcesses useMemo",
+            "Add count calculation for filterCounts"
+          ]
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "Network/Port Monitor",
+      "effort": "1 hour",
+      "tasks": [
+        {
+          "id": "2.1",
+          "description": "Backend - Network Endpoints",
+          "files": ["backend/api.py"],
+          "actions": [
+            "Add GET /system/network/connections endpoint",
+            "Add GET /system/network/listening endpoint",
+            "Use psutil.net_connections(kind='inet')"
+          ]
+        },
+        {
+          "id": "2.2",
+          "description": "Frontend - API Types",
+          "files": ["frontend/src/lib/api.ts"],
+          "actions": [
+            "Add NetworkConnection interface",
+            "Add ListeningPort interface",
+            "Add getNetworkConnections() function",
+            "Add getListeningPorts() function"
+          ]
+        },
+        {
+          "id": "2.3",
+          "description": "Frontend - Network Panel",
+          "files": ["frontend/src/components/system-monitor/NetworkPanel.tsx"],
+          "actions": [
+            "NEW component",
+            "Show listening ports in table",
+            "Show active connections",
+            "Group by process",
+            "Auto-refresh with pause"
+          ]
+        },
+        {
+          "id": "2.4",
+          "description": "Add Network Quick Filter",
+          "files": ["frontend/src/components/system-monitor/QuickFilters.tsx"],
+          "actions": ["Add Network filter for processes with active connections"]
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "name": "Safe-to-Kill Scoring",
+      "effort": "45 min",
+      "tasks": [
+        {
+          "id": "3.1",
+          "description": "Backend - Safety Score",
+          "files": ["backend/api.py"],
+          "actions": [
+            "Add safe_to_kill_score (0-100) to DetailedProcessInfo",
+            "Add kill_risk_reason string",
+            "Protected: 0-10, Services: 10-30, System: 30-50, Dev: 50-70, Apps: 70-90, Unknown: 90-100"
+          ]
+        },
+        {
+          "id": "3.2",
+          "description": "Frontend - Visual Risk Indicators",
+          "files": ["frontend/src/components/system-monitor/ProcessRow.tsx"],
+          "actions": [
+            "Color-code kill button: red (unsafe), yellow (caution), green (safe)",
+            "Add tooltip showing risk reason",
+            "Add Safe to Kill quick filter"
+          ]
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "name": "Disk Usage Analyzer",
+      "effort": "1.5 hours",
+      "tasks": [
+        {
+          "id": "4.1",
+          "description": "Backend - Disk Scan Endpoints",
+          "files": ["backend/api.py"],
+          "actions": [
+            "Add GET /system/disk/usage endpoint",
+            "Add GET /system/disk/largest endpoint",
+            "Recursive folder size calculation"
+          ]
+        },
+        {
+          "id": "4.2",
+          "description": "Frontend - Disk Usage Panel",
+          "files": ["frontend/src/components/system-monitor/DiskUsagePanel.tsx"],
+          "actions": [
+            "NEW component",
+            "Folder tree visualization",
+            "Size bars showing relative usage",
+            "Drill-down navigation",
+            "Manual scan button (expensive operation)"
+          ]
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "name": "Startup Impact (Windows)",
+      "effort": "1 hour",
+      "tasks": [
+        {
+          "id": "5.1",
+          "description": "Backend - Startup Apps Detection",
+          "files": ["backend/api.py"],
+          "actions": [
+            "Add GET /system/startup-apps endpoint",
+            "Read from Registry: HKLM/HKCU Run keys",
+            "Return startup entries with estimated impact"
+          ]
+        },
+        {
+          "id": "5.2",
+          "description": "Add Startup Flag",
+          "files": ["backend/api.py", "frontend/src/components/system-monitor/QuickFilters.tsx"],
+          "actions": [
+            "Add is_startup_app boolean to DetailedProcessInfo",
+            "Add Startup quick filter"
+          ]
+        }
+      ]
+    }
+  ],
+  "files_summary": {
+    "backend/api.py": "Add 5 new endpoints",
+    "frontend/src/lib/api.ts": "Add types and API functions",
+    "frontend/src/components/system-monitor/QuickFilters.tsx": "Add 3 new filters",
+    "frontend/src/components/system-monitor/ProcessListV2.tsx": "Add filter logic, integrate panels",
+    "frontend/src/components/system-monitor/ProcessRow.tsx": "Add safety scoring UI",
+    "frontend/src/components/system-monitor/NetworkPanel.tsx": "NEW - Network monitor",
+    "frontend/src/components/system-monitor/DiskUsagePanel.tsx": "NEW - Disk analyzer"
+  },
+  "dependencies": "None - psutil, winreg, pathlib all available"
+}
