@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import { DetailedProcessInfo } from "@/lib/api";
 import { Sparkline } from "./Sparkline";
 import { ProcessDetails } from "./ProcessDetails";
@@ -18,8 +19,10 @@ export interface ProcessRowProps {
  * A single process row with expand/collapse functionality.
  * Shows icon, name, PID, CPU, memory, and mini sparklines.
  * Expands to show ProcessDetails when clicked.
+ *
+ * Memoized to prevent unnecessary re-renders during polling.
  */
-export function ProcessRow({
+export const ProcessRow = React.memo(function ProcessRow({
   process,
   isExpanded,
   onToggle,
@@ -133,4 +136,14 @@ export function ProcessRow({
       )}
     </div>
   );
-}
+}, (prev, next) => {
+  // Only re-render if these key values change
+  return (
+    prev.process.pid === next.process.pid &&
+    prev.process.cpu_percent === next.process.cpu_percent &&
+    prev.process.memory_mb === next.process.memory_mb &&
+    prev.process.status === next.process.status &&
+    prev.isExpanded === next.isExpanded &&
+    prev.isKilling === next.isKilling
+  );
+});

@@ -15,6 +15,8 @@ import {
   List,
   Eye,
   EyeOff,
+  Pause,
+  Play,
 } from "lucide-react";
 
 type SortField = "name" | "pid" | "cpu_percent" | "memory_mb" | "start_time" | "category";
@@ -47,7 +49,7 @@ export interface ProcessListV2Props {
 export function ProcessListV2({
   className = "",
   pageSize = 50,
-  pollInterval = 5000,
+  pollInterval = 10000,
   autoRefresh = true,
 }: ProcessListV2Props) {
   // Data state
@@ -65,6 +67,7 @@ export function ProcessListV2({
   const [quickFilter, setQuickFilter] = useState<QuickFilter>("all");
   const [viewMode, setViewMode] = useState<ViewMode>("list");
   const [showSystem, setShowSystem] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
   const [expandedPids, setExpandedPids] = useState<Set<number>>(new Set());
   const [expandedCategories, setExpandedCategories] = useState<Set<ProcessCategory>>(
     new Set<ProcessCategory>(["browser", "dev", "app", "media", "communication"])
@@ -129,11 +132,11 @@ export function ProcessListV2({
   }, [fetchProcesses]);
 
   useEffect(() => {
-    if (!autoRefresh) return;
+    if (!autoRefresh || isPaused) return;
 
     const interval = setInterval(fetchProcesses, pollInterval);
     return () => clearInterval(interval);
-  }, [autoRefresh, pollInterval, fetchProcesses]);
+  }, [autoRefresh, isPaused, pollInterval, fetchProcesses]);
 
   // Filter for high CPU / recent
   const filteredProcesses = useMemo(() => {
@@ -299,6 +302,16 @@ export function ProcessListV2({
             title={showSystem ? "Hide system processes" : "Show system processes"}
           >
             {showSystem ? <Eye size={14} /> : <EyeOff size={14} />}
+          </button>
+          {/* Pause/Resume polling */}
+          <button
+            onClick={() => setIsPaused(!isPaused)}
+            className={`p-1.5 rounded transition-colors ${
+              isPaused ? "bg-yellow-500/20 text-yellow-600" : "hover:bg-muted"
+            }`}
+            title={isPaused ? "Resume auto-refresh" : "Pause auto-refresh"}
+          >
+            {isPaused ? <Play size={14} /> : <Pause size={14} />}
           </button>
           {/* Refresh */}
           <button
