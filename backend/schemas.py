@@ -484,6 +484,18 @@ class DetailedProcessInfo(BaseModel):
     # Flags
     is_new: bool = Field(default=False, description="Started within last 5 minutes")
 
+    # Safe-to-kill scoring
+    safe_to_kill_score: int = Field(
+        default=50,
+        ge=0,
+        le=100,
+        description="Safety score 0-100 (0=protected, 100=safe to kill)"
+    )
+    kill_risk_reason: str = Field(
+        default="",
+        description="Explanation of why process has this safety score"
+    )
+
 
 class DetailedProcessListResponse(BaseModel):
     """Response containing list of detailed processes."""

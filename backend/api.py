@@ -1955,7 +1955,7 @@ async def get_detailed_processes(
 
     from datetime import datetime, timezone
     from schemas import DetailedProcessInfo, DetailedProcessListResponse, ProcessCategory
-    from process_categories import get_process_info, ProcessCategory as PCat
+    from process_categories import get_process_info, get_safety_score, ProcessCategory as PCat
 
     # 5 minutes threshold for "new" processes
     NEW_PROCESS_THRESHOLD = 300
@@ -2040,6 +2040,10 @@ async def get_detailed_processes(
             # Count categories
             category_counts[category_str] = category_counts.get(category_str, 0) + 1
 
+            # Calculate safety score
+            is_prot = is_protected_process(name)
+            safety_score, safety_reason = get_safety_score(name, is_prot, proc_info.category)
+
             processes.append(DetailedProcessInfo(
                 pid=info['pid'],
                 name=name,
@@ -2047,7 +2051,7 @@ async def get_detailed_processes(
                 memory_percent=info['memory_percent'] or 0.0,
                 memory_mb=memory_mb,
                 status=info['status'] or 'unknown',
-                is_protected=is_protected_process(name),
+                is_protected=is_prot,
                 category=category_enum,
                 description=proc_info.description,
                 icon=proc_info.icon,
@@ -2062,6 +2066,8 @@ async def get_detailed_processes(
                 cpu_history=cpu_history,
                 memory_history=memory_history,
                 is_new=is_new,
+                safe_to_kill_score=safety_score,
+                kill_risk_reason=safety_reason,
             ))
         except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
             continue
@@ -2106,7 +2112,7 @@ async def get_process_details(pid: int):
 
     from datetime import datetime, timezone
     from schemas import DetailedProcessInfo, ProcessCategory
-    from process_categories import get_process_info
+    from process_categories import get_process_info, get_safety_score
 
     NEW_PROCESS_THRESHOLD = 300
     current_time = time_module.time()
@@ -2162,6 +2168,10 @@ async def get_process_details(pid: int):
         if len(cmdline_str) > 1000:
             cmdline_str = cmdline_str[:1000] + "..."
 
+    # Calculate safety score
+    is_prot = is_protected_process(name)
+    safety_score, safety_reason = get_safety_score(name, is_prot, proc_info.category)
+
     return DetailedProcessInfo(
         pid=info['pid'],
         name=name,
@@ -2169,7 +2179,7 @@ async def get_process_details(pid: int):
         memory_percent=info['memory_percent'] or 0.0,
         memory_mb=memory_mb,
         status=info['status'] or 'unknown',
-        is_protected=is_protected_process(name),
+        is_protected=is_prot,
         category=ProcessCategory(proc_info.category.value),
         description=proc_info.description,
         icon=proc_info.icon,
@@ -2184,6 +2194,8 @@ async def get_process_details(pid: int):
         cpu_history=cpu_history,
         memory_history=memory_history,
         is_new=is_new,
+        safe_to_kill_score=safety_score,
+        kill_risk_reason=safety_reason,
     )
 
 
@@ -2262,6 +2274,373 @@ async def kill_process(payload: dict):
 async def get_protected_processes():
     """Get list of protected process names that cannot be killed."""
     return {"protected": list(PROTECTED_PROCESSES)}
+
+
+# --------------------------------------------------------------------------- #
+# Network/Port Monitoring Endpoints
+# --------------------------------------------------------------------------- #
+
+@app.get("/system/network/connections")
+async def get_network_connections():
+    """
+    Get active network connections with process information.
+
+    Returns all inet (TCP/UDP) connections with:
+    - Local/remote addresses and ports
+    - Connection status
+    - Associated process info
+    """
+    try:
+        import psutil
+    except ImportError:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="psutil not installed"
+        )
+
+    connections = []
+
+    for conn in psutil.net_connections(kind='inet'):
+        try:
+            # Get process info if available
+            proc_name = None
+            if conn.pid:
+                try:
+                    proc = psutil.Process(conn.pid)
+                    proc_name = proc.name()
+                except (psutil.NoSuchProcess, psutil.AccessDenied):
+                    pass
+
+            # Format local address
+            local_addr = None
+            local_port = None
+            if conn.laddr:
+                local_addr = conn.laddr.ip
+                local_port = conn.laddr.port
+
+            # Format remote address
+            remote_addr = None
+            remote_port = None
+            if conn.raddr:
+                remote_addr = conn.raddr.ip
+                remote_port = conn.raddr.port
+
+            connections.append({
+                "pid": conn.pid,
+                "process_name": proc_name,
+                "local_addr": local_addr,
+                "local_port": local_port,
+                "remote_addr": remote_addr,
+                "remote_port": remote_port,
+                "status": conn.status,
+                "type": "tcp" if conn.type == 1 else "udp",
+                "family": "ipv4" if conn.family == 2 else "ipv6",
+            })
+        except (AttributeError, psutil.Error):
+            continue
+
+    # Sort by PID
+    connections.sort(key=lambda c: (c["pid"] or 0, c["local_port"] or 0))
+
+    return {
+        "connections": connections,
+        "total_count": len(connections),
+    }
+
+
+@app.get("/system/network/listening")
+async def get_listening_ports():
+    """
+    Get all listening ports with associated process information.
+
+    Returns ports in LISTEN state with:
+    - Port number and protocol
+    - Bound address
+    - Process name and PID
+    """
+    try:
+        import psutil
+    except ImportError:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="psutil not installed"
+        )
+
+    listening = []
+
+    for conn in psutil.net_connections(kind='inet'):
+        try:
+            # Only include listening sockets
+            if conn.status != 'LISTEN':
+                continue
+
+            # Get process info if available
+            proc_name = None
+            if conn.pid:
+                try:
+                    proc = psutil.Process(conn.pid)
+                    proc_name = proc.name()
+                except (psutil.NoSuchProcess, psutil.AccessDenied):
+                    pass
+
+            # Format local address
+            local_addr = None
+            local_port = None
+            if conn.laddr:
+                local_addr = conn.laddr.ip
+                local_port = conn.laddr.port
+
+            listening.append({
+                "pid": conn.pid,
+                "process_name": proc_name,
+                "address": local_addr,
+                "port": local_port,
+                "type": "tcp" if conn.type == 1 else "udp",
+                "family": "ipv4" if conn.family == 2 else "ipv6",
+            })
+        except (AttributeError, psutil.Error):
+            continue
+
+    # Sort by port number
+    listening.sort(key=lambda p: (p["port"] or 0))
+
+    return {
+        "listening": listening,
+        "total_count": len(listening),
+    }
+
+
+@app.get("/system/network/pids-with-connections")
+async def get_pids_with_network_connections():
+    """
+    Get list of PIDs that have active network connections.
+    Used for quick filtering in process list.
+    """
+    try:
+        import psutil
+    except ImportError:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="psutil not installed"
+        )
+
+    pids_with_connections = set()
+
+    for conn in psutil.net_connections(kind='inet'):
+        if conn.pid:
+            pids_with_connections.add(conn.pid)
+
+    return {
+        "pids": list(pids_with_connections),
+        "count": len(pids_with_connections),
+    }
+
+
+# --------------------------------------------------------------------------- #
+# Disk Usage Analysis Endpoints
+# --------------------------------------------------------------------------- #
+
+@app.get("/system/disk/usage")
+async def get_disk_usage():
+    """
+    Get disk usage information for all mounted drives.
+    """
+    try:
+        import psutil
+    except ImportError:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="psutil not installed"
+        )
+
+    partitions = []
+    for partition in psutil.disk_partitions(all=False):
+        try:
+            usage = psutil.disk_usage(partition.mountpoint)
+            partitions.append({
+                "device": partition.device,
+                "mountpoint": partition.mountpoint,
+                "fstype": partition.fstype,
+                "total_gb": round(usage.total / (1024**3), 2),
+                "used_gb": round(usage.used / (1024**3), 2),
+                "free_gb": round(usage.free / (1024**3), 2),
+                "percent": usage.percent,
+            })
+        except (PermissionError, OSError):
+            # Skip partitions we can't access
+            continue
+
+    return {
+        "partitions": partitions,
+        "count": len(partitions),
+    }
+
+
+@app.get("/system/disk/largest")
+async def get_largest_folders(
+    path: str = "C:\\Users",
+    depth: int = 2,
+    limit: int = 20,
+):
+    """
+    Get largest folders under a given path.
+    This is an expensive operation - use sparingly.
+
+    Args:
+        path: Root path to scan (default: C:\\Users)
+        depth: How many levels deep to scan (default: 2)
+        limit: Maximum number of results (default: 20)
+    """
+    from pathlib import Path
+
+    def get_folder_size(folder_path: Path) -> int:
+        """Calculate total size of folder."""
+        total = 0
+        try:
+            for item in folder_path.rglob("*"):
+                try:
+                    if item.is_file():
+                        total += item.stat().st_size
+                except (PermissionError, OSError):
+                    continue
+        except (PermissionError, OSError):
+            pass
+        return total
+
+    root = Path(path)
+    if not root.exists():
+        raise HTTPException(status_code=404, detail=f"Path not found: {path}")
+
+    folders = []
+
+    def scan_folder(folder: Path, current_depth: int):
+        if current_depth > depth:
+            return
+
+        try:
+            for item in folder.iterdir():
+                if item.is_dir() and not item.name.startswith('.'):
+                    try:
+                        size = get_folder_size(item)
+                        folders.append({
+                            "path": str(item),
+                            "name": item.name,
+                            "size_bytes": size,
+                            "size_mb": round(size / (1024**2), 2),
+                            "size_gb": round(size / (1024**3), 2),
+                            "depth": current_depth,
+                        })
+                        # Recurse if not at max depth
+                        if current_depth < depth:
+                            scan_folder(item, current_depth + 1)
+                    except (PermissionError, OSError):
+                        continue
+        except (PermissionError, OSError):
+            pass
+
+    scan_folder(root, 1)
+
+    # Sort by size descending and limit
+    folders.sort(key=lambda f: f["size_bytes"], reverse=True)
+    folders = folders[:limit]
+
+    return {
+        "folders": folders,
+        "root": path,
+        "count": len(folders),
+    }
+
+
+# --------------------------------------------------------------------------- #
+# Startup Apps Detection (Windows)
+# --------------------------------------------------------------------------- #
+
+@app.get("/system/startup-apps")
+async def get_startup_apps():
+    """
+    Get list of startup applications from Windows Registry.
+    Returns apps configured to run at system startup.
+    """
+    import platform
+    if platform.system() != "Windows":
+        return {"apps": [], "count": 0, "message": "Only available on Windows"}
+
+    try:
+        import winreg
+    except ImportError:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="winreg not available"
+        )
+
+    startup_apps = []
+
+    # Registry keys for startup apps
+    registry_keys = [
+        (winreg.HKEY_CURRENT_USER, r"Software\Microsoft\Windows\CurrentVersion\Run"),
+        (winreg.HKEY_LOCAL_MACHINE, r"Software\Microsoft\Windows\CurrentVersion\Run"),
+        (winreg.HKEY_CURRENT_USER, r"Software\Microsoft\Windows\CurrentVersion\RunOnce"),
+        (winreg.HKEY_LOCAL_MACHINE, r"Software\Microsoft\Windows\CurrentVersion\RunOnce"),
+    ]
+
+    for hkey, subkey in registry_keys:
+        try:
+            key = winreg.OpenKey(hkey, subkey, 0, winreg.KEY_READ)
+            try:
+                i = 0
+                while True:
+                    try:
+                        name, value, _ = winreg.EnumValue(key, i)
+                        # Extract executable name from path
+                        exe_name = ""
+                        if value:
+                            # Handle quoted paths and paths with arguments
+                            path = value.strip('"').split('"')[0].strip()
+                            if '\\' in path:
+                                exe_name = path.split('\\')[-1]
+                            else:
+                                exe_name = path.split()[0] if ' ' in path else path
+
+                        startup_apps.append({
+                            "name": name,
+                            "command": value,
+                            "executable": exe_name.lower().replace('.exe', ''),
+                            "registry_key": f"{'HKCU' if hkey == winreg.HKEY_CURRENT_USER else 'HKLM'}\\{subkey}",
+                            "impact": estimate_startup_impact(exe_name),
+                        })
+                        i += 1
+                    except OSError:
+                        break
+            finally:
+                winreg.CloseKey(key)
+        except (FileNotFoundError, PermissionError):
+            continue
+
+    return {
+        "apps": startup_apps,
+        "count": len(startup_apps),
+    }
+
+
+def estimate_startup_impact(exe_name: str) -> str:
+    """
+    Estimate startup impact based on executable name.
+    Returns: 'high', 'medium', 'low'
+    """
+    exe_lower = exe_name.lower()
+
+    high_impact = {'chrome', 'firefox', 'spotify', 'discord', 'steam', 'teams', 'slack', 'onedrive', 'dropbox'}
+    medium_impact = {'securityhealth', 'defender', 'cortana', 'skype', 'outlook', 'nvidia'}
+
+    for app in high_impact:
+        if app in exe_lower:
+            return "high"
+
+    for app in medium_impact:
+        if app in exe_lower:
+            return "medium"
+
+    return "low"
 
 
 # --------------------------------------------------------------------------- #

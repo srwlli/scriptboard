@@ -4,7 +4,7 @@ import React from "react";
 import { DetailedProcessInfo } from "@/lib/api";
 import { Sparkline } from "./Sparkline";
 import { ProcessDetails } from "./ProcessDetails";
-import { ChevronRight, ChevronDown, Shield, Skull, Sparkles } from "lucide-react";
+import { ChevronRight, ChevronDown, Shield, Skull, Sparkles, AlertTriangle } from "lucide-react";
 
 export interface ProcessRowProps {
   process: DetailedProcessInfo;
@@ -107,25 +107,44 @@ export const ProcessRow = React.memo(function ProcessRow({
           </span>
         </div>
 
-        {/* Kill button */}
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            onKill();
-          }}
-          disabled={isKilling || process.is_protected}
-          className={`
-            p-1.5 rounded transition-colors
-            ${process.is_protected
-              ? "text-muted-foreground/30 cursor-not-allowed"
-              : "text-red-500/70 hover:text-red-500 hover:bg-red-500/10"
-            }
-            disabled:opacity-50
-          `}
-          title={process.is_protected ? "Protected process" : "Kill process"}
-        >
-          <Skull size={14} />
-        </button>
+        {/* Kill button - color-coded by safety score */}
+        {(() => {
+          const score = process.safe_to_kill_score ?? 50;
+          let btnClass = "";
+          let icon = <Skull size={14} />;
+          let title = process.kill_risk_reason || "Kill process";
+
+          if (process.is_protected || score < 10) {
+            // Protected/critical - red, disabled
+            btnClass = "text-red-500/30 cursor-not-allowed";
+            icon = <Shield size={14} />;
+            title = process.kill_risk_reason || "Protected - DO NOT KILL";
+          } else if (score < 30) {
+            // Dangerous - red with warning
+            btnClass = "text-red-500 hover:bg-red-500/10";
+            icon = <AlertTriangle size={14} />;
+          } else if (score < 70) {
+            // Caution - yellow/orange
+            btnClass = "text-orange-500 hover:bg-orange-500/10";
+          } else {
+            // Safe - green
+            btnClass = "text-green-500 hover:bg-green-500/10";
+          }
+
+          return (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onKill();
+              }}
+              disabled={isKilling || process.is_protected || score < 10}
+              className={`p-1.5 rounded transition-colors ${btnClass} disabled:opacity-50`}
+              title={`${title} (Score: ${score})`}
+            >
+              {icon}
+            </button>
+          );
+        })()}
       </div>
 
       {/* Expanded details */}

@@ -56,6 +56,8 @@ export function ProcessListV2({
   const [processes, setProcesses] = useState<DetailedProcessInfo[]>([]);
   const [totalCount, setTotalCount] = useState(0);
   const [categories, setCategories] = useState<Record<string, number>>({});
+  const [networkPids, setNetworkPids] = useState<Set<number>>(new Set());
+  const [startupExes, setStartupExes] = useState<Set<string>>(new Set());
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -82,7 +84,7 @@ export function ProcessListV2({
   // Ref to pause polling when modal is open
   const isModalOpenRef = useRef(false);
 
-  // Fetch processes
+  // Fetch processes, network PIDs, and startup apps
   const fetchProcesses = useCallback(async () => {
     // Skip polling while modal is open to prevent re-render issues
     if (isModalOpenRef.current) return;
@@ -91,19 +93,27 @@ export function ProcessListV2({
     setError(null);
 
     try {
-      const data = await api.getDetailedProcesses({
-        page,
-        page_size: pageSize,
-        sort_by: sortBy,
-        sort_order: sortOrder,
-        filter_name: filterName || undefined,
-        // No filter_category - fetch all, filter client-side for instant switching
-        include_system: showSystem,
-      });
+      // Fetch processes, network PIDs, and startup apps in parallel
+      const [processData, networkData, startupData] = await Promise.all([
+        api.getDetailedProcesses({
+          page,
+          page_size: pageSize,
+          sort_by: sortBy,
+          sort_order: sortOrder,
+          filter_name: filterName || undefined,
+          // No filter_category - fetch all, filter client-side for instant switching
+          include_system: showSystem,
+        }),
+        api.getPidsWithConnections(),
+        api.getStartupApps(),
+      ]);
 
-      setProcesses(data.processes);
-      setTotalCount(data.total_count);
-      setCategories(data.categories);
+      setProcesses(processData.processes);
+      setTotalCount(processData.total_count);
+      setCategories(processData.categories);
+      setNetworkPids(new Set(networkData.pids));
+      // Build set of startup executable names (lowercase, no .exe)
+      setStartupExes(new Set(startupData.apps.map(app => app.executable.toLowerCase())));
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to fetch processes");
     } finally {
@@ -138,6 +148,10 @@ export function ProcessListV2({
       communication: "communication",
       security: "security",
       high_cpu: null,
+      high_memory: null,
+      network: null,
+      safe_to_kill: null,
+      startup: null,
       recent: null,
     };
 
@@ -149,12 +163,27 @@ export function ProcessListV2({
     // Special filters
     if (quickFilter === "high_cpu") {
       result = result.filter((p) => p.cpu_percent > 10);
+    } else if (quickFilter === "high_memory") {
+      // >500MB or >5% memory usage
+      result = result.filter((p) => p.memory_mb > 500 || p.memory_percent > 5);
+    } else if (quickFilter === "network") {
+      // Processes with active network connections
+      result = result.filter((p) => networkPids.has(p.pid));
+    } else if (quickFilter === "safe_to_kill") {
+      // Safe processes (score >= 70)
+      result = result.filter((p) => (p.safe_to_kill_score ?? 50) >= 70);
+    } else if (quickFilter === "startup") {
+      // Processes that are startup apps
+      result = result.filter((p) => {
+        const procName = p.name.toLowerCase().replace('.exe', '');
+        return startupExes.has(procName);
+      });
     } else if (quickFilter === "recent") {
       result = result.filter((p) => p.is_new);
     }
 
     return result;
-  }, [processes, quickFilter]);
+  }, [processes, quickFilter, networkPids, startupExes]);
 
   // Group by category
   const groupedProcesses = useMemo(() => {
@@ -185,9 +214,16 @@ export function ProcessListV2({
       communication: categories["communication"] || 0,
       security: categories["security"] || 0,
       high_cpu: processes.filter((p) => p.cpu_percent > 10).length,
+      high_memory: processes.filter((p) => p.memory_mb > 500 || p.memory_percent > 5).length,
+      network: processes.filter((p) => networkPids.has(p.pid)).length,
+      safe_to_kill: processes.filter((p) => (p.safe_to_kill_score ?? 50) >= 70).length,
+      startup: processes.filter((p) => {
+        const procName = p.name.toLowerCase().replace('.exe', '');
+        return startupExes.has(procName);
+      }).length,
       recent: processes.filter((p) => p.is_new).length,
     };
-  }, [totalCount, categories, processes]);
+  }, [totalCount, categories, processes, networkPids, startupExes]);
 
   // Handlers
   const handleSort = (field: SortField) => {

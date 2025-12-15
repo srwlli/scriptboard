@@ -21,6 +21,14 @@ export type { ProcessDetailsProps } from "./ProcessDetails";
 export { ProcessGroup, CATEGORY_NAMES } from "./ProcessGroup";
 export type { ProcessGroupProps } from "./ProcessGroup";
 
+// Network monitoring
+export { NetworkPanel } from "./NetworkPanel";
+export type { NetworkPanelProps } from "./NetworkPanel";
+
+// Disk usage
+export { DiskUsagePanel } from "./DiskUsagePanel";
+export type { DiskUsagePanelProps } from "./DiskUsagePanel";
+
 // Main component
 export { ProcessListV2 } from "./ProcessListV2";
 export type { ProcessListV2Props } from "./ProcessListV2";

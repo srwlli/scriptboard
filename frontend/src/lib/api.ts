@@ -451,6 +451,39 @@ class ApiClient {
     return this.request<DetailedProcessListResponse>(`/system/processes/detailed${query ? `?${query}` : ""}`);
   }
 
+  // Network monitoring endpoints
+  async getNetworkConnections() {
+    return this.request<NetworkConnectionsResponse>("/system/network/connections");
+  }
+
+  async getListeningPorts() {
+    return this.request<ListeningPortsResponse>("/system/network/listening");
+  }
+
+  async getPidsWithConnections() {
+    return this.request<PidsWithConnectionsResponse>("/system/network/pids-with-connections");
+  }
+
+  // Disk usage endpoints
+  async getDiskUsage() {
+    return this.request<DiskUsageResponse>("/system/disk/usage");
+  }
+
+  async getLargestFolders(params?: { path?: string; depth?: number; limit?: number }) {
+    const searchParams = new URLSearchParams();
+    if (params?.path) searchParams.set("path", params.path);
+    if (params?.depth) searchParams.set("depth", params.depth.toString());
+    if (params?.limit) searchParams.set("limit", params.limit.toString());
+
+    const query = searchParams.toString();
+    return this.request<LargestFoldersResponse>(`/system/disk/largest${query ? `?${query}` : ""}`);
+  }
+
+  // Startup apps endpoint
+  async getStartupApps() {
+    return this.request<StartupAppsResponse>("/system/startup-apps");
+  }
+
   // =========================================================================
   // FileManager endpoints
   // =========================================================================
@@ -731,6 +764,10 @@ export interface DetailedProcessInfo {
 
   // Flags
   is_new: boolean; // Started within last 5 minutes
+
+  // Safe-to-kill scoring
+  safe_to_kill_score: number; // 0-100 (0=protected, 100=safe)
+  kill_risk_reason: string; // Why this score
 }
 
 export interface DetailedProcessListResponse {
@@ -739,6 +776,89 @@ export interface DetailedProcessListResponse {
   page: number;
   page_size: number;
   categories: Record<string, number>;
+}
+
+// Network monitoring interfaces
+export interface NetworkConnection {
+  pid: number | null;
+  process_name: string | null;
+  local_addr: string | null;
+  local_port: number | null;
+  remote_addr: string | null;
+  remote_port: number | null;
+  status: string;
+  type: "tcp" | "udp";
+  family: "ipv4" | "ipv6";
+}
+
+export interface NetworkConnectionsResponse {
+  connections: NetworkConnection[];
+  total_count: number;
+}
+
+export interface ListeningPort {
+  pid: number | null;
+  process_name: string | null;
+  address: string | null;
+  port: number | null;
+  type: "tcp" | "udp";
+  family: "ipv4" | "ipv6";
+}
+
+export interface ListeningPortsResponse {
+  listening: ListeningPort[];
+  total_count: number;
+}
+
+export interface PidsWithConnectionsResponse {
+  pids: number[];
+  count: number;
+}
+
+// Disk usage interfaces
+export interface DiskPartition {
+  device: string;
+  mountpoint: string;
+  fstype: string;
+  total_gb: number;
+  used_gb: number;
+  free_gb: number;
+  percent: number;
+}
+
+export interface DiskUsageResponse {
+  partitions: DiskPartition[];
+  count: number;
+}
+
+export interface FolderSize {
+  path: string;
+  name: string;
+  size_bytes: number;
+  size_mb: number;
+  size_gb: number;
+  depth: number;
+}
+
+export interface LargestFoldersResponse {
+  folders: FolderSize[];
+  root: string;
+  count: number;
+}
+
+// Startup apps interfaces
+export interface StartupApp {
+  name: string;
+  command: string;
+  executable: string;
+  registry_key: string;
+  impact: "high" | "medium" | "low";
+}
+
+export interface StartupAppsResponse {
+  apps: StartupApp[];
+  count: number;
+  message?: string;
 }
 
 export const api = new ApiClient(API_BASE_URL);

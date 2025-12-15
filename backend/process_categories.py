@@ -273,3 +273,67 @@ def categorize_processes(process_names: list[str]) -> dict[ProcessCategory, list
         result[info.category].append(name)
 
     return result
+
+
+# Protected process names that should never be killed
+PROTECTED_PROCESS_NAMES = {
+    "system", "csrss", "wininit", "smss", "services",
+    "lsass", "svchost", "explorer", "winlogon", "dwm",
+    "scriptboard", "scriptboard-backend", "uvicorn",
+}
+
+# Scores by category:
+# 0-10: Protected (system-critical)
+# 10-30: Services (important system services)
+# 30-50: System (system utilities, can usually restart)
+# 50-70: Dev (development tools, safe but might lose work)
+# 70-90: Apps (user applications, generally safe)
+# 90-100: Unknown (other processes, safest to kill)
+CATEGORY_SAFETY_SCORES: dict[ProcessCategory, tuple[int, str]] = {
+    ProcessCategory.SYSTEM: (20, "System process - killing may cause instability"),
+    ProcessCategory.SECURITY: (25, "Security software - killing may leave system vulnerable"),
+    ProcessCategory.DEV_TOOLS: (60, "Development tool - may lose unsaved work"),
+    ProcessCategory.BROWSER: (75, "Browser - may lose open tabs/work"),
+    ProcessCategory.COMMUNICATION: (80, "Communication app - safe to close"),
+    ProcessCategory.MEDIA: (85, "Media app - safe to close"),
+    ProcessCategory.APP: (85, "Application - safe to close"),
+    ProcessCategory.OTHER: (90, "Unknown process - generally safe to close"),
+}
+
+
+def get_safety_score(name: str, is_protected: bool, category: ProcessCategory) -> tuple[int, str]:
+    """
+    Calculate safe-to-kill score for a process.
+
+    Args:
+        name: Process name
+        is_protected: Whether process is in protected list
+        category: Process category
+
+    Returns:
+        Tuple of (score 0-100, reason string)
+        Lower score = more dangerous to kill
+    """
+    normalized = normalize_process_name(name)
+
+    # Protected processes get lowest score
+    if is_protected or normalized in PROTECTED_PROCESS_NAMES:
+        return (5, "Protected system process - DO NOT KILL")
+
+    # Check for specific critical processes
+    if normalized in {"lsass", "csrss", "smss", "wininit", "services", "winlogon"}:
+        return (0, "Critical Windows process - killing will crash system")
+
+    if normalized == "dwm":
+        return (10, "Desktop Window Manager - killing will break display")
+
+    if normalized in {"svchost", "dllhost", "runtimebroker"}:
+        return (15, "Windows service host - killing may break features")
+
+    # Category-based scoring
+    if category in CATEGORY_SAFETY_SCORES:
+        score, reason = CATEGORY_SAFETY_SCORES[category]
+        return (score, reason)
+
+    # Default for unknown
+    return (90, "Unknown process - generally safe to close")
