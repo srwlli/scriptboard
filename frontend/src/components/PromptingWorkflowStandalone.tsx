@@ -6,7 +6,6 @@ import { api } from "@/lib/api";
 import { SectionButtonRow, StatusLabel, type ButtonConfig, useConfirmModal, CollapsibleCard } from "@/components/ui";
 import { useSessionRefresh } from "@/hooks/useSessionRefresh";
 import { toast } from "sonner";
-import { LoadingSpinner } from "@/components/LoadingSpinner";
 
 /**
  * PromptingWorkflowStandalone - Self-contained component with all 4 sections.
@@ -693,7 +692,6 @@ export function PromptingWorkflowStandalone() {
   // ============================================
   return (
     <>
-      {isLoading && <LoadingSpinner />}
       <CollapsibleCard title="Prompt Workflow">
         <div className="flex flex-col gap-4">
           {/* Prompt Section - Preloaded Prompts Icons Only */}
