@@ -225,12 +225,16 @@ function createWindow() {
     minHeight: 550,
     frame: false, // Frameless window - custom menu bar handles window chrome
     titleBarStyle: "hidden", // Hide title bar but keep window controls on macOS
+    backgroundColor: "#0a0a0a", // Dark background to prevent white flash
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
       preload: path.join(__dirname, "preload.js"),
     },
   });
+
+  // Load splash screen immediately for better UX
+  mainWindow.loadFile(path.join(__dirname, "splash.html"));
 
   // Start backend
   spawnBackend();

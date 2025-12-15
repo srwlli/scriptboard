@@ -12,7 +12,7 @@
 |-----------|------|-------------|
 | **SystemMonitor** | `components/SystemMonitor.tsx` | CPU, memory, disk monitoring dashboard |
 | **FileManager** | `components/FileManager.tsx` | File organization, rename, clean, dupes tool |
-| **GitIntegrationPanel** | `components/GitIntegrationPanel.tsx` | Git status and commit interface |
+| **GitIntegrationPanel** | `components/GitIntegrationPanel.tsx` | Git repo selector, branches, commit, pull/push |
 | **SessionManagerPanel** | `components/SessionManagerPanel.tsx` | Save/load session management |
 | **KeyLogPanel** | `components/KeyLogPanel.tsx` | Keyboard macro recording |
 | **LoggingConsolePanel** | `components/LoggingConsolePanel.tsx` | Application logs viewer |
@@ -165,8 +165,14 @@
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| GET | `/git/status` | Get git status |
-| POST | `/git/commit` | Create commit |
+| GET | `/git/status?path=` | Get repo status (optional path param) |
+| POST | `/git/commit` | Create commit (with path, files, add_all) |
+| GET | `/git/branches?path=` | List all branches |
+| POST | `/git/branches` | Create new branch |
+| POST | `/git/checkout` | Switch branch |
+| DELETE | `/git/branches/{name}` | Delete branch |
+| POST | `/git/pull` | Pull from remote |
+| POST | `/git/push` | Push to remote |
 
 ### Favorites & Config
 
@@ -242,6 +248,7 @@
 
 - **System Monitor Guide**: `coderef/docs/SYSTEM-MONITOR-GUIDE.md`
 - **FileManager Guide**: `coderef/docs/FILEMANAGER-GUIDE.md`
+- **Git Integration Guide**: `coderef/docs/GITINTEGRATION-GUIDE.md`
 
 ---
 

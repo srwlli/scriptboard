@@ -34,7 +34,7 @@ interface SystemMonitorProps {
  */
 export function SystemMonitor({
   title = "System Monitor",
-  defaultCollapsed = false,
+  defaultCollapsed = true,
   useV2 = true,
   defaultEnabled = false,
 }: SystemMonitorProps) {
