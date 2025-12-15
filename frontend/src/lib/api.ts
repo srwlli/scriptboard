@@ -344,14 +344,67 @@ class ApiClient {
   }
 
   // Git integration (Phase-2)
-  async getGitStatus() {
-    return this.request("/git/status");
+  async getGitStatus(path?: string) {
+    const params = path ? `?path=${encodeURIComponent(path)}` : "";
+    return this.request(`/git/status${params}`);
   }
 
-  async commitSession(message: string, sessionPath?: string) {
+  async commitSession(message: string, options?: { path?: string; files?: string[]; addAll?: boolean }) {
     return this.request("/git/commit", {
       method: "POST",
-      body: JSON.stringify({ message, session_path: sessionPath }),
+      body: JSON.stringify({
+        message,
+        path: options?.path,
+        files: options?.files,
+        add_all: options?.addAll,
+      }),
+    });
+  }
+
+  async getGitBranches(path?: string) {
+    const params = path ? `?path=${encodeURIComponent(path)}` : "";
+    return this.request(`/git/branches${params}`);
+  }
+
+  async createGitBranch(name: string, options?: { path?: string; checkout?: boolean }) {
+    return this.request("/git/branches", {
+      method: "POST",
+      body: JSON.stringify({ name, path: options?.path, checkout: options?.checkout }),
+    });
+  }
+
+  async gitCheckout(branch: string, path?: string) {
+    return this.request("/git/checkout", {
+      method: "POST",
+      body: JSON.stringify({ branch, path }),
+    });
+  }
+
+  async deleteGitBranch(name: string, options?: { path?: string; force?: boolean }) {
+    const params = new URLSearchParams();
+    if (options?.path) params.append("path", options.path);
+    if (options?.force) params.append("force", "true");
+    const query = params.toString() ? `?${params.toString()}` : "";
+    return this.request(`/git/branches/${encodeURIComponent(name)}${query}`, {
+      method: "DELETE",
+    });
+  }
+
+  async gitPull(path?: string, remote?: string) {
+    return this.request("/git/pull", {
+      method: "POST",
+      body: JSON.stringify({ path, remote }),
+    });
+  }
+
+  async gitPush(options?: { path?: string; remote?: string; setUpstream?: boolean }) {
+    return this.request("/git/push", {
+      method: "POST",
+      body: JSON.stringify({
+        path: options?.path,
+        remote: options?.remote,
+        set_upstream: options?.setUpstream,
+      }),
     });
   }
 
@@ -859,6 +912,38 @@ export interface StartupAppsResponse {
   apps: StartupApp[];
   count: number;
   message?: string;
+}
+
+// Git integration interfaces
+export interface GitStatus {
+  is_git_repo: boolean;
+  is_dirty?: boolean;
+  untracked_files?: string[];
+  branch?: string;
+  repo_path?: string;
+  message?: string;
+}
+
+export interface GitBranch {
+  name: string;
+  is_current: boolean;
+  is_remote: boolean;
+  tracking?: string | null;
+}
+
+export interface GitBranchesResponse {
+  branches: GitBranch[];
+  current: string | null;
+}
+
+export interface GitOperationResponse {
+  status: string;
+  message?: string;
+  branch?: string;
+  commit_hash?: string;
+  checked_out?: boolean;
+  deleted?: string;
+  had_uncommitted_changes?: boolean;
 }
 
 export const api = new ApiClient(API_BASE_URL);

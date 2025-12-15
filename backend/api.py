@@ -1279,40 +1279,47 @@ async def call_llm_api(payload: dict):
 # Git Integration Endpoints (Phase-2)
 # --------------------------------------------------------------------------- #
 
+def _find_git_repo(base_path: Optional[str] = None) -> Optional[Path]:
+    """Find git repo from given path or cwd. Returns repo root path or None."""
+    if base_path:
+        search_path = Path(base_path).expanduser().resolve()
+    else:
+        search_path = Path.cwd()
+
+    # Check provided path and its parent
+    for path in [search_path, search_path.parent]:
+        git_path = path / ".git"
+        if git_path.exists():
+            return path
+    return None
+
+
 @app.get("/git/status")
-async def get_git_status():
+async def get_git_status(path: Optional[str] = Query(None, description="Path to git repository")):
     """Check Git repository status."""
     try:
         from git import Repo, InvalidGitRepositoryError
-        import os
-        
-        # Try to find git repo in current directory or parent
-        current_dir = Path.cwd()
-        repo_path = None
-        
-        for path in [current_dir, current_dir.parent]:
-            git_path = path / ".git"
-            if git_path.exists():
-                repo_path = path
-                break
-        
+
+        repo_path = _find_git_repo(path)
+
         if not repo_path:
             return {
                 "is_git_repo": False,
                 "message": "Not a git repository",
             }
-        
+
         repo = Repo(repo_path)
-        
+
         # Check if there are uncommitted changes
         is_dirty = repo.is_dirty()
         untracked_files = repo.untracked_files
-        
+
         return {
             "is_git_repo": True,
             "is_dirty": is_dirty,
             "untracked_files": untracked_files[:10],  # Limit to first 10
             "branch": repo.active_branch.name if repo.head.is_valid() else None,
+            "repo_path": str(repo_path),
         }
     except ImportError:
         return {
@@ -1329,51 +1336,40 @@ async def get_git_status():
 
 @app.post("/git/commit")
 async def commit_session(payload: dict):
-    """Commit current session to git with validation."""
+    """Commit to git repository. Supports custom repo path and staging options."""
     try:
         from git import Repo, InvalidGitRepositoryError, GitCommandError
-        import os
-        
-        message = payload.get("message", "Update Scriptboard session")
-        session_path = payload.get("session_path")  # Optional: specific session file
-        
-        # Find git repo
-        current_dir = Path.cwd()
-        repo_path = None
-        
-        for path in [current_dir, current_dir.parent]:
-            git_path = path / ".git"
-            if git_path.exists():
-                repo_path = path
-                break
-        
+
+        message = payload.get("message", "Update")
+        repo_base_path = payload.get("path")  # Optional: custom repo path
+        files_to_add = payload.get("files")  # Optional: specific files to stage
+        add_all = payload.get("add_all", False)  # Stage all changes
+
+        repo_path = _find_git_repo(repo_base_path)
+
         if not repo_path:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Not a git repository",
             )
-        
+
         repo = Repo(repo_path)
-        
-        # If session_path provided, add that file; otherwise add all session files
-        sessions_dir = get_sessions_dir()
-        if session_path:
-            session_file = Path(session_path)
-            if not session_file.exists():
-                raise HTTPException(
-                    status_code=status.HTTP_404_NOT_FOUND,
-                    detail="Session file not found",
-                )
-            repo.index.add([str(session_file)])
+
+        # Stage files
+        if add_all:
+            repo.git.add(A=True)
+        elif files_to_add:
+            for f in files_to_add:
+                file_path = Path(f)
+                if file_path.exists():
+                    repo.index.add([str(file_path)])
         else:
-            # Add all session files
-            for session_file in sessions_dir.glob("*.json"):
-                if session_file.is_file():
-                    repo.index.add([str(session_file)])
-        
+            # Default: add all tracked modified files
+            repo.git.add(u=True)
+
         # Commit
         commit = repo.index.commit(message)
-        
+
         return {
             "status": "ok",
             "commit_hash": commit.hexsha[:7],
@@ -1394,6 +1390,218 @@ async def commit_session(payload: dict):
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Git commit failed: {str(e)}",
         )
+
+
+@app.get("/git/branches")
+async def get_git_branches(path: Optional[str] = Query(None, description="Path to git repository")):
+    """List all branches (local and remote) for a git repository."""
+    try:
+        from git import Repo
+
+        repo_path = _find_git_repo(path)
+        if not repo_path:
+            raise HTTPException(status_code=400, detail="Not a git repository")
+
+        repo = Repo(repo_path)
+        current_branch = repo.active_branch.name if repo.head.is_valid() else None
+
+        branches = []
+
+        # Local branches
+        for branch in repo.branches:
+            tracking = None
+            if branch.tracking_branch():
+                tracking = branch.tracking_branch().name
+            branches.append({
+                "name": branch.name,
+                "is_current": branch.name == current_branch,
+                "is_remote": False,
+                "tracking": tracking,
+            })
+
+        # Remote branches
+        for ref in repo.remotes.origin.refs if repo.remotes else []:
+            if ref.name != "origin/HEAD":
+                branches.append({
+                    "name": ref.name,
+                    "is_current": False,
+                    "is_remote": True,
+                    "tracking": None,
+                })
+
+        return {"branches": branches, "current": current_branch}
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to list branches: {str(e)}")
+
+
+@app.post("/git/branches")
+async def create_git_branch(payload: dict):
+    """Create a new branch from current HEAD."""
+    try:
+        from git import Repo
+
+        branch_name = payload.get("name")
+        repo_base_path = payload.get("path")
+        checkout = payload.get("checkout", False)  # Switch to new branch after creation
+
+        if not branch_name:
+            raise HTTPException(status_code=400, detail="Branch name is required")
+
+        repo_path = _find_git_repo(repo_base_path)
+        if not repo_path:
+            raise HTTPException(status_code=400, detail="Not a git repository")
+
+        repo = Repo(repo_path)
+
+        # Create branch
+        new_branch = repo.create_head(branch_name)
+
+        # Optionally checkout
+        if checkout:
+            new_branch.checkout()
+
+        return {
+            "status": "ok",
+            "branch": branch_name,
+            "checked_out": checkout,
+        }
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to create branch: {str(e)}")
+
+
+@app.post("/git/checkout")
+async def git_checkout(payload: dict):
+    """Switch to a different branch."""
+    try:
+        from git import Repo
+
+        branch_name = payload.get("branch")
+        repo_base_path = payload.get("path")
+
+        if not branch_name:
+            raise HTTPException(status_code=400, detail="Branch name is required")
+
+        repo_path = _find_git_repo(repo_base_path)
+        if not repo_path:
+            raise HTTPException(status_code=400, detail="Not a git repository")
+
+        repo = Repo(repo_path)
+
+        # Check if working tree is clean (warn but allow)
+        is_dirty = repo.is_dirty()
+
+        # Handle remote branch checkout (create local tracking branch)
+        if branch_name.startswith("origin/"):
+            local_name = branch_name.replace("origin/", "")
+            if local_name not in [b.name for b in repo.branches]:
+                repo.create_head(local_name, branch_name)
+            branch_name = local_name
+
+        repo.git.checkout(branch_name)
+
+        return {
+            "status": "ok",
+            "branch": branch_name,
+            "had_uncommitted_changes": is_dirty,
+        }
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Checkout failed: {str(e)}")
+
+
+@app.delete("/git/branches/{branch_name}")
+async def delete_git_branch(
+    branch_name: str,
+    path: Optional[str] = Query(None, description="Path to git repository"),
+    force: bool = Query(False, description="Force delete even if not merged"),
+):
+    """Delete a local branch."""
+    try:
+        from git import Repo
+
+        repo_path = _find_git_repo(path)
+        if not repo_path:
+            raise HTTPException(status_code=400, detail="Not a git repository")
+
+        repo = Repo(repo_path)
+
+        # Safety check: can't delete current branch
+        current = repo.active_branch.name if repo.head.is_valid() else None
+        if branch_name == current:
+            raise HTTPException(status_code=400, detail="Cannot delete the current branch")
+
+        # Delete branch
+        if force:
+            repo.git.branch("-D", branch_name)
+        else:
+            repo.git.branch("-d", branch_name)
+
+        return {"status": "ok", "deleted": branch_name}
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to delete branch: {str(e)}")
+
+
+@app.post("/git/pull")
+async def git_pull(payload: dict):
+    """Pull from remote origin."""
+    try:
+        from git import Repo
+
+        repo_base_path = payload.get("path")
+        remote_name = payload.get("remote", "origin")
+
+        repo_path = _find_git_repo(repo_base_path)
+        if not repo_path:
+            raise HTTPException(status_code=400, detail="Not a git repository")
+
+        repo = Repo(repo_path)
+
+        # Pull
+        result = repo.git.pull(remote_name)
+
+        return {
+            "status": "ok",
+            "message": result or "Already up to date",
+        }
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Pull failed: {str(e)}")
+
+
+@app.post("/git/push")
+async def git_push(payload: dict):
+    """Push to remote origin."""
+    try:
+        from git import Repo
+
+        repo_base_path = payload.get("path")
+        remote_name = payload.get("remote", "origin")
+        set_upstream = payload.get("set_upstream", False)
+
+        repo_path = _find_git_repo(repo_base_path)
+        if not repo_path:
+            raise HTTPException(status_code=400, detail="Not a git repository")
+
+        repo = Repo(repo_path)
+        current_branch = repo.active_branch.name
+
+        # Push
+        if set_upstream:
+            result = repo.git.push("--set-upstream", remote_name, current_branch)
+        else:
+            result = repo.git.push(remote_name, current_branch)
+
+        return {
+            "status": "ok",
+            "message": result or "Push successful",
+            "branch": current_branch,
+        }
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Push failed: {str(e)}")
 
 
 # --------------------------------------------------------------------------- #
