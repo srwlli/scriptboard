@@ -38,6 +38,11 @@ interface FileManagerProps {
   defaultCollapsed?: boolean;
 }
 
+/**
+ * File Manager - Organize, rename, clean, index, and find duplicate files.
+ *
+ * @see coderef/docs/FILEMANAGER-GUIDE.md - Complete user guide for all features
+ */
 export function FileManager({ defaultCollapsed = true }: FileManagerProps) {
   const [activeTab, setActiveTab] = useState<Tab>("organize");
 

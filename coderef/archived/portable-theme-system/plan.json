@@ -1,0 +1,158 @@
+{
+  "name": "Portable Theme System Refactor",
+  "workorder_id": "WO-PORTABLE-THEME-SYSTEM-001",
+  "status": "pending",
+  "overview": "Refactor the current binary theme toggle into a portable, extensible theme system with system preference detection.",
+  "decisions": {
+    "system_preference_detection": {
+      "decision": "Yes - Add System as third option",
+      "options": ["Light", "Dark", "System"],
+      "behavior": [
+        "System follows OS preference via prefers-color-scheme media query",
+        "Listens for OS changes in real-time",
+        "Falls back to light if detection fails"
+      ]
+    },
+    "css_approach": {
+      "decision": "Keep class-based using data-theme attribute",
+      "why": "Native Tailwind support with dark: prefix",
+      "how": {
+        "html_attribute": "<html data-theme=\"light\"> or <html data-theme=\"dark\">",
+        "tailwind_config": "darkMode: ['class', '[data-theme=\"dark\"]']",
+        "usage": "className=\"bg-white dark:bg-gray-900\""
+      }
+    },
+    "export_structure": {
+      "decision": "Single barrel export from theme/ folder",
+      "import_pattern": "import { ThemeProvider, ThemeSwitcher, useTheme } from '@/components/theme'",
+      "why": [
+        "One import for everything theme-related",
+        "Easy to copy entire folder to other projects",
+        "Clean dependency management"
+      ]
+    },
+    "ui_choice": {
+      "decision": "Icon buttons (not <select> dropdown)",
+      "why": [
+        "Matches existing app UI pattern",
+        "Better visual feedback (see all options at once)",
+        "More accessible than custom dropdowns",
+        "Native <select> inconsistent across browsers"
+      ]
+    },
+    "flash_prevention": {
+      "decision": "Inline script in <head>",
+      "why": "Runs before React hydrates, prevents flash of wrong theme",
+      "implementation": "Small script reads localStorage and sets data-theme attribute immediately"
+    },
+    "theme_persistence": {
+      "decision": "Persist user choice, not resolved theme",
+      "example": "If user selects 'System', store 'system' - not 'light' or 'dark'",
+      "why": [
+        "OS changes at sunset update theme automatically",
+        "User intent preserved across sessions",
+        "Resolved theme is computed at runtime from stored preference"
+      ]
+    }
+  },
+  "architecture": {
+    "folder": "frontend/src/components/theme/",
+    "files": [
+      { "name": "index.ts", "purpose": "Barrel export - single entry point" },
+      { "name": "ThemeProvider.tsx", "purpose": "Context provider with system detection" },
+      { "name": "ThemeSwitcher.tsx", "purpose": "Icon button UI (Sun/Moon/Monitor)" },
+      { "name": "useTheme.ts", "purpose": "Hook for theme management" },
+      { "name": "themes.ts", "purpose": "Theme registry - metadata only, no CSS" },
+      { "name": "theme-script.ts", "purpose": "Inline script for flash prevention (runs in <head>)" },
+      { "name": "README.md", "purpose": "Portability documentation" }
+    ]
+  },
+  "hook_api": {
+    "theme": "Current user preference (light/dark/system)",
+    "setTheme": "Function to update preference",
+    "resolvedTheme": "Actual applied theme (light or dark)",
+    "themes": "Available theme options for building UI",
+    "note": "No separate getTheme or currentTheme - use 'theme' for current value"
+  },
+  "registry_scope": {
+    "contains": ["id", "label", "icon (lucide name)"],
+    "does_not_contain": ["CSS variables", "color values"],
+    "note": "CSS handled by Tailwind dark: variants, not in registry"
+  },
+  "implementation_phases": [
+    {
+      "phase": 1,
+      "name": "Theme Registry and Types",
+      "tasks": [
+        "Create themes.ts with ThemeOption type and ThemeConfig interface",
+        "Define themes array: light, dark, system",
+        "Export DEFAULT_THEME and STORAGE_KEY constants"
+      ]
+    },
+    {
+      "phase": 2,
+      "name": "Provider and Hook",
+      "tasks": [
+        "Create ThemeProvider with system detection logic",
+        "Implement prefers-color-scheme listener",
+        "Create useTheme hook consuming context",
+        "Handle localStorage persistence"
+      ]
+    },
+    {
+      "phase": 3,
+      "name": "UI Component",
+      "tasks": [
+        "Create ThemeSwitcher with icon buttons",
+        "Import Sun, Moon, Monitor from lucide-react",
+        "Add aria-pressed for accessibility"
+      ]
+    },
+    {
+      "phase": 4,
+      "name": "Integration",
+      "tasks": [
+        "Create barrel export index.ts",
+        "Update layout.tsx to import from theme/",
+        "Update settings page to use ThemeSwitcher",
+        "Delete old ThemeToggle.tsx and ThemeProvider.tsx"
+      ]
+    },
+    {
+      "phase": 5,
+      "name": "Documentation",
+      "tasks": [
+        "Create README.md with usage examples",
+        "Document Tailwind config requirements",
+        "Document how to add new themes"
+      ]
+    }
+  ],
+  "testing_checklist": [
+    "Light theme applies correctly",
+    "Dark theme applies correctly",
+    "System option follows OS preference",
+    "Changing OS preference updates theme in real-time",
+    "Preference persists after page reload",
+    "No flash of wrong theme on load",
+    "ThemeSwitcher shows correct active state"
+  ],
+  "portability": {
+    "steps": [
+      "Copy frontend/src/components/theme/ folder",
+      "Configure Tailwind: darkMode: ['class', '[data-theme=\"dark\"]']",
+      "Wrap app with <ThemeProvider>",
+      "Use <ThemeSwitcher /> or useTheme() hook"
+    ],
+    "adding_new_theme": [
+      "Add to themes.ts array",
+      "Update ThemeOption type",
+      "Add CSS for [data-theme=\"newtheme\"]"
+    ],
+    "dependencies": ["lucide-react", "Tailwind CSS"]
+  },
+  "files_to_delete": [
+    "frontend/src/components/ThemeToggle.tsx",
+    "frontend/src/components/ThemeProvider.tsx"
+  ]
+}

@@ -10,7 +10,7 @@ import { WindowControls } from "./ui/WindowControls";
  * Custom menu bar component for frameless window.
  *
  * Features:
- * - Navigation dropdown (Home, View Components, Settings)
+ * - Navigation dropdown (Home, Staged, Settings)
  * - File menu with Exit option
  * - Help menu with Shortcuts, About
  * - Window controls (minimize, maximize, close) on right
@@ -94,7 +94,7 @@ export function MenuBar() {
   const navItems = [
     { href: "/", label: "Home", icon: Home },
     { href: "/test", label: "Test", icon: FlaskConical },
-    { href: "/view-components", label: "View Components", icon: Layout },
+    { href: "/staged", label: "Staged", icon: Layout },
     { href: "/settings", label: "Settings", icon: Settings },
   ];
 

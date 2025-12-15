@@ -285,8 +285,19 @@ export function FavoritesModal() {
             className="bg-background border border-border rounded-md shadow-xl w-full max-w-2xl h-[85vh] max-h-[85vh] flex flex-col mx-4"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Modal Header - Tabs, Search Icon, Add Button, Close */}
+            {/* Modal Header - Add Button, Tabs, Search Icon, Close */}
             <div className="px-6 py-3 border-b border-border flex items-center gap-2">
+              {/* Add Favorite Button */}
+              <button
+                onClick={handleAddFavorite}
+                disabled={isAddingFavorite || !isElectron}
+                className="p-1.5 rounded hover:bg-accent transition-colors text-muted-foreground hover:text-foreground disabled:opacity-50 disabled:cursor-not-allowed"
+                aria-label="Add favorite folder"
+                title="Add favorite folder"
+              >
+                <Plus size={16} />
+              </button>
+
               {/* Tabs */}
               <div className="flex items-center gap-1">
                 <button
@@ -299,10 +310,7 @@ export function FavoritesModal() {
                   aria-selected={activeTab === "favorites"}
                   role="tab"
                 >
-                  <div className="flex items-center gap-1.5">
-                    <Star size={14} />
-                    <span>Fav</span>
-                  </div>
+                  Fav
                 </button>
                 <button
                   onClick={() => handleTabChange("recents")}
@@ -314,10 +322,7 @@ export function FavoritesModal() {
                   aria-selected={activeTab === "recents"}
                   role="tab"
                 >
-                  <div className="flex items-center gap-1.5">
-                    <Clock size={14} />
-                    <span>Recent</span>
-                  </div>
+                  Recent
                 </button>
               </div>
 
@@ -366,19 +371,6 @@ export function FavoritesModal() {
                   </button>
                 )}
               </div>
-
-              {/* Add Favorite Button (only in favorites tab) */}
-              {activeTab === "favorites" && (
-                <button
-                  onClick={handleAddFavorite}
-                  disabled={isAddingFavorite || !isElectron}
-                  className="p-1.5 rounded hover:bg-accent transition-colors text-muted-foreground hover:text-foreground disabled:opacity-50 disabled:cursor-not-allowed"
-                  aria-label="Add favorite folder"
-                  title="Add favorite folder"
-                >
-                  <Plus size={16} />
-                </button>
-              )}
 
               {/* Close Button */}
               <button

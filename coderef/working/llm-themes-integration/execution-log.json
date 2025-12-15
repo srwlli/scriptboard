@@ -1,0 +1,140 @@
+[
+  {
+    "timestamp": "2025-12-11T20:05:12.668938",
+    "workorder_id": "WO-LLM-THEMES-INTEGRATION-001",
+    "feature_name": "llm-themes-integration",
+    "task_count": 26,
+    "tasks": [
+      {
+        "content": "PHASE-1-001: Extend Theme type union with all 35 theme IDs",
+        "activeForm": "PHASE-1-001: Extending Theme type union with all 35 theme IDs",
+        "status": "pending"
+      },
+      {
+        "content": "Add ThemeConfig for Claude themes (5) with icon: Sparkles",
+        "activeForm": "Add ThemeConfig for Claude themes (5) with icon: Sparklesing",
+        "status": "pending"
+      },
+      {
+        "content": "Add ThemeConfig for GPT-5.1 Thinking themes (5) with icon: Brain",
+        "activeForm": "Add ThemeConfig for GPT-5.1 Thinking themes (5) with icon: Braining",
+        "status": "pending"
+      },
+      {
+        "content": "Add ThemeConfig for Gemini themes (5) with icon: Bot",
+        "activeForm": "Add ThemeConfig for Gemini themes (5) with icon: Boting",
+        "status": "pending"
+      },
+      {
+        "content": "Add ThemeConfig for DeepSeek themes (5) with icon: Zap",
+        "activeForm": "Add ThemeConfig for DeepSeek themes (5) with icon: Zaping",
+        "status": "pending"
+      },
+      {
+        "content": "Add ThemeConfig for Le Chat themes (5) with icon: MessageSquare",
+        "activeForm": "Add ThemeConfig for Le Chat themes (5) with icon: MessageSquareing",
+        "status": "pending"
+      },
+      {
+        "content": "Add ThemeConfig for GPT-4.1 Mini themes (5) with icon: Cpu",
+        "activeForm": "Add ThemeConfig for GPT-4.1 Mini themes (5) with icon: Cpuing",
+        "status": "pending"
+      },
+      {
+        "content": "Add ThemeConfig for Grok themes (5) with icon: Rocket",
+        "activeForm": "Add ThemeConfig for Grok themes (5) with icon: Rocketing",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-1-009: Include brand metadata in descriptions",
+        "activeForm": "PHASE-1-009: Includeing brand metadata in descriptions",
+        "status": "pending"
+      },
+      {
+        "content": "Add Claude theme CSS blocks (10 total: 5 themes \u00d7 2 modes) - use CSS from user export Response 1",
+        "activeForm": "Add Claude theme CSS blocks (10 total: 5ing themes \u00d7 2 modes) - use CSS from user export Response 1",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-2-002: Add GPT-5.1 Thinking theme CSS blocks (10 total) - use CSS from user export Response 2",
+        "activeForm": "PHASE-2-002: Adding GPT-5.1 Thinking theme CSS blocks (10 total) - use CSS from user export Response 2",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-2-003: Add Gemini theme CSS blocks (10 total) - use CSS from user export Response 3",
+        "activeForm": "PHASE-2-003: Adding Gemini theme CSS blocks (10 total) - use CSS from user export Response 3",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-2-004: Add DeepSeek theme CSS blocks (10 total) - use CSS from user export Response 4",
+        "activeForm": "PHASE-2-004: Adding DeepSeek theme CSS blocks (10 total) - use CSS from user export Response 4",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-2-005: Verify CSS syntax is correct",
+        "activeForm": "PHASE-2-005: Verifying CSS syntax is correct",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-2-006: Test theme switching for first 20 themes",
+        "activeForm": "PHASE-2-006: Testing theme switching for first 20 themes",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-3-001: Add Le Chat theme CSS blocks (10 total) - use CSS from user export Response 5",
+        "activeForm": "PHASE-3-001: Adding Le Chat theme CSS blocks (10 total) - use CSS from user export Response 5",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-3-002: Add GPT-4.1 Mini theme CSS blocks (10 total) - use CSS from user export Response 6",
+        "activeForm": "PHASE-3-002: Adding GPT-4.1 Mini theme CSS blocks (10 total) - use CSS from user export Response 6",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-3-003: Add Grok theme CSS blocks (10 total) - use CSS from user export Response 7",
+        "activeForm": "PHASE-3-003: Adding Grok theme CSS blocks (10 total) - use CSS from user export Response 7",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-3-004: Verify all 70 CSS blocks are present",
+        "activeForm": "PHASE-3-004: Verifying all 70 CSS blocks are present",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-3-005: Test theme switching for remaining 15 themes",
+        "activeForm": "PHASE-3-005: Testing theme switching for remaining 15 themes",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-4-001: Add brand grouping logic to ThemeSelector (required, not optional)",
+        "activeForm": "PHASE-4-001: Adding brand grouping logic to ThemeSelector (required, not optional)",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-4-002: Update UI to show brand sections with headers",
+        "activeForm": "PHASE-4-002: Updating UI to show brand sections with headers",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-4-003: Add visual separators between brand groups",
+        "activeForm": "PHASE-4-003: Adding visual separators between brand groups",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-4-004: Maintain scrollable grid layout within each brand section",
+        "activeForm": "PHASE-4-004: Maintaining scrollable grid layout within each brand section",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-4-005: Test grouping display for all 7 brands",
+        "activeForm": "PHASE-4-005: Testing grouping display for all 7 brands",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-4-006: Ensure all 35 themes are properly grouped",
+        "activeForm": "PHASE-4-006: Ensureing all 35 themes are properly grouped",
+        "status": "pending"
+      }
+    ]
+  }
+]

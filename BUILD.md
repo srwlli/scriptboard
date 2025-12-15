@@ -17,7 +17,7 @@ npm run build
 
 # 2. Build Backend (PyInstaller)
 cd ../backend
-python -m PyInstaller --onefile --noconsole --name scriptboard-backend api.py
+python -m PyInstaller --onefile --name scriptboard-backend api.py
 
 # 3. Package Electron App
 cd ../shell
@@ -35,13 +35,13 @@ npm run package:win
 |------|-----------|---------|
 | Clean | root | `rm -rf frontend/.next backend/build backend/dist shell/dist` |
 | Frontend | `frontend/` | `npm run build` |
-| Backend | `backend/` | `pyinstaller --onefile --noconsole --name scriptboard-backend api.py` |
+| Backend | `backend/` | `pyinstaller --onefile --name scriptboard-backend api.py` |
 | Package | `shell/` | `npm run package:win` |
 
 ## One-Liner (PowerShell)
 
 ```powershell
-rm -rf frontend/.next, backend/build, backend/dist, shell/dist; cd frontend; npm run build; cd ../backend; python -m PyInstaller --onefile --noconsole --name scriptboard-backend api.py; cd ../shell; npm run package:win
+rm -rf frontend/.next, backend/build, backend/dist, shell/dist; cd frontend; npm run build; cd ../backend; python -m PyInstaller --onefile --name scriptboard-backend api.py; cd ../shell; npm run package:win
 ```
 
 ## Notes

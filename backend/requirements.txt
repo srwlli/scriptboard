@@ -9,4 +9,5 @@ httpx>=0.25.0
 pynput>=1.7.6
 pyperclip>=1.8.2
 psutil>=5.9.0
+send2trash>=1.8.0
 

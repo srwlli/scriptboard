@@ -10,7 +10,31 @@
       "Bash(pyinstaller:*)",
       "Bash(npm run package:win:*)",
       "mcp__docs-mcp__generate_deliverables_template",
-      "mcp__docs-mcp__list_context_experts"
+      "mcp__docs-mcp__list_context_experts",
+      "Bash(rm:*)",
+      "Bash(python -m PyInstaller:*)",
+      "Bash(\"C:/Users/willh/Desktop/clipboard_compannion/next/shell/dist/win-unpacked/Scriptboard.exe\")",
+      "Bash(curl:*)",
+      "Bash(netstat:*)",
+      "Bash(findstr:*)",
+      "Bash(taskkill /F /PID 19412)",
+      "Bash(pip install:*)",
+      "Bash(python -m uvicorn:*)",
+      "Bash(timeout:*)",
+      "Bash(npx next build --no-lint)",
+      "mcp__ide__getDiagnostics",
+      "Bash(cat:*)",
+      "Bash(git push:*)",
+      "Bash(wmic:*)",
+      "Bash(powershell.exe:*)",
+      "Bash(python:*)",
+      "mcp__docs-mcp__gather_context",
+      "mcp__docs-mcp__analyze_project_for_planning",
+      "Bash(npx tsc --noEmit)",
+      "Bash(npm test:*)",
+      "Bash(ls:*)",
+      "Bash(python3:*)",
+      "Bash(git commit:*)"
     ]
   }
 }

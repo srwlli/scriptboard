@@ -3,6 +3,8 @@
  *
  * Enhanced system monitoring with process categorization,
  * expandable details, resource history, and quick filters.
+ *
+ * @see coderef/docs/SYSTEM-MONITOR-GUIDE.md - Complete user guide for all features
  */
 
 // Core components

@@ -45,6 +45,8 @@ export interface ProcessListV2Props {
 /**
  * Enhanced process list with categories, expandable details, quick filters,
  * resource history sparklines, and grouping options.
+ *
+ * @see coderef/docs/SYSTEM-MONITOR-GUIDE.md - Complete user guide
  */
 export function ProcessListV2({
   className = "",

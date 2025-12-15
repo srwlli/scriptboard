@@ -95,7 +95,7 @@
 | `app/page.tsx` | Home page with PromptingWorkflowStandalone |
 | `app/test/page.tsx` | Test page for component development |
 | `app/settings/page.tsx` | Settings page (theme, connection) |
-| `app/view-components/page.tsx` | Component showcase grid |
+| `app/staged/page.tsx` | Staged components showcase grid |
 
 ---
 
@@ -110,7 +110,7 @@ frontend/src/
 │   │   └── page.tsx
 │   ├── settings/
 │   │   └── page.tsx
-│   └── view-components/
+│   └── staged/
 │       └── page.tsx
 ├── components/
 │   ├── ClassicLayout/
