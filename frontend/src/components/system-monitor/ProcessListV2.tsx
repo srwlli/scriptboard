@@ -82,20 +82,6 @@ export function ProcessListV2({
   // Ref to pause polling when modal is open
   const isModalOpenRef = useRef(false);
 
-  // Map quick filter to category
-  const getFilterCategory = (filter: QuickFilter): string | undefined => {
-    switch (filter) {
-      case "apps": return "app";
-      case "browsers": return "browser";
-      case "dev": return "dev";
-      case "system": return "system";
-      case "media": return "media";
-      case "communication": return "communication";
-      case "security": return "security";
-      default: return undefined;
-    }
-  };
-
   // Fetch processes
   const fetchProcesses = useCallback(async () => {
     // Skip polling while modal is open to prevent re-render issues
@@ -105,14 +91,13 @@ export function ProcessListV2({
     setError(null);
 
     try {
-      const filterCategory = getFilterCategory(quickFilter);
       const data = await api.getDetailedProcesses({
         page,
         page_size: pageSize,
         sort_by: sortBy,
         sort_order: sortOrder,
         filter_name: filterName || undefined,
-        filter_category: filterCategory,
+        // No filter_category - fetch all, filter client-side for instant switching
         include_system: showSystem,
       });
 
@@ -124,7 +109,7 @@ export function ProcessListV2({
     } finally {
       setIsLoading(false);
     }
-  }, [page, pageSize, sortBy, sortOrder, filterName, quickFilter, showSystem]);
+  }, [page, pageSize, sortBy, sortOrder, filterName, showSystem]);
 
   // Initial fetch and polling
   useEffect(() => {
@@ -138,10 +123,30 @@ export function ProcessListV2({
     return () => clearInterval(interval);
   }, [autoRefresh, isPaused, pollInterval, fetchProcesses]);
 
-  // Filter for high CPU / recent
+  // Client-side filtering for instant filter switching (no API call)
   const filteredProcesses = useMemo(() => {
     let result = processes;
 
+    // Category filters
+    const categoryMap: Record<QuickFilter, string | null> = {
+      all: null,
+      apps: "app",
+      browsers: "browser",
+      dev: "dev",
+      system: "system",
+      media: "media",
+      communication: "communication",
+      security: "security",
+      high_cpu: null,
+      recent: null,
+    };
+
+    const category = categoryMap[quickFilter];
+    if (category) {
+      result = result.filter((p) => p.category === category);
+    }
+
+    // Special filters
     if (quickFilter === "high_cpu") {
       result = result.filter((p) => p.cpu_percent > 10);
     } else if (quickFilter === "recent") {
@@ -325,13 +330,10 @@ export function ProcessListV2({
         </div>
       </div>
 
-      {/* Quick filters */}
+      {/* Quick filters - instant client-side filtering */}
       <QuickFilters
         active={quickFilter}
-        onChange={(filter) => {
-          setQuickFilter(filter);
-          setPage(1);
-        }}
+        onChange={setQuickFilter}
         counts={filterCounts}
         className="mb-3"
       />

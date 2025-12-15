@@ -15,7 +15,7 @@ interface SystemMonitorProps {
   defaultCollapsed?: boolean;
   /** Use v2 enhanced process list (default: true) */
   useV2?: boolean;
-  /** Start with monitoring enabled (default: true) */
+  /** Start with monitoring enabled (default: false) */
   defaultEnabled?: boolean;
 }
 
@@ -36,7 +36,7 @@ export function SystemMonitor({
   title = "System Monitor",
   defaultCollapsed = false,
   useV2 = true,
-  defaultEnabled = true,
+  defaultEnabled = false,
 }: SystemMonitorProps) {
   const [showV2, setShowV2] = useState(useV2);
   const [isEnabled, setIsEnabled] = useState(defaultEnabled);
