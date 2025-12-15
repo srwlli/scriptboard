@@ -1,0 +1,170 @@
+{
+  "feature_name": "git-repo-selector",
+  "workorder_id": "WO-GIT-001",
+  "created": "2024-12-15",
+  "summary": "Enhance GitIntegrationPanel with user-selectable repositories and expanded git operations (branches, pull/push)",
+
+  "phases": [
+    {
+      "id": 1,
+      "name": "Backend - Path Parameter Support",
+      "description": "Update existing git endpoints to accept optional path parameter",
+      "tasks": [
+        {
+          "id": "1.1",
+          "description": "Add path query parameter to GET /git/status",
+          "file": "backend/api.py",
+          "details": "Accept optional ?path= parameter, default to Path.cwd() for backwards compatibility"
+        },
+        {
+          "id": "1.2",
+          "description": "Add path to POST /git/commit payload",
+          "file": "backend/api.py",
+          "details": "Accept optional path in payload, use provided path or default to cwd"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "Backend - Branch Operations",
+      "description": "Add new endpoints for branch management",
+      "tasks": [
+        {
+          "id": "2.1",
+          "description": "Add GET /git/branches endpoint",
+          "file": "backend/api.py",
+          "details": "List all local and remote branches, mark current branch"
+        },
+        {
+          "id": "2.2",
+          "description": "Add POST /git/branches endpoint",
+          "file": "backend/api.py",
+          "details": "Create new branch from current HEAD"
+        },
+        {
+          "id": "2.3",
+          "description": "Add POST /git/checkout endpoint",
+          "file": "backend/api.py",
+          "details": "Switch to specified branch"
+        },
+        {
+          "id": "2.4",
+          "description": "Add DELETE /git/branches/{name} endpoint",
+          "file": "backend/api.py",
+          "details": "Delete local branch (with safety checks)"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "name": "Backend - Remote Operations",
+      "description": "Add pull and push endpoints",
+      "tasks": [
+        {
+          "id": "3.1",
+          "description": "Add POST /git/pull endpoint",
+          "file": "backend/api.py",
+          "details": "Pull from remote origin, return result/conflicts"
+        },
+        {
+          "id": "3.2",
+          "description": "Add POST /git/push endpoint",
+          "file": "backend/api.py",
+          "details": "Push to remote origin, handle auth errors gracefully"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "name": "Frontend - API Types",
+      "description": "Add TypeScript types and API functions",
+      "tasks": [
+        {
+          "id": "4.1",
+          "description": "Add GitBranch interface",
+          "file": "frontend/src/lib/api.ts",
+          "details": "name, is_current, is_remote, tracking"
+        },
+        {
+          "id": "4.2",
+          "description": "Add git API functions",
+          "file": "frontend/src/lib/api.ts",
+          "details": "getBranches, createBranch, checkout, deleteBranch, pull, push - all with optional path param"
+        },
+        {
+          "id": "4.3",
+          "description": "Update getGitStatus to accept path",
+          "file": "frontend/src/lib/api.ts",
+          "details": "Add optional path parameter"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "name": "Frontend - Enhanced GitIntegrationPanel",
+      "description": "Rebuild panel with new features",
+      "tasks": [
+        {
+          "id": "5.1",
+          "description": "Add repo path state and folder picker",
+          "file": "frontend/src/components/GitIntegrationPanel.tsx",
+          "details": "Use FolderPicker component, persist selected path to localStorage"
+        },
+        {
+          "id": "5.2",
+          "description": "Add branch selector dropdown",
+          "file": "frontend/src/components/GitIntegrationPanel.tsx",
+          "details": "Show current branch, allow switching, create new branch button"
+        },
+        {
+          "id": "5.3",
+          "description": "Add pull/push buttons",
+          "file": "frontend/src/components/GitIntegrationPanel.tsx",
+          "details": "Pull and Push buttons with loading states and error handling"
+        },
+        {
+          "id": "5.4",
+          "description": "Add branch management UI",
+          "file": "frontend/src/components/GitIntegrationPanel.tsx",
+          "details": "Create branch modal, delete branch with confirmation"
+        },
+        {
+          "id": "5.5",
+          "description": "Reorganize panel layout",
+          "file": "frontend/src/components/GitIntegrationPanel.tsx",
+          "details": "Clean layout: repo selector -> status -> branches -> actions -> commit"
+        }
+      ]
+    }
+  ],
+
+  "files_to_modify": [
+    "backend/api.py",
+    "frontend/src/lib/api.ts",
+    "frontend/src/components/GitIntegrationPanel.tsx"
+  ],
+
+  "new_endpoints": [
+    "GET /git/branches?path=",
+    "POST /git/branches",
+    "POST /git/checkout",
+    "DELETE /git/branches/{name}",
+    "POST /git/pull",
+    "POST /git/push"
+  ],
+
+  "dependencies": {
+    "backend": "GitPython (already installed)",
+    "frontend": "FolderPicker component (already exists in filemanager/)"
+  },
+
+  "success_criteria": [
+    "User can select any git repo via folder picker",
+    "Selected repo persists across sessions",
+    "Can view and switch branches",
+    "Can create and delete branches",
+    "Can pull from and push to remote",
+    "Existing commit functionality still works",
+    "Graceful error handling for all operations"
+  ]
+}

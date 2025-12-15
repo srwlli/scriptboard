@@ -1,0 +1,22 @@
+{
+  "feature_name": "git-repo-selector",
+  "workorder_id": "WO-GIT-001",
+  "created": "2024-12-15",
+  "description": "Enhance GitIntegrationPanel to support user-selectable git repositories via folder picker, plus expanded git operations including branch management (list, create, switch, delete) and pull/push to remote.",
+  "goal": "Allow users to select any git repository on their system and perform common git operations (status, commit, branch management, pull/push) from within the app.",
+  "requirements": [
+    "User can select git repo via folder picker",
+    "Display current branch and repo status",
+    "Branch operations: list, create, switch, delete branches",
+    "Pull from remote",
+    "Push to remote",
+    "Commit with message (existing)",
+    "Refresh status on demand"
+  ],
+  "out_of_scope": [],
+  "constraints": [],
+  "existing_files": {
+    "frontend": "frontend/src/components/GitIntegrationPanel.tsx",
+    "backend": "backend/api.py (endpoints: GET /git/status, POST /git/commit)"
+  }
+}
