@@ -1,0 +1,96 @@
+{
+  "workorder_id": "WO-GIT-002",
+  "title": "Git Repo Scanner Feature",
+  "description": "Add ability to scan a directory for git repositories and show them as quick-select options",
+  "created": "2024-12-15",
+  "status": "PLANNED",
+  "features": [
+    "Backend endpoint to scan for .git folders",
+    "Frontend dropdown showing discovered repos",
+    "Persist found repos to localStorage",
+    "Scan button to discover repos",
+    "Quick-select from previously found repos"
+  ],
+  "phases": [
+    {
+      "phase": 1,
+      "name": "Backend - Scan Endpoint",
+      "tasks": [
+        {
+          "id": "1.1",
+          "description": "Add POST /git/scan endpoint",
+          "file": "backend/api.py",
+          "status": "pending"
+        }
+      ]
+    },
+    {
+      "phase": 2,
+      "name": "Frontend - API Layer",
+      "tasks": [
+        {
+          "id": "2.1",
+          "description": "Add GitRepo and GitScanResponse interfaces",
+          "file": "frontend/src/lib/api.ts",
+          "status": "pending"
+        },
+        {
+          "id": "2.2",
+          "description": "Add scanForRepos API function",
+          "file": "frontend/src/lib/api.ts",
+          "status": "pending"
+        }
+      ]
+    },
+    {
+      "phase": 3,
+      "name": "Frontend - UI Updates",
+      "tasks": [
+        {
+          "id": "3.1",
+          "description": "Add discovered repos state and localStorage persistence",
+          "file": "frontend/src/components/GitIntegrationPanel.tsx",
+          "status": "pending"
+        },
+        {
+          "id": "3.2",
+          "description": "Create repo dropdown with quick-select",
+          "file": "frontend/src/components/GitIntegrationPanel.tsx",
+          "status": "pending"
+        },
+        {
+          "id": "3.3",
+          "description": "Add Scan folder option and scanning state",
+          "file": "frontend/src/components/GitIntegrationPanel.tsx",
+          "status": "pending"
+        }
+      ]
+    }
+  ],
+  "api": {
+    "endpoint": "POST /git/scan",
+    "request": {
+      "root": "string - directory path to scan",
+      "max_depth": "number - max recursion depth (default 3)"
+    },
+    "response": {
+      "repos": "array of { path, name }",
+      "scanned_path": "string - path that was scanned",
+      "count": "number - total repos found"
+    },
+    "safety": [
+      "Limit max_depth to prevent scanning entire drive",
+      "Skip node_modules, .git internals, etc.",
+      "Timeout protection for large directory trees"
+    ]
+  },
+  "files_to_modify": [
+    "backend/api.py",
+    "frontend/src/lib/api.ts",
+    "frontend/src/components/GitIntegrationPanel.tsx"
+  ],
+  "localStorage_keys": {
+    "discovered_repos": "scriptboard_discovered_repos",
+    "existing_repo_path": "scriptboard_git_repo_path"
+  }
+}
