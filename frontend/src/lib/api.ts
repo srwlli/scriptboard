@@ -655,12 +655,25 @@ class ApiClient {
     }
   }
 
-  async getOrchestratorStubs(params?: { priority?: string; category?: string }): Promise<OrchestratorStubsResponse> {
+  async getOrchestratorStubs(params?: { priority?: string; category?: string }): Promise<OrchestratorStubsResponse & { _source?: "gist" }> {
     const searchParams = new URLSearchParams();
     if (params?.priority) searchParams.set("priority", params.priority);
     if (params?.category) searchParams.set("category", params.category);
     const query = searchParams.toString();
-    return this.request<OrchestratorStubsResponse>(`/orchestrator/stubs${query ? `?${query}` : ""}`);
+    try {
+      return await this.request<OrchestratorStubsResponse>(`/orchestrator/stubs${query ? `?${query}` : ""}`);
+    } catch (err) {
+      if (isNetworkError(err)) {
+        const gistData = await fetchGistData();
+        if (gistData) {
+          let stubs = gistData.stubs;
+          if (params?.priority) stubs = stubs.filter(s => s.priority === params.priority);
+          if (params?.category) stubs = stubs.filter(s => s.category === params.category);
+          return { stubs, _source: "gist" };
+        }
+      }
+      throw err;
+    }
   }
 
   async getOrchestratorWorkorders(params?: { project?: string; status?: string }): Promise<OrchestratorWorkordersResponse & { _source?: "gist" }> {
