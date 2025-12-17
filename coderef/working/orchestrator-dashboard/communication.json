@@ -99,6 +99,12 @@
       "from": "orchestrator",
       "action": "design_spec_added",
       "message": "Added comprehensive design-spec.md with 5 tabs (Overview added), component specs, backend endpoints, phased implementation plan, and success criteria."
+    },
+    {
+      "timestamp": "2025-12-17T01:00:00Z",
+      "from": "orchestrator",
+      "action": "data_updated",
+      "message": "Updated design-spec.md with accurate counts: 9 projects, 38 stubs, 10 active WOs, 144 features (35 working + 109 archived). Created coderef-index.md reference."
     }
   ]
 }

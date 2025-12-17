@@ -1,0 +1,923 @@
+{
+  "api_context": {
+    "endpoints": [
+      {
+        "method": "GET",
+        "path": "/",
+        "file": "backend\\api.py",
+        "framework": "FastAPI"
+      },
+      {
+        "method": "GET",
+        "path": "/health",
+        "file": "backend\\api.py",
+        "framework": "FastAPI"
+      },
+      {
+        "method": "GET",
+        "path": "/favicon.ico",
+        "file": "backend\\api.py",
+        "framework": "FastAPI"
+      },
+      {
+        "method": "GET",
+        "path": "/session",
+        "file": "backend\\api.py",
+        "framework": "FastAPI"
+      },
+      {
+        "method": "POST",
+        "path": "/prompt",
+        "file": "backend\\api.py",
+        "framework": "FastAPI"
+      },
+      {
+        "method": "DELETE",
+        "path": "/prompt",
+        "file": "backend\\api.py",
+        "framework": "FastAPI"
+      },
+      {
+        "method": "GET",
+        "path": "/prompts",
+        "file": "backend\\api.py",
+        "framework": "FastAPI"
+      },
+      {
+        "method": "POST",
+        "path": "/prompts",
+        "file": "backend\\api.py",
+        "framework": "FastAPI"
+      },
+      {
+        "method": "POST",
+        "path": "/prompt/preloaded",
+        "file": "backend\\api.py",
+        "framework": "FastAPI"
+      },
+      {
+        "method": "POST",
+        "path": "/attachments/text",
+        "file": "backend\\api.py",
+        "framework": "FastAPI"
+      },
+      {
+        "method": "GET",
+        "path": "/attachments",
+        "file": "backend\\api.py",
+        "framework": "FastAPI"
+      },
+      {
+        "method": "POST",
+        "path": "/attachments/folder",
+        "file": "backend\\api.py",
+        "framework": "FastAPI"
+      },
+      {
+        "method": "DELETE",
+        "path": "/attachments",
+        "file": "backend\\api.py",
+        "framework": "FastAPI"
+      },
+      {
+        "method": "POST",
+        "path": "/responses",
+        "file": "backend\\api.py",
+        "framework": "FastAPI"
+      },
+      {
+        "method": "GET",
+        "path": "/responses/summary",
+        "file": "backend\\api.py",
+        "framework": "FastAPI"
+      },
+      {
+        "method": "GET",
+        "path": "/responses",
+        "file": "backend\\api.py",
+        "framework": "FastAPI"
+      },
+      {
+        "method": "DELETE",
+        "path": "/responses",
+        "file": "backend\\api.py",
+        "framework": "FastAPI"
+      },
+      {
+        "method": "GET",
+        "path": "/preview",
+        "file": "backend\\api.py",
+        "framework": "FastAPI"
+      },
+      {
+        "method": "GET",
+        "path": "/preview/full",
+        "file": "backend\\api.py",
+        "framework": "FastAPI"
+      },
+      {
+        "method": "GET",
+        "path": "/export/markdown",
+        "file": "backend\\api.py",
+        "framework": "FastAPI"
+      },
+      {
+        "method": "GET",
+        "path": "/export/json",
+        "file": "backend\\api.py",
+        "framework": "FastAPI"
+      },
+      {
+        "method": "GET",
+        "path": "/export/llm/prompt",
+        "file": "backend\\api.py",
+        "framework": "FastAPI"
+      },
+      {
+        "method": "GET",
+        "path": "/export/llm/attachments",
+        "file": "backend\\api.py",
+        "framework": "FastAPI"
+      },
+      {
+        "method": "GET",
+        "path": "/export/llm/responses",
+        "file": "backend\\api.py",
+        "framework": "FastAPI"
+      },
+      {
+        "method": "GET",
+        "path": "/export/llm",
+        "file": "backend\\api.py",
+        "framework": "FastAPI"
+      },
+      {
+        "method": "GET",
+        "path": "/search",
+        "file": "backend\\api.py",
+        "framework": "FastAPI"
+      },
+      {
+        "method": "GET",
+        "path": "/tokens",
+        "file": "backend\\api.py",
+        "framework": "FastAPI"
+      },
+      {
+        "method": "POST",
+        "path": "/sessions/save",
+        "file": "backend\\api.py",
+        "framework": "FastAPI"
+      },
+      {
+        "method": "POST",
+        "path": "/sessions/load",
+        "file": "backend\\api.py",
+        "framework": "FastAPI"
+      },
+      {
+        "method": "GET",
+        "path": "/autosave/status",
+        "file": "backend\\api.py",
+        "framework": "FastAPI"
+      },
+      {
+        "method": "POST",
+        "path": "/autosave/recover",
+        "file": "backend\\api.py",
+        "framework": "FastAPI"
+      },
+      {
+        "method": "GET",
+        "path": "/profiles",
+        "file": "backend\\api.py",
+        "framework": "FastAPI"
+      },
+      {
+        "method": "POST",
+        "path": "/profiles/load",
+        "file": "backend\\api.py",
+        "framework": "FastAPI"
+      },
+      {
+        "method": "POST",
+        "path": "/batch/enqueue",
+        "file": "backend\\api.py",
+        "framework": "FastAPI"
+      },
+      {
+        "method": "GET",
+        "path": "/batch/jobs",
+        "file": "backend\\api.py",
+        "framework": "FastAPI"
+      },
+      {
+        "method": "POST",
+        "path": "/batch/jobs/{job_id}/cancel",
+        "file": "backend\\api.py",
+        "framework": "FastAPI"
+      },
+      {
+        "method": "GET",
+        "path": "/llm/providers",
+        "file": "backend\\api.py",
+        "framework": "FastAPI"
+      },
+      {
+        "method": "POST",
+        "path": "/llm/call",
+        "file": "backend\\api.py",
+        "framework": "FastAPI"
+      },
+      {
+        "method": "GET",
+        "path": "/git/status",
+        "file": "backend\\api.py",
+        "framework": "FastAPI"
+      },
+      {
+        "method": "POST",
+        "path": "/git/commit",
+        "file": "backend\\api.py",
+        "framework": "FastAPI"
+      },
+      {
+        "method": "GET",
+        "path": "/git/branches",
+        "file": "backend\\api.py",
+        "framework": "FastAPI"
+      },
+      {
+        "method": "POST",
+        "path": "/git/branches",
+        "file": "backend\\api.py",
+        "framework": "FastAPI"
+      },
+      {
+        "method": "POST",
+        "path": "/git/checkout",
+        "file": "backend\\api.py",
+        "framework": "FastAPI"
+      },
+      {
+        "method": "DELETE",
+        "path": "/git/branches/{branch_name}",
+        "file": "backend\\api.py",
+        "framework": "FastAPI"
+      },
+      {
+        "method": "POST",
+        "path": "/git/pull",
+        "file": "backend\\api.py",
+        "framework": "FastAPI"
+      },
+      {
+        "method": "POST",
+        "path": "/git/push",
+        "file": "backend\\api.py",
+        "framework": "FastAPI"
+      },
+      {
+        "method": "POST",
+        "path": "/git/scan",
+        "file": "backend\\api.py",
+        "framework": "FastAPI"
+      },
+      {
+        "method": "GET",
+        "path": "/config",
+        "file": "backend\\api.py",
+        "framework": "FastAPI"
+      },
+      {
+        "method": "POST",
+        "path": "/favorites",
+        "file": "backend\\api.py",
+        "framework": "FastAPI"
+      },
+      {
+        "method": "DELETE",
+        "path": "/favorites/{index}",
+        "file": "backend\\api.py",
+        "framework": "FastAPI"
+      },
+      {
+        "method": "POST",
+        "path": "/macros/record/start",
+        "file": "backend\\api.py",
+        "framework": "FastAPI"
+      },
+      {
+        "method": "POST",
+        "path": "/macros/record/stop",
+        "file": "backend\\api.py",
+        "framework": "FastAPI"
+      },
+      {
+        "method": "GET",
+        "path": "/macros/record/stream",
+        "file": "backend\\api.py",
+        "framework": "FastAPI"
+      },
+      {
+        "method": "POST",
+        "path": "/macros/save",
+        "file": "backend\\api.py",
+        "framework": "FastAPI"
+      },
+      {
+        "method": "GET",
+        "path": "/system/stats",
+        "file": "backend\\api.py",
+        "framework": "FastAPI"
+      },
+      {
+        "method": "GET",
+        "path": "/system/processes",
+        "file": "backend\\api.py",
+        "framework": "FastAPI"
+      },
+      {
+        "method": "GET",
+        "path": "/system/processes/app",
+        "file": "backend\\api.py",
+        "framework": "FastAPI"
+      },
+      {
+        "method": "GET",
+        "path": "/system/processes/detailed",
+        "file": "backend\\api.py",
+        "framework": "FastAPI"
+      },
+      {
+        "method": "GET",
+        "path": "/system/processes/{pid}/details",
+        "file": "backend\\api.py",
+        "framework": "FastAPI"
+      },
+      {
+        "method": "POST",
+        "path": "/system/processes/kill",
+        "file": "backend\\api.py",
+        "framework": "FastAPI"
+      },
+      {
+        "method": "GET",
+        "path": "/system/protected-processes",
+        "file": "backend\\api.py",
+        "framework": "FastAPI"
+      },
+      {
+        "method": "GET",
+        "path": "/system/network/connections",
+        "file": "backend\\api.py",
+        "framework": "FastAPI"
+      },
+      {
+        "method": "GET",
+        "path": "/system/network/listening",
+        "file": "backend\\api.py",
+        "framework": "FastAPI"
+      },
+      {
+        "method": "GET",
+        "path": "/system/network/pids-with-connections",
+        "file": "backend\\api.py",
+        "framework": "FastAPI"
+      },
+      {
+        "method": "GET",
+        "path": "/system/disk/usage",
+        "file": "backend\\api.py",
+        "framework": "FastAPI"
+      },
+      {
+        "method": "GET",
+        "path": "/system/disk/largest",
+        "file": "backend\\api.py",
+        "framework": "FastAPI"
+      },
+      {
+        "method": "GET",
+        "path": "/system/startup-apps",
+        "file": "backend\\api.py",
+        "framework": "FastAPI"
+      }
+    ],
+    "count": 67,
+    "frameworks_detected": [
+      "FastAPI"
+    ],
+    "auth_method": "Unknown",
+    "error_format": "RFC 7807"
+  },
+  "dependencies": {
+    "count": 0,
+    "production": [],
+    "development": [],
+    "outdated": [],
+    "vulns": []
+  },
+  "database": {
+    "tables": [
+      {
+        "name": "ErrorInfo",
+        "columns": [],
+        "file": "backend\\schemas.py"
+      },
+      {
+        "name": "ErrorResponse",
+        "columns": [],
+        "file": "backend\\schemas.py"
+      },
+      {
+        "name": "TextPayload",
+        "columns": [],
+        "file": "backend\\schemas.py"
+      },
+      {
+        "name": "PromptPreloadedPayload",
+        "columns": [],
+        "file": "backend\\schemas.py"
+      },
+      {
+        "name": "AddPromptPayload",
+        "columns": [],
+        "file": "backend\\schemas.py"
+      },
+      {
+        "name": "AttachmentTextPayload",
+        "columns": [],
+        "file": "backend\\schemas.py"
+      },
+      {
+        "name": "SaveSessionPayload",
+        "columns": [],
+        "file": "backend\\schemas.py"
+      },
+      {
+        "name": "LoadSessionPayload",
+        "columns": [],
+        "file": "backend\\schemas.py"
+      },
+      {
+        "name": "ProfilePayload",
+        "columns": [],
+        "file": "backend\\schemas.py"
+      },
+      {
+        "name": "KeymapPayload",
+        "columns": [],
+        "file": "backend\\schemas.py"
+      },
+      {
+        "name": "BatchPayload",
+        "columns": [],
+        "file": "backend\\schemas.py"
+      },
+      {
+        "name": "FolderPathPayload",
+        "columns": [],
+        "file": "backend\\schemas.py"
+      },
+      {
+        "name": "GitCommitPayload",
+        "columns": [],
+        "file": "backend\\schemas.py"
+      },
+      {
+        "name": "SearchQueryParams",
+        "columns": [],
+        "file": "backend\\schemas.py"
+      },
+      {
+        "name": "LlmRunPayload",
+        "columns": [],
+        "file": "backend\\schemas.py"
+      },
+      {
+        "name": "LlmRunResponse",
+        "columns": [],
+        "file": "backend\\schemas.py"
+      },
+      {
+        "name": "AttachmentSummary",
+        "columns": [],
+        "file": "backend\\schemas.py"
+      },
+      {
+        "name": "ResponseSummaryItem",
+        "columns": [],
+        "file": "backend\\schemas.py"
+      },
+      {
+        "name": "ResponseSummary",
+        "columns": [],
+        "file": "backend\\schemas.py"
+      },
+      {
+        "name": "SessionSummary",
+        "columns": [],
+        "file": "backend\\schemas.py"
+      },
+      {
+        "name": "PreviewResponse",
+        "columns": [],
+        "file": "backend\\schemas.py"
+      },
+      {
+        "name": "TokensResponse",
+        "columns": [],
+        "file": "backend\\schemas.py"
+      },
+      {
+        "name": "SearchResultItem",
+        "columns": [],
+        "file": "backend\\schemas.py"
+      },
+      {
+        "name": "SearchResponse",
+        "columns": [],
+        "file": "backend\\schemas.py"
+      },
+      {
+        "name": "AutosaveStatusResponse",
+        "columns": [],
+        "file": "backend\\schemas.py"
+      },
+      {
+        "name": "LogsResponse",
+        "columns": [],
+        "file": "backend\\schemas.py"
+      },
+      {
+        "name": "BatchJob",
+        "columns": [],
+        "file": "backend\\schemas.py"
+      },
+      {
+        "name": "BatchListResponse",
+        "columns": [],
+        "file": "backend\\schemas.py"
+      },
+      {
+        "name": "GitStatusResponse",
+        "columns": [],
+        "file": "backend\\schemas.py"
+      },
+      {
+        "name": "GitCommitResponse",
+        "columns": [],
+        "file": "backend\\schemas.py"
+      },
+      {
+        "name": "FavoriteEntry",
+        "columns": [],
+        "file": "backend\\schemas.py"
+      },
+      {
+        "name": "LlmUrlEntry",
+        "columns": [],
+        "file": "backend\\schemas.py"
+      },
+      {
+        "name": "ViewSettings",
+        "columns": [],
+        "file": "backend\\schemas.py"
+      },
+      {
+        "name": "ProfileInfo",
+        "columns": [],
+        "file": "backend\\schemas.py"
+      },
+      {
+        "name": "ProfilesListResponse",
+        "columns": [],
+        "file": "backend\\schemas.py"
+      },
+      {
+        "name": "KeymapResponse",
+        "columns": [],
+        "file": "backend\\schemas.py"
+      },
+      {
+        "name": "ConfigResponse",
+        "columns": [],
+        "file": "backend\\schemas.py"
+      },
+      {
+        "name": "PreloadedPromptItem",
+        "columns": [],
+        "file": "backend\\schemas.py"
+      },
+      {
+        "name": "PreloadedPromptsResponse",
+        "columns": [],
+        "file": "backend\\schemas.py"
+      },
+      {
+        "name": "MacroEvent",
+        "columns": [],
+        "file": "backend\\schemas.py"
+      },
+      {
+        "name": "Macro",
+        "columns": [],
+        "file": "backend\\schemas.py"
+      },
+      {
+        "name": "MacroSavePayload",
+        "columns": [],
+        "file": "backend\\schemas.py"
+      },
+      {
+        "name": "MacroRecordResponse",
+        "columns": [],
+        "file": "backend\\schemas.py"
+      },
+      {
+        "name": "SystemStats",
+        "columns": [],
+        "file": "backend\\schemas.py"
+      },
+      {
+        "name": "ProcessInfo",
+        "columns": [],
+        "file": "backend\\schemas.py"
+      },
+      {
+        "name": "DetailedProcessInfo",
+        "columns": [],
+        "file": "backend\\schemas.py"
+      },
+      {
+        "name": "DetailedProcessListResponse",
+        "columns": [],
+        "file": "backend\\schemas.py"
+      },
+      {
+        "name": "ProcessListResponse",
+        "columns": [],
+        "file": "backend\\schemas.py"
+      },
+      {
+        "name": "KillProcessPayload",
+        "columns": [],
+        "file": "backend\\schemas.py"
+      },
+      {
+        "name": "KillProcessResponse",
+        "columns": [],
+        "file": "backend\\schemas.py"
+      },
+      {
+        "name": "FileAction",
+        "columns": [],
+        "file": "backend\\fileman\\schemas.py"
+      },
+      {
+        "name": "OrganizeRequest",
+        "columns": [],
+        "file": "backend\\fileman\\schemas.py"
+      },
+      {
+        "name": "RenameRequest",
+        "columns": [],
+        "file": "backend\\fileman\\schemas.py"
+      },
+      {
+        "name": "CleanRequest",
+        "columns": [],
+        "file": "backend\\fileman\\schemas.py"
+      },
+      {
+        "name": "IndexRequest",
+        "columns": [],
+        "file": "backend\\fileman\\schemas.py"
+      },
+      {
+        "name": "DupesRequest",
+        "columns": [],
+        "file": "backend\\fileman\\schemas.py"
+      },
+      {
+        "name": "UndoRequest",
+        "columns": [],
+        "file": "backend\\fileman\\schemas.py"
+      },
+      {
+        "name": "PreviewResponse",
+        "columns": [],
+        "file": "backend\\fileman\\schemas.py"
+      },
+      {
+        "name": "IndexResponse",
+        "columns": [],
+        "file": "backend\\fileman\\schemas.py"
+      },
+      {
+        "name": "DupeGroup",
+        "columns": [],
+        "file": "backend\\fileman\\schemas.py"
+      },
+      {
+        "name": "DupesResponse",
+        "columns": [],
+        "file": "backend\\fileman\\schemas.py"
+      },
+      {
+        "name": "ActionHistoryBatch",
+        "columns": [],
+        "file": "backend\\fileman\\schemas.py"
+      },
+      {
+        "name": "ActionHistoryResponse",
+        "columns": [],
+        "file": "backend\\fileman\\schemas.py"
+      },
+      {
+        "name": "ProgressEvent",
+        "columns": [],
+        "file": "backend\\fileman\\schemas.py"
+      }
+    ],
+    "relationships": [],
+    "migrations": [],
+    "table_count": 64,
+    "has_migrations": false
+  },
+  "activity": {
+    "recent_commits": [],
+    "active_files": [],
+    "contributors": [],
+    "has_git": true
+  },
+  "patterns": {
+    "handlers": [
+      {
+        "name": "handle_drop",
+        "file": "coderef\\archived\\scriptboard.py"
+      },
+      {
+        "name": "handle_prompt_drop",
+        "file": "coderef\\archived\\scriptboard.py"
+      }
+    ],
+    "decorators": [
+      {
+        "name": "app.get",
+        "count": 38
+      },
+      {
+        "name": "app.post",
+        "count": 24
+      },
+      {
+        "name": "patch",
+        "count": 23
+      },
+      {
+        "name": "dataclass",
+        "count": 8
+      },
+      {
+        "name": "pytest.fixture",
+        "count": 6
+      },
+      {
+        "name": "app.delete",
+        "count": 5
+      },
+      {
+        "name": "classmethod",
+        "count": 5
+      },
+      {
+        "name": "app.exception_handler",
+        "count": 3
+      },
+      {
+        "name": "property",
+        "count": 3
+      },
+      {
+        "name": "app.on_event",
+        "count": 1
+      },
+      {
+        "name": "app.options",
+        "count": 1
+      },
+      {
+        "name": "field_validator",
+        "count": 1
+      },
+      {
+        "name": "macro",
+        "count": 1
+      },
+      {
+        "name": "name",
+        "count": 1
+      }
+    ],
+    "error_handling": [
+      "GitCommandError",
+      "PermissionError",
+      "ValueError",
+      "OSError",
+      "HTTPException",
+      "FileNotFoundError",
+      "RuntimeError",
+      "ImportError"
+    ]
+  },
+  "similar_features": [
+    {
+      "name": "add-new-prompt",
+      "workorder_id": "WO-ADD-NEW-PROMPT-001",
+      "goal": ""
+    },
+    {
+      "name": "consolidate-src-structure",
+      "workorder_id": "",
+      "goal": ""
+    },
+    {
+      "name": "dash-update",
+      "workorder_id": "",
+      "goal": ""
+    },
+    {
+      "name": "drawer-navigation-header",
+      "workorder_id": "WO-DRAWER-NAVIGATION-HEADER-001",
+      "goal": ""
+    },
+    {
+      "name": "favorites-modal",
+      "workorder_id": "WO-FAVORITES-MODAL-001",
+      "goal": ""
+    },
+    {
+      "name": "filemanager-gui",
+      "workorder_id": "",
+      "goal": ""
+    },
+    {
+      "name": "git-repo-scanner",
+      "workorder_id": "",
+      "goal": ""
+    },
+    {
+      "name": "git-repo-selector",
+      "workorder_id": "",
+      "goal": ""
+    },
+    {
+      "name": "init",
+      "workorder_id": "",
+      "goal": ""
+    },
+    {
+      "name": "Key-Logger",
+      "workorder_id": "",
+      "goal": ""
+    }
+  ],
+  "existing_docs": {
+    "architecture": null,
+    "schema": null,
+    "api": null,
+    "components": null,
+    "readme": {
+      "sections": {
+        "scriptboard": "Modern workspace for managing LLM prompts, attachments, and responses. Migrated from Tkinter to a modern architecture with Python Core, FastAPI Backend, Next.js Frontend, and Electron Shell.\n\n> \ud83d\udcdd See [CHANGELOG.md](CHANGELOG.md) for version history and release notes.",
+        "features": "- **Prompt Management**: Load prompts from files, paste from clipboard, use preloaded prompts\n- **Attachment Handling**: Attach files or paste text snippets, view attachment lists\n- **Response Collection**: Collect and manage LLM responses\n- **Unified Preview**: Combined preview of all content\n- **Session Management**: Save and load sessions with autosave\n- **Search**: Search across prompts, attachments, and responses\n- **Token Counting**: Estimate tokens using tiktoken\n- **Theme System**: Light/dark theme with persistence\n- **Keyboard Shortcuts**: Configurable keyboard shortcuts",
+        "architecture": "- **Python Core** (`backend/core.py`): Pure business logic, no I/O\n- **FastAPI Backend** (`backend/api.py`): HTTP API layer with validation\n- **Next.js Frontend** (`frontend/`): React UI with TypeScript\n- **Electron Shell** (`shell/`): Desktop integration",
+        "installation": "### Prerequisites\n\n- Python 3.10+\n- Node.js 18+\n- npm or yarn\n\n### Backend Setup\n\n```bash\ncd backend\npython -m venv venv",
+        "windows": "venv\\Scripts\\activate",
+        "linux/mac": "source venv/bin/activate\n\npip install -r requirements.txt\n```\n\n### Frontend Setup\n\n```bash\ncd frontend\nnpm install\n```\n\n### Electron Shell Setup\n\n```bash\ncd shell\nnpm install\n```",
+        "running": "### Quick Start (Desktop App)\n\n**Easiest way - use the desktop shortcut:**\n- Double-click the `Scriptboard` shortcut on your desktop\n- Or run: `shell\\start-scriptboard.bat`\n\nThis automatically starts the backend, frontend, and opens the Electron window.\n\n### Development Mode (Manual)\n\n1. **Start Backend**:\n   ```bash\n   cd backend\n   venv\\Scripts\\activate  # or source venv/bin/activate on Linux/Mac\n   uvicorn api:app --reload --host 127.0.0.1 --port 8000\n   ```\n\n2. **Start Frontend**:\n   ```bash\n   cd frontend\n   npm run dev\n   ```\n\n3. **Start Electron** (optional, for desktop app):\n   ```bash\n   cd shell\n   npm run dev\n   ```\n\n### Desktop App Installation\n\nTo install Scriptboard as a desktop app, see [INSTALL.md](INSTALL.md) for detailed instructions.\n\n**Quick development mode:**\n```bash\ncd shell\nnpm install\nnpm run dev\n```\n\n**Build installer:**\n```bash",
+        "build_frontend_first": "cd frontend\nnpm run build",
+        "then_package": "cd ../shell\nnpm install  # Installs electron-builder\nnpm run package:win  # or package:mac, package:linux\n```\n\nThe installer will be created in `shell/dist/`.",
+        "configuration": "Configuration is stored in `~/.scriptboard/config.json`. The file is created automatically on first run with defaults.",
+        "api_documentation": "When the backend is running, visit `http://localhost:8000/docs` for interactive API documentation.",
+        "testing": "### Backend Tests\n\n```bash\ncd backend\npytest tests/\n```\n\n### Frontend Tests\n\n```bash\ncd frontend\nnpm test\n```",
+        "project_structure": "```\n.\n\u251c\u2500\u2500 backend/          # Python backend\n\u2502   \u251c\u2500\u2500 core.py      # Business logic\n\u2502   \u251c\u2500\u2500 api.py       # FastAPI application\n\u2502   \u251c\u2500\u2500 schemas.py   # Pydantic models\n\u2502   \u251c\u2500\u2500 settings.py  # Default configuration\n\u2502   \u2514\u2500\u2500 tests/       # Unit tests\n\u251c\u2500\u2500 frontend/        # Next.js frontend\n\u2502   \u251c\u2500\u2500 app/         # Next.js app router\n\u2502   \u2514\u2500\u2500 src/\n\u2502       \u251c\u2500\u2500 components/  # React components\n\u2502       \u2514\u2500\u2500 lib/         # Utilities\n\u2514\u2500\u2500 shell/           # Electron shell\n    \u251c\u2500\u2500 main.js      # Main process\n    \u2514\u2500\u2500 preload.js   # Preload script\n```",
+        "license": "ISC"
+      },
+      "full_content": "# Scriptboard\n\nModern workspace for managing LLM prompts, attachments, and responses. Migrated from Tkinter to a modern architecture with Python Core, FastAPI Backend, Next.js Frontend, and Electron Shell.\n\n> \ud83d\udcdd See [CHANGELOG.md](CHANGELOG.md) for version history and release notes.\n\n## Features\n\n- **Prompt Management**: Load prompts from files, paste from clipboard, use preloaded prompts\n- **Attachment Handling**: Attach files or paste text snippets, view attachment lists\n- **Response Collection**: Collect and manage LLM responses\n- **Unified Preview**: Combined preview of all content\n- **Session Management**: Save and load sessions with autosave\n- **Search**: Search across prompts, attachments, and responses\n- **Token Counting**: Estimate tokens using tiktoken\n- **Theme System**: Light/dark theme with persistence\n- **Keyboard Shortcuts**: Configurable keyboard shortcuts\n\n## Architecture\n\n- **Python Core** (`backend/core.py`): Pure business logic, no I/O\n- **FastAPI Backend** (`backend/api.py`): HTTP API layer with validation\n- **Next.js Frontend** (`frontend/`): React UI with TypeScript\n- **Electron Shell** (`shell/`): Desktop integration\n\n## Installation\n\n### Prerequisites\n\n- Python 3.10+\n- Node.js 18+\n- npm or yarn\n\n### Backend Setup\n\n```bash\ncd backend\npython -m venv venv\n# Windows\nvenv\\Scripts\\activate\n# Linux/Mac\nsource venv/bin/activate\n\npip install -r requirements.txt\n```\n\n### Frontend Setup\n\n```bash\ncd frontend\nnpm install\n```\n\n### Electron Shell Setup\n\n```bash\ncd shell\nnpm install\n```\n\n## Running\n\n### Quick Start (Desktop App)\n\n**Easiest way - use the desktop shortcut:**\n- Double-click the `Scriptboard` shortcut on your desktop\n- Or run: `shell\\start-scriptboard.bat`\n\nThis automatically starts the backend, frontend, and opens the Electron window.\n\n### Development Mode (Manual)\n\n1. **Start Backend**:\n   ```bash\n   cd backend\n   venv\\Scripts\\activate  # or source venv/bin/activate on Linux/Mac\n   uvicorn api:app --reload --host 127.0.0.1 --port 8000\n   ```\n\n2. **Start Frontend**:\n   ```bash\n   cd frontend\n   npm run dev\n   ```\n\n3. **Start Electron** (optional, for desktop app):\n   ```bash\n   cd shell\n   npm run dev\n   ```\n\n### Desktop App Installation\n\nTo install Scriptboard as a desktop app, see [INSTALL.md](INSTALL.md) for detailed instructions.\n\n**Quick development mode:**\n```bash\ncd shell\nnpm install\nnpm run dev\n```\n\n**Build installer:**\n```bash\n# Build frontend first\ncd frontend\nnpm run build\n\n# Then package\ncd ../shell\nnpm install  # Installs electron-builder\nnpm run package:win  # or package:mac, package:linux\n```\n\nThe installer will be created in `shell/dist/`.\n\n## Configuration\n\nConfiguration is stored in `~/.scriptboard/config.json`. The file is created automatically on first run with defaults.\n\n## API Documentation\n\nWhen the backend is running, visit `http://localhost:8000/docs` for interactive API documentation.\n\n## Testing\n\n### Backend Tests\n\n```bash\ncd backend\npytest tests/\n```\n\n### Frontend Tests\n\n```bash\ncd frontend\nnpm test\n```\n\n## Project Structure\n\n```\n.\n\u251c\u2500\u2500 backend/          # Python backend\n\u2502   \u251c\u2500\u2500 core.py      # Business logic\n\u2502   \u251c\u2500\u2500 api.py       # FastAPI application\n\u2502   \u251c\u2500\u2500 schemas.py   # Pydantic models\n\u2502   \u251c\u2500\u2500 settings.py  # Default configuration\n\u2502   \u2514\u2500\u2500 tests/       # Unit tests\n\u251c\u2500\u2500 frontend/        # Next.js frontend\n\u2502   \u251c\u2500\u2500 app/         # Next.js app router\n\u2502   \u2514\u2500\u2500 src/\n\u2502       \u251c\u2500\u2500 components/  # React components\n\u2502       \u2514\u2500\u2500 lib/         # Utilities\n\u2514\u2500\u2500 shell/           # Electron shell\n    \u251c\u2500\u2500 main.js      # Main process\n    \u2514\u2500\u2500 preload.js   # Preload script\n```\n\n## License\n\nISC\n\n",
+      "word_count": 494
+    }
+  },
+  "coderef": {
+    "available": false,
+    "element_count": 0,
+    "has_graph": false
+  },
+  "_metadata": {
+    "generated_at": "2025-12-15T15:57:09.925664",
+    "generator": "coderef_foundation_generator",
+    "version": "2.0.0"
+  }
+}

@@ -4,7 +4,7 @@ import { useState } from "react";
 import { RefreshCw, ExternalLink, Check, AlertCircle } from "lucide-react";
 
 // Current app version - should match shell/package.json
-const CURRENT_VERSION = "0.2.1";
+const CURRENT_VERSION = "0.2.2";
 
 // GitHub releases API URL
 const RELEASES_URL = "https://api.github.com/repos/srwlli/scriptboard/releases/latest";

@@ -622,6 +622,43 @@ class ApiClient {
     if (params.exclude?.length) searchParams.set("exclude", params.exclude.join(","));
     return `${this.baseUrl}/fileman/dupes/stream?${searchParams}`;
   }
+
+  // =========================================================================
+  // Orchestrator API
+  // =========================================================================
+
+  async getOrchestratorStats(): Promise<OrchestratorStats> {
+    return this.request<OrchestratorStats>("/orchestrator/stats");
+  }
+
+  async getOrchestratorProjects(): Promise<OrchestratorProjectsResponse> {
+    return this.request<OrchestratorProjectsResponse>("/orchestrator/projects");
+  }
+
+  async getOrchestratorStubs(params?: { priority?: string; category?: string }): Promise<OrchestratorStubsResponse> {
+    const searchParams = new URLSearchParams();
+    if (params?.priority) searchParams.set("priority", params.priority);
+    if (params?.category) searchParams.set("category", params.category);
+    const query = searchParams.toString();
+    return this.request<OrchestratorStubsResponse>(`/orchestrator/stubs${query ? `?${query}` : ""}`);
+  }
+
+  async getOrchestratorWorkorders(params?: { project?: string; status?: string }): Promise<OrchestratorWorkordersResponse> {
+    const searchParams = new URLSearchParams();
+    if (params?.project) searchParams.set("project", params.project);
+    if (params?.status) searchParams.set("status", params.status);
+    const query = searchParams.toString();
+    return this.request<OrchestratorWorkordersResponse>(`/orchestrator/workorders${query ? `?${query}` : ""}`);
+  }
+
+  async getOrchestratorPlans(params?: { project?: string; location?: string; stale?: boolean }): Promise<OrchestratorPlansResponse> {
+    const searchParams = new URLSearchParams();
+    if (params?.project) searchParams.set("project", params.project);
+    if (params?.location) searchParams.set("location", params.location);
+    if (params?.stale) searchParams.set("stale", "true");
+    const query = searchParams.toString();
+    return this.request<OrchestratorPlansResponse>(`/orchestrator/plans${query ? `?${query}` : ""}`);
+  }
 }
 
 // =========================================================================
@@ -965,6 +1002,69 @@ export interface GitScanResponse {
   repos: GitRepo[];
   scanned_path: string;
   count: number;
+}
+
+// Orchestrator interfaces
+export interface OrchestratorStats {
+  projects: number;
+  stubs: number;
+  active_workorders: number;
+  plans: number;
+}
+
+export interface OrchestratorProject {
+  name: string;
+  path: string;
+  exists: boolean;
+  active_workorders: number;
+  active_plans: number;
+}
+
+export interface OrchestratorProjectsResponse {
+  projects: OrchestratorProject[];
+}
+
+export interface OrchestratorStub {
+  feature_name?: string;
+  description?: string;
+  category?: string;
+  priority?: string;
+  created?: string;
+  status?: string;
+  folder: string;
+  tags?: string[];
+}
+
+export interface OrchestratorStubsResponse {
+  stubs: OrchestratorStub[];
+}
+
+export interface OrchestratorWorkorder {
+  workorder_id: string;
+  feature_name: string;
+  project: string;
+  status: string;
+  type: string;
+  initiated_at: string;
+  _file_path: string;
+}
+
+export interface OrchestratorWorkordersResponse {
+  workorders: OrchestratorWorkorder[];
+}
+
+export interface OrchestratorPlan {
+  feature_name: string;
+  project: string;
+  location: string;
+  status: string;
+  last_modified: string;
+  is_stale: boolean;
+  _file_path: string;
+}
+
+export interface OrchestratorPlansResponse {
+  plans: OrchestratorPlan[];
 }
 
 export const api = new ApiClient(API_BASE_URL);

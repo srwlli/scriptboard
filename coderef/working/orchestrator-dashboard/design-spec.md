@@ -3,6 +3,22 @@
 > WO-ORCHESTRATOR-DASHBOARD-001
 > Target: Scriptboard Frontend
 > Source: assistant/index.html standardization
+> Updated: 2025-12-17
+
+---
+
+## Current Data (as of 2025-12-17)
+
+| Metric | Count | Source |
+|--------|-------|--------|
+| Projects | 9 | projects.md |
+| Stubs | 38 | assistant/coderef/working/*/stub.json |
+| Active WOs | 10 | workorders.json |
+| Completed WOs | 1 | workorders.json |
+| Working Features | 35 | All project coderef/working/ |
+| Archived Features | 109 | All project coderef/archived/ |
+
+**Reference:** `assistant/coderef-index.md` - Full scan of all project coderef folders
 
 ---
 
@@ -32,8 +48,8 @@ Or add as a new top-level page: `/orchestrator`
 ├─────────────────────────────────────────────────────────────┤
 │                                                             │
 │  ┌─────────┐ ┌─────────┐ ┌─────────┐ ┌─────────┐           │
-│  │ 9       │ │ 38      │ │ 10      │ │ 118     │           │
-│  │Projects │ │ Stubs   │ │ Active  │ │ Plans   │           │
+│  │ 9       │ │ 38      │ │ 10      │ │ 144     │           │
+│  │Projects │ │ Stubs   │ │ Active  │ │ Features│           │
 │  └─────────┘ └─────────┘ │ WOs     │ └─────────┘           │
 │                          └─────────┘                        │
 │                                                             │
