@@ -663,21 +663,48 @@ class ApiClient {
     return this.request<OrchestratorStubsResponse>(`/orchestrator/stubs${query ? `?${query}` : ""}`);
   }
 
-  async getOrchestratorWorkorders(params?: { project?: string; status?: string }): Promise<OrchestratorWorkordersResponse> {
+  async getOrchestratorWorkorders(params?: { project?: string; status?: string }): Promise<OrchestratorWorkordersResponse & { _source?: "gist" }> {
     const searchParams = new URLSearchParams();
     if (params?.project) searchParams.set("project", params.project);
     if (params?.status) searchParams.set("status", params.status);
     const query = searchParams.toString();
-    return this.request<OrchestratorWorkordersResponse>(`/orchestrator/workorders${query ? `?${query}` : ""}`);
+    try {
+      return await this.request<OrchestratorWorkordersResponse>(`/orchestrator/workorders${query ? `?${query}` : ""}`);
+    } catch (err) {
+      if (isNetworkError(err)) {
+        const gistData = await fetchGistData();
+        if (gistData) {
+          let workorders = gistData.workorders;
+          if (params?.project) workorders = workorders.filter(w => w.project === params.project);
+          if (params?.status) workorders = workorders.filter(w => w.status === params.status);
+          return { workorders, _source: "gist" };
+        }
+      }
+      throw err;
+    }
   }
 
-  async getOrchestratorPlans(params?: { project?: string; location?: string; stale?: boolean }): Promise<OrchestratorPlansResponse> {
+  async getOrchestratorPlans(params?: { project?: string; location?: string; stale?: boolean }): Promise<OrchestratorPlansResponse & { _source?: "gist" }> {
     const searchParams = new URLSearchParams();
     if (params?.project) searchParams.set("project", params.project);
     if (params?.location) searchParams.set("location", params.location);
     if (params?.stale) searchParams.set("stale", "true");
     const query = searchParams.toString();
-    return this.request<OrchestratorPlansResponse>(`/orchestrator/plans${query ? `?${query}` : ""}`);
+    try {
+      return await this.request<OrchestratorPlansResponse>(`/orchestrator/plans${query ? `?${query}` : ""}`);
+    } catch (err) {
+      if (isNetworkError(err)) {
+        const gistData = await fetchGistData();
+        if (gistData) {
+          let plans = gistData.plans;
+          if (params?.project) plans = plans.filter(p => p.project === params.project);
+          if (params?.location) plans = plans.filter(p => p.location === params.location);
+          if (params?.stale) plans = plans.filter(p => p.is_stale);
+          return { plans, _source: "gist" };
+        }
+      }
+      throw err;
+    }
   }
 }
 
