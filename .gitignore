@@ -60,3 +60,4 @@ shell/build/
 *.tmp
 *.temp
 
+.vercel

@@ -10,8 +10,17 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Optional
 from fastapi import APIRouter
+import httpx
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv(Path(__file__).parent / ".env")
 
 router = APIRouter(prefix="/orchestrator", tags=["orchestrator"])
+# Gist configuration
+GIST_CONFIG_PATH = Path(__file__).parent / "gist_config.json"
+GITHUB_GIST_TOKEN = os.getenv("GITHUB_GIST_TOKEN")
+
 
 # Project paths to scan
 PROJECT_PATHS = [
@@ -55,6 +64,61 @@ def scan_json_files(base_path: str, pattern: str) -> list[dict]:
 def get_project_name(path: str) -> str:
     """Extract project name from path."""
     return os.path.basename(path)
+
+def load_gist_config() -> dict:
+    """Load gist configuration from file."""
+    if GIST_CONFIG_PATH.exists():
+        with open(GIST_CONFIG_PATH, "r") as f:
+            return json.load(f)
+    return {}
+
+
+def save_gist_config(config: dict):
+    """Save gist configuration to file."""
+    with open(GIST_CONFIG_PATH, "w") as f:
+        json.dump(config, f, indent=2)
+
+
+async def create_gist(content: str) -> dict:
+    """Create a new GitHub Gist."""
+    async with httpx.AsyncClient() as client:
+        response = await client.post(
+            "https://api.github.com/gists",
+            headers={
+                "Authorization": f"token {GITHUB_GIST_TOKEN}",
+                "Accept": "application/vnd.github.v3+json",
+            },
+            json={
+                "description": "Scriptboard Orchestrator Data",
+                "public": False,
+                "files": {
+                    "orchestrator.json": {"content": content}
+                }
+            }
+        )
+        response.raise_for_status()
+        return response.json()
+
+
+async def update_gist(gist_id: str, content: str) -> dict:
+    """Update an existing GitHub Gist."""
+    async with httpx.AsyncClient() as client:
+        response = await client.patch(
+            f"https://api.github.com/gists/{gist_id}",
+            headers={
+                "Authorization": f"token {GITHUB_GIST_TOKEN}",
+                "Accept": "application/vnd.github.v3+json",
+            },
+            json={
+                "files": {
+                    "orchestrator.json": {"content": content}
+                }
+            }
+        )
+        response.raise_for_status()
+        return response.json()
+
+
 
 
 @router.get("/stats")
@@ -252,3 +316,68 @@ async def get_plans(project: Optional[str] = None, location: Optional[str] = Non
                     pass
 
     return {"plans": plans}
+
+@router.post("/sync-gist")
+async def sync_to_gist():
+    """Sync all orchestrator data to GitHub Gist for offline access."""
+    if not GITHUB_GIST_TOKEN:
+        return {"error": "GITHUB_GIST_TOKEN not configured"}
+
+    # Collect all data
+    stats = await get_stats()
+    projects_data = await get_projects()
+    stubs_data = await get_stubs()
+    workorders_data = await get_workorders()
+    plans_data = await get_plans()
+
+    # Bundle into single JSON
+    data = {
+        "timestamp": datetime.now().isoformat(),
+        "stats": stats,
+        "projects": projects_data.get("projects", []),
+        "stubs": stubs_data.get("stubs", []),
+        "workorders": workorders_data.get("workorders", []),
+        "plans": plans_data.get("plans", []),
+    }
+
+    content = json.dumps(data, indent=2)
+
+    # Load existing gist config
+    config = load_gist_config()
+    gist_id = config.get("gist_id")
+
+    try:
+        if gist_id:
+            # Update existing gist
+            result = await update_gist(gist_id, content)
+        else:
+            # Create new gist
+            result = await create_gist(content)
+            gist_id = result["id"]
+            # Save gist ID and raw URL for frontend
+            config["gist_id"] = gist_id
+            config["raw_url"] = result["files"]["orchestrator.json"]["raw_url"]
+            config["html_url"] = result["html_url"]
+            save_gist_config(config)
+
+        return {
+            "status": "success",
+            "gist_id": gist_id,
+            "raw_url": config.get("raw_url") or result["files"]["orchestrator.json"]["raw_url"],
+            "timestamp": data["timestamp"],
+        }
+    except httpx.HTTPStatusError as e:
+        return {"error": f"GitHub API error: {e.response.status_code}", "detail": str(e)}
+    except Exception as e:
+        return {"error": str(e)}
+
+
+@router.get("/gist-config")
+async def get_gist_config_endpoint():
+    """Get the current gist configuration (for frontend to know the raw URL)."""
+    config = load_gist_config()
+    return {
+        "configured": bool(config.get("gist_id")),
+        "raw_url": config.get("raw_url"),
+        "gist_id": config.get("gist_id"),
+    }

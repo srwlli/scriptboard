@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { api, OrchestratorStats } from "@/lib/api";
-import { RefreshCw } from "lucide-react";
+import { RefreshCw, WifiOff } from "lucide-react";
 import { OrchestratorTabs } from "./OrchestratorTabs";
 import { OverviewTab } from "./OverviewTab";
 import { ProjectsTab } from "./ProjectsTab";
@@ -17,6 +17,8 @@ type TabId = "overview" | "projects" | "workorders" | "plans" | "stubs";
 export function OrchestratorDashboard() {
   const [activeTab, setActiveTab] = useState<TabId>("overview");
   const [stats, setStats] = useState<OrchestratorStats | null>(null);
+  const [dataSource, setDataSource] = useState<"live" | "gist">("live");
+  const [gistTimestamp, setGistTimestamp] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -26,6 +28,14 @@ export function OrchestratorDashboard() {
     try {
       const data = await api.getOrchestratorStats();
       setStats(data);
+      // Check if data came from gist fallback
+      if ((data as any)._source === "gist") {
+        setDataSource("gist");
+        setGistTimestamp((data as any)._timestamp || null);
+      } else {
+        setDataSource("live");
+        setGistTimestamp(null);
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load stats");
     } finally {
@@ -41,7 +51,15 @@ export function OrchestratorDashboard() {
     <div className="h-full flex flex-col">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
-        <h1 className="text-xl font-bold">Orchestrator</h1>
+        <div className="flex items-center gap-2">
+          <h1 className="text-xl font-bold">Orchestrator</h1>
+          {dataSource === "gist" && (
+            <div className="flex items-center gap-1 px-2 py-0.5 bg-amber-500/20 text-amber-500 rounded text-xs" title={gistTimestamp ? "Last synced: " + new Date(gistTimestamp).toLocaleString() : "Offline mode"}>
+              <WifiOff className="w-3 h-3" />
+              <span>Offline</span>
+            </div>
+          )}
+        </div>
         <button
           onClick={loadStats}
           disabled={loading}

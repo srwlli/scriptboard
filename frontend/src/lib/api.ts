@@ -627,12 +627,32 @@ class ApiClient {
   // Orchestrator API
   // =========================================================================
 
-  async getOrchestratorStats(): Promise<OrchestratorStats> {
-    return this.request<OrchestratorStats>("/orchestrator/stats");
+  async getOrchestratorStats(): Promise<OrchestratorStats & { _source?: "gist"; _timestamp?: string }> {
+    try {
+      return await this.request<OrchestratorStats>("/orchestrator/stats");
+    } catch (err) {
+      if (isNetworkError(err)) {
+        const gistData = await fetchGistData();
+        if (gistData) {
+          return { ...gistData.stats, _source: "gist", _timestamp: gistData.timestamp };
+        }
+      }
+      throw err;
+    }
   }
 
-  async getOrchestratorProjects(): Promise<OrchestratorProjectsResponse> {
-    return this.request<OrchestratorProjectsResponse>("/orchestrator/projects");
+  async getOrchestratorProjects(): Promise<OrchestratorProjectsResponse & { _source?: "gist" }> {
+    try {
+      return await this.request<OrchestratorProjectsResponse>("/orchestrator/projects");
+    } catch (err) {
+      if (isNetworkError(err)) {
+        const gistData = await fetchGistData();
+        if (gistData) {
+          return { projects: gistData.projects, _source: "gist" };
+        }
+      }
+      throw err;
+    }
   }
 
   async getOrchestratorStubs(params?: { priority?: string; category?: string }): Promise<OrchestratorStubsResponse> {
@@ -1065,6 +1085,69 @@ export interface OrchestratorPlan {
 
 export interface OrchestratorPlansResponse {
   plans: OrchestratorPlan[];
+}
+
+
+
+// Gist fallback data
+export interface OrchestratorGistData {
+  timestamp: string;
+  stats: OrchestratorStats;
+  projects: OrchestratorProject[];
+  stubs: OrchestratorStub[];
+  workorders: OrchestratorWorkorder[];
+  plans: OrchestratorPlan[];
+  _source?: "gist";
+}
+
+// Gist cache for offline access
+let gistCache: OrchestratorGistData | null = null;
+let gistRawUrl: string | null = null;
+// Hardcoded fallback URL in case backend is completely unreachable
+const GIST_FALLBACK_URL = "https://gist.githubusercontent.com/srwlli/3250865e0cc27137773da5928b5bb89f/raw/orchestrator.json";
+
+async function fetchGistConfig(): Promise<{ raw_url: string | null }> {
+  try {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000"}/orchestrator/gist-config`);
+    if (response.ok) {
+      return response.json();
+    }
+  } catch {
+    // Ignore errors
+  }
+  return { raw_url: null };
+}
+
+async function fetchGistData(): Promise<OrchestratorGistData | null> {
+  // Try to get gist URL from config if not cached
+  if (!gistRawUrl) {
+    const config = await fetchGistConfig();
+    gistRawUrl = config.raw_url;
+  }
+  
+  if (!gistRawUrl) {
+    // Use hardcoded fallback if config fetch failed
+    gistRawUrl = GIST_FALLBACK_URL;
+  }
+
+  try {
+    // Add cache-busting query param
+    const response = await fetch(`${gistRawUrl}?t=${Date.now()}`);
+    if (response.ok) {
+      const data = await response.json();
+      data._source = "gist";
+      gistCache = data;
+      return data;
+    }
+  } catch {
+    // Return cached data if available
+    return gistCache;
+  }
+  return gistCache;
+}
+
+function isNetworkError(err: unknown): boolean {
+  return err instanceof Error && err.message.includes("Failed to connect to backend");
 }
 
 export const api = new ApiClient(API_BASE_URL);
