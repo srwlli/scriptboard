@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import { Menu, Home, Layout, Settings, FlaskConical, FolderKanban } from "lucide-react";
+import { Menu, Home, Layout, Settings, FlaskConical, FolderKanban, Code2 } from "lucide-react";
 import { MenuDropdown } from "./ui/MenuDropdown";
 import { WindowControls } from "./ui/WindowControls";
 
@@ -97,6 +97,7 @@ export function MenuBar() {
     { href: "/staged", label: "Staged", icon: Layout },
     { href: "/settings", label: "Settings", icon: Settings },
     { href: "/orchestrator", label: "Orchestrator", icon: FolderKanban },
+    { href: "/coderef", label: "CodeRef", icon: Code2 },
   ];
 
   const handleNavClick = (href: string) => {

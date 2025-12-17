@@ -21,6 +21,7 @@ from fastapi.exceptions import RequestValidationError
 from core import ScriptboardCore
 from fileman import fileman_router
 from orchestrator import router as orchestrator_router
+from coderef_api import router as coderef_router
 from schemas import (
     AddPromptPayload,
     AttachmentTextPayload,
@@ -72,6 +73,9 @@ app.include_router(fileman_router)
 
 # Include Orchestrator router
 app.include_router(orchestrator_router)
+
+# Include CodeRef router
+app.include_router(coderef_router)
 
 
 def get_config_path() -> Path:
