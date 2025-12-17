@@ -1,0 +1,8 @@
+{
+  "feature_name": "file-explorer-tree-picker",
+  "description": "Expand the file explorer to allow user to drill down through child folders and select individual files, not just top-level folders.",
+  "category": "improvement",
+  "priority": "medium",
+  "created": "2025-12-16T21:45:00.000Z",
+  "status": "stub"
+}

@@ -1,0 +1,8 @@
+{
+  "feature_name": "scraper-engagement-sections",
+  "description": "Update the scraper to include engagement sections (likes, comments, shares, reactions) when extracting content.",
+  "category": "improvement",
+  "priority": "medium",
+  "created": "2025-12-16T21:45:00.000Z",
+  "status": "stub"
+}

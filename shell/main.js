@@ -452,6 +452,24 @@ ipcMain.handle("read-file", async (event, filePath) => {
   }
 });
 
+ipcMain.handle("write-file", async (event, filePath, content) => {
+  try {
+    if (!filePath) {
+      return { error: "No file path provided" };
+    }
+
+    if (content === undefined || content === null) {
+      return { error: "No content provided" };
+    }
+
+    // Write file as UTF-8 text
+    fs.writeFileSync(filePath, content, "utf-8");
+    return { success: true };
+  } catch (error) {
+    return { error: error.message };
+  }
+});
+
 ipcMain.handle("set-window-resizable", async (event, resizable) => {
   if (!mainWindow) return { error: "No window" };
   try {

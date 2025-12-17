@@ -6,6 +6,7 @@ import { ProfileSelector } from "@/components/ProfileSelector";
 import { KeyLogPanel } from "@/components/KeyLogPanel";
 import { SystemMonitor } from "@/components/SystemMonitor";
 import { FileManager } from "@/components/FileManager";
+import { TerminalManager } from "@/components/TerminalManager";
 import { useScriptboardHotkeys } from "@/lib/hotkeys";
 
 /**
@@ -26,6 +27,7 @@ export default function StagedPage() {
       <h1 className="text-2xl font-bold text-foreground mb-6">Staged</h1>
       <ProfileSelector />
       <div className="space-y-4 mt-4">
+        <TerminalManager />
         <SystemMonitor />
         <FileManager />
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

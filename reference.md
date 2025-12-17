@@ -12,7 +12,7 @@
 |-----------|------|-------------|
 | **SystemMonitor** | `components/SystemMonitor.tsx` | CPU, memory, disk monitoring dashboard |
 | **FileManager** | `components/FileManager.tsx` | File organization, rename, clean, dupes tool |
-| **GitIntegrationPanel** | `components/GitIntegrationPanel.tsx` | Git repo selector, branches, commit, pull/push |
+| **GitIntegrationPanel** | `components/GitIntegrationPanel.tsx` | Git repo scanner, branch management, commit, pull/push |
 | **SessionManagerPanel** | `components/SessionManagerPanel.tsx` | Save/load session management |
 | **KeyLogPanel** | `components/KeyLogPanel.tsx` | Keyboard macro recording |
 | **LoggingConsolePanel** | `components/LoggingConsolePanel.tsx` | Application logs viewer |
@@ -165,15 +165,17 @@
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
+| POST | `/git/scan` | Scan directory tree for git repos |
 | GET | `/git/status?path=` | Get repo status (optional path param) |
-| POST | `/git/commit` | Create commit (with path, files, add_all) |
 | GET | `/git/branches?path=` | List all branches |
 | POST | `/git/branches` | Create new branch |
 | POST | `/git/checkout` | Switch branch |
 | DELETE | `/git/branches/{name}` | Delete branch |
+| POST | `/git/commit` | Create commit (with path, files, add_all) |
 | POST | `/git/pull` | Pull from remote |
 | POST | `/git/push` | Push to remote |
-| POST | `/git/scan` | Scan directory for git repos |
+
+**Features:** Scan folders for repos → Quick-select dropdown → Branch management → Commit/Pull/Push
 
 ### Favorites & Config
 
@@ -242,6 +244,22 @@
 | `safe_to_kill` | Safe to terminate (score >70) |
 | `startup` | Startup applications |
 | `recent` | Recently started |
+
+---
+
+## Preloaded Prompts
+
+| # | Name | Purpose |
+|---|------|---------|
+| 1 | **Code Review** | Reviews code for existing features + suggests improvements with Rating/Risk tables |
+| 2 | **Synthesize** | Merges multiple Code Review outputs into one consolidated review |
+| 3 | **Consolidate** | Creates master document from multiple Synthesize outputs |
+| 4 | **Research** | Deep research on a subject, outputs structured markdown with TOC |
+| 5 | **UI Variations** | Generates 5 CSS theme variations (light/dark modes each) |
+
+**Workflow:** Code Review → Synthesize → Consolidate
+
+Defined in: `backend/settings.py` (`PRELOADED_PROMPTS`)
 
 ---
 
