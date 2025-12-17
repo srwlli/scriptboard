@@ -7,6 +7,8 @@ import { OrchestratorTabs } from "./OrchestratorTabs";
 import { OverviewTab } from "./OverviewTab";
 import { ProjectsTab } from "./ProjectsTab";
 import { StubsTab } from "./StubsTab";
+import { WorkordersTab } from "./WorkordersTab";
+import { PlansTab } from "./PlansTab";
 
 type TabId = "overview" | "projects" | "workorders" | "plans" | "stubs";
 
@@ -86,16 +88,8 @@ export function OrchestratorDashboard() {
         {activeTab === "overview" && <OverviewTab stats={stats} loading={loading} />}
         {activeTab === "projects" && <ProjectsTab />}
         {activeTab === "stubs" && <StubsTab />}
-        {activeTab === "workorders" && (
-          <div className="text-center text-muted-foreground py-8 text-sm">
-            Workorders tab coming in Phase 3
-          </div>
-        )}
-        {activeTab === "plans" && (
-          <div className="text-center text-muted-foreground py-8 text-sm">
-            Plans tab coming in Phase 3
-          </div>
-        )}
+        {activeTab === "workorders" && <WorkordersTab />}
+        {activeTab === "plans" && <PlansTab />}
       </div>
     </div>
   );
