@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { Plus, FileCode, Merge, Search, Package, Palette, FolderOpen, Globe, Clipboard, Trash2, Copy, Save, Eye } from "lucide-react";
+import { Plus, FileCode, Merge, Search, Package, Palette, FolderOpen, Globe, Clipboard, Trash2, Copy, Save, Eye, List } from "lucide-react";
 import { api } from "@/lib/api";
 import { SectionButtonRow, StatusLabel, type ButtonConfig, useConfirmModal, CollapsibleCard } from "@/components/ui";
 import { useSessionRefresh } from "@/hooks/useSessionRefresh";
@@ -39,6 +39,7 @@ const getPromptIcon = (label: string) => {
     "Research": Search,
     "Research Synth": Merge,
     "UI Variations": Palette,
+    "Features Inventory": List,
   };
   return iconMap[label] || FileCode;
 };
