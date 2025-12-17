@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import {
   Code2,
   FolderSearch,
+  FolderOpen,
   LayoutDashboard,
   Search,
   AlertTriangle,
@@ -199,13 +200,31 @@ export function CodeRefPanel() {
       {/* Directory Input */}
       <div className="mb-4 space-y-2">
         <label className="text-xs text-muted-foreground">Source Directory</label>
-        <input
-          type="text"
-          value={sourceDir}
-          onChange={(e) => setSourceDir(e.target.value)}
-          placeholder="C:/path/to/project"
-          className="w-full px-3 py-2 bg-muted border border-border rounded text-sm focus:outline-none focus:ring-1 focus:ring-primary"
-        />
+        <div className="flex gap-2">
+          <input
+            type="text"
+            value={sourceDir}
+            onChange={(e) => setSourceDir(e.target.value)}
+            placeholder="C:/path/to/project"
+            className="flex-1 px-3 py-2 bg-muted border border-border rounded text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+          />
+          <button
+            onClick={async () => {
+              if (typeof window !== "undefined" && (window as any).electronAPI?.selectFolder) {
+                const result = await (window as any).electronAPI.selectFolder();
+                if (result?.path) {
+                  setSourceDir(result.path);
+                }
+              } else {
+                alert("Browse is only available in the desktop app");
+              }
+            }}
+            className="px-3 py-2 bg-muted border border-border rounded hover:bg-accent transition-colors"
+            title="Browse for folder"
+          >
+            <FolderOpen className="w-4 h-4" />
+          </button>
+        </div>
       </div>
 
       {/* Options Row */}
