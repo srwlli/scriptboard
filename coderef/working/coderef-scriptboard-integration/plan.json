@@ -1,0 +1,447 @@
+{
+  "META_DOCUMENTATION": {
+    "feature_name": "coderef-scriptboard-integration",
+    "schema_version": "1.0.0",
+    "version": "1.0.0",
+    "status": "complete",
+    "generated_by": "Lloyd (AI Project Coordinator)",
+    "generated_at": "2025-12-17T15:10:00Z",
+    "has_context": true,
+    "has_analysis": true
+  },
+  "UNIVERSAL_PLANNING_STRUCTURE": {
+    "0_preparation": {
+      "foundation_docs": {
+        "architecture": "coderef/foundation-docs/ARCHITECTURE.md",
+        "api": "coderef/foundation-docs/API.md",
+        "components": "coderef/foundation-docs/COMPONENTS.md",
+        "schema": "coderef/foundation-docs/SCHEMA.md"
+      },
+      "coding_standards": {
+        "behavior": "coderef/standards/BEHAVIOR-STANDARDS.md",
+        "ui": "coderef/standards/UI-STANDARDS.md",
+        "ux": "coderef/standards/UX-PATTERNS.md"
+      },
+      "reference_patterns": {
+        "backend": "backend/api.py - FastAPI endpoint patterns with @app.get/@app.post decorators",
+        "frontend_panel": "frontend/src/components/FileManager.tsx - Panel component pattern",
+        "logging": "frontend/src/components/LoggingConsolePanel.tsx - Output display pattern"
+      },
+      "external_dependencies": {
+        "coderef_cli": {
+          "path": "C:/Users/willh/Desktop/projects/coderef-system/packages/cli/dist/cli.js",
+          "requires": "Node.js",
+          "commands": ["scan", "dashboard", "query", "impact"]
+        }
+      }
+    },
+    "1_executive_summary": {
+      "feature_name": "CodeRef Scriptboard Integration",
+      "description": "Add a CodeRef panel to Scriptboard that provides a GUI for the coderef-cli tool. The panel will allow users to scan codebases, generate dashboards, query dependencies, and analyze impact through a visual interface instead of command line.",
+      "goal": "Enable developers to use CodeRef's code analysis capabilities through Scriptboard's GUI, eliminating the need to use CLI commands directly and providing a more accessible way to scan code, visualize dependencies, and analyze impact.",
+      "scope": {
+        "in_scope": [
+          "Backend FastAPI endpoints to call coderef-cli (scan, dashboard, query, impact)",
+          "Frontend React panel component (CodeRefPanel.tsx)",
+          "Directory picker for selecting scan targets",
+          "Language selector dropdown (ts, tsx, js, jsx, py)",
+          "Scan mode toggle (Regex fast vs AST precise)",
+          "Results display showing element counts by type",
+          "Dashboard generation and viewing capability",
+          "Query interface for searching element dependencies",
+          "Integration with existing Scriptboard panel system"
+        ],
+        "out_of_scope": [
+          "Modifying the coderef-cli itself",
+          "Real-time file watching",
+          "RAG/semantic search features (not yet implemented in CLI)",
+          "Multi-project management"
+        ]
+      },
+      "estimated_effort": {
+        "complexity": "medium",
+        "estimated_tasks": 12,
+        "estimated_files": 8
+      }
+    },
+    "2_risk_assessment": {
+      "risks": [
+        {
+          "id": "RISK-001",
+          "category": "technical",
+          "description": "Node.js availability on host system",
+          "likelihood": "low",
+          "impact": "high",
+          "mitigation": "Add Node.js check endpoint and display warning if not available"
+        },
+        {
+          "id": "RISK-002",
+          "category": "technical",
+          "description": "CLI path hardcoded - won't work on other machines",
+          "likelihood": "high",
+          "impact": "medium",
+          "mitigation": "Add configurable CLI path in backend settings.py"
+        },
+        {
+          "id": "RISK-003",
+          "category": "performance",
+          "description": "Large codebase scans may timeout or hang UI",
+          "likelihood": "medium",
+          "impact": "medium",
+          "mitigation": "Run scans asynchronously with progress indicator, add timeout handling"
+        },
+        {
+          "id": "RISK-004",
+          "category": "integration",
+          "description": "CLI output format may change in future versions",
+          "likelihood": "low",
+          "impact": "medium",
+          "mitigation": "Use --json flag for stable output, add version check"
+        }
+      ],
+      "overall_risk_level": "medium",
+      "go_no_go_recommendation": "GO - risks are manageable with proposed mitigations"
+    },
+    "3_current_state_analysis": {
+      "files_to_create": [
+        {
+          "path": "backend/coderef_api.py",
+          "purpose": "FastAPI router with CodeRef CLI endpoints (scan, dashboard, query, impact)"
+        },
+        {
+          "path": "backend/coderef_config.py",
+          "purpose": "Configuration for CodeRef CLI path and settings"
+        },
+        {
+          "path": "frontend/src/components/CodeRefPanel.tsx",
+          "purpose": "Main CodeRef panel component with scan/query/dashboard UI"
+        },
+        {
+          "path": "frontend/src/components/coderef/ScanResults.tsx",
+          "purpose": "Component to display scan results with element breakdown"
+        },
+        {
+          "path": "frontend/src/components/coderef/QueryInterface.tsx",
+          "purpose": "Component for dependency query input and results"
+        },
+        {
+          "path": "frontend/src/components/coderef/DashboardViewer.tsx",
+          "purpose": "Component to display generated dashboard in iframe"
+        },
+        {
+          "path": "frontend/__tests__/CodeRefPanel.test.tsx",
+          "purpose": "Unit tests for CodeRef panel component"
+        }
+      ],
+      "files_to_modify": [
+        {
+          "path": "backend/api.py",
+          "changes": "Import and register coderef_router"
+        },
+        {
+          "path": "frontend/src/components/MenuBar.tsx",
+          "changes": "Add CodeRef panel option to menu"
+        }
+      ],
+      "dependencies": {
+        "backend": [],
+        "frontend": []
+      }
+    },
+    "4_key_features": {
+      "features": [
+        {
+          "id": "FEAT-001",
+          "name": "CodeRef Scan API",
+          "description": "Backend endpoint to scan directories using coderef-cli",
+          "requirements": ["POST /api/coderef/scan endpoint", "Support for language and AST mode options", "JSON response with element counts"]
+        },
+        {
+          "id": "FEAT-002",
+          "name": "Dashboard Generation API",
+          "description": "Backend endpoint to generate and serve HTML dashboards",
+          "requirements": ["POST /api/coderef/dashboard endpoint", "Store generated HTML in accessible location", "Return path or serve directly"]
+        },
+        {
+          "id": "FEAT-003",
+          "name": "Query API",
+          "description": "Backend endpoint to query element dependencies",
+          "requirements": ["POST /api/coderef/query endpoint", "Support query types: calls-me, depends-on-me", "Return formatted results"]
+        },
+        {
+          "id": "FEAT-004",
+          "name": "Impact Analysis API",
+          "description": "Backend endpoint to analyze change impact",
+          "requirements": ["POST /api/coderef/impact endpoint", "Support depth parameter", "Return risk assessment"]
+        },
+        {
+          "id": "FEAT-005",
+          "name": "CodeRef Panel UI",
+          "description": "React panel component with full CodeRef functionality",
+          "requirements": ["Directory picker", "Language selector", "Scan mode toggle", "Results display", "Dashboard viewer", "Query interface"]
+        }
+      ]
+    },
+    "5_task_id_system": {
+      "workorder": {
+        "id": "WO-CODEREF-SCRIPTBOARD-INTEGRATION-001",
+        "name": "CodeRef Scriptboard Integration",
+        "feature_dir": "coderef/working/coderef-scriptboard-integration"
+      },
+      "tasks": [
+        {
+          "id": "SETUP-001",
+          "workorder_id": "WO-CODEREF-SCRIPTBOARD-INTEGRATION-001",
+          "description": "Create coderef_config.py with CLI path and settings",
+          "file": "backend/coderef_config.py",
+          "type": "create",
+          "estimated_loc": 30,
+          "dependencies": []
+        },
+        {
+          "id": "BACKEND-001",
+          "workorder_id": "WO-CODEREF-SCRIPTBOARD-INTEGRATION-001",
+          "description": "Create coderef_api.py with FastAPI router",
+          "file": "backend/coderef_api.py",
+          "type": "create",
+          "estimated_loc": 150,
+          "dependencies": ["SETUP-001"]
+        },
+        {
+          "id": "BACKEND-002",
+          "workorder_id": "WO-CODEREF-SCRIPTBOARD-INTEGRATION-001",
+          "description": "Implement POST /api/coderef/scan endpoint",
+          "file": "backend/coderef_api.py",
+          "type": "modify",
+          "estimated_loc": 40,
+          "dependencies": ["BACKEND-001"]
+        },
+        {
+          "id": "BACKEND-003",
+          "workorder_id": "WO-CODEREF-SCRIPTBOARD-INTEGRATION-001",
+          "description": "Implement POST /api/coderef/dashboard endpoint",
+          "file": "backend/coderef_api.py",
+          "type": "modify",
+          "estimated_loc": 35,
+          "dependencies": ["BACKEND-001"]
+        },
+        {
+          "id": "BACKEND-004",
+          "workorder_id": "WO-CODEREF-SCRIPTBOARD-INTEGRATION-001",
+          "description": "Implement POST /api/coderef/query endpoint",
+          "file": "backend/coderef_api.py",
+          "type": "modify",
+          "estimated_loc": 35,
+          "dependencies": ["BACKEND-001"]
+        },
+        {
+          "id": "BACKEND-005",
+          "workorder_id": "WO-CODEREF-SCRIPTBOARD-INTEGRATION-001",
+          "description": "Implement POST /api/coderef/impact endpoint",
+          "file": "backend/coderef_api.py",
+          "type": "modify",
+          "estimated_loc": 35,
+          "dependencies": ["BACKEND-001"]
+        },
+        {
+          "id": "BACKEND-006",
+          "workorder_id": "WO-CODEREF-SCRIPTBOARD-INTEGRATION-001",
+          "description": "Register coderef_router in main api.py",
+          "file": "backend/api.py",
+          "type": "modify",
+          "estimated_loc": 5,
+          "dependencies": ["BACKEND-002", "BACKEND-003", "BACKEND-004", "BACKEND-005"]
+        },
+        {
+          "id": "FRONTEND-001",
+          "workorder_id": "WO-CODEREF-SCRIPTBOARD-INTEGRATION-001",
+          "description": "Create ScanResults.tsx component",
+          "file": "frontend/src/components/coderef/ScanResults.tsx",
+          "type": "create",
+          "estimated_loc": 80,
+          "dependencies": []
+        },
+        {
+          "id": "FRONTEND-002",
+          "workorder_id": "WO-CODEREF-SCRIPTBOARD-INTEGRATION-001",
+          "description": "Create QueryInterface.tsx component",
+          "file": "frontend/src/components/coderef/QueryInterface.tsx",
+          "type": "create",
+          "estimated_loc": 100,
+          "dependencies": []
+        },
+        {
+          "id": "FRONTEND-003",
+          "workorder_id": "WO-CODEREF-SCRIPTBOARD-INTEGRATION-001",
+          "description": "Create DashboardViewer.tsx component",
+          "file": "frontend/src/components/coderef/DashboardViewer.tsx",
+          "type": "create",
+          "estimated_loc": 60,
+          "dependencies": []
+        },
+        {
+          "id": "FRONTEND-004",
+          "workorder_id": "WO-CODEREF-SCRIPTBOARD-INTEGRATION-001",
+          "description": "Create main CodeRefPanel.tsx component",
+          "file": "frontend/src/components/CodeRefPanel.tsx",
+          "type": "create",
+          "estimated_loc": 200,
+          "dependencies": ["FRONTEND-001", "FRONTEND-002", "FRONTEND-003"]
+        },
+        {
+          "id": "FRONTEND-005",
+          "workorder_id": "WO-CODEREF-SCRIPTBOARD-INTEGRATION-001",
+          "description": "Add CodeRef panel to MenuBar.tsx",
+          "file": "frontend/src/components/MenuBar.tsx",
+          "type": "modify",
+          "estimated_loc": 10,
+          "dependencies": ["FRONTEND-004"]
+        },
+        {
+          "id": "TEST-001",
+          "workorder_id": "WO-CODEREF-SCRIPTBOARD-INTEGRATION-001",
+          "description": "Create CodeRefPanel.test.tsx unit tests",
+          "file": "frontend/__tests__/CodeRefPanel.test.tsx",
+          "type": "create",
+          "estimated_loc": 120,
+          "dependencies": ["FRONTEND-004"]
+        }
+      ]
+    },
+    "6_implementation_phases": {
+      "phases": [
+        {
+          "phase": 1,
+          "name": "Backend Setup",
+          "description": "Create backend API endpoints for CodeRef CLI integration",
+          "tasks": ["SETUP-001", "BACKEND-001", "BACKEND-002", "BACKEND-003", "BACKEND-004", "BACKEND-005", "BACKEND-006"],
+          "deliverables": [
+            "coderef_config.py with configurable CLI path",
+            "coderef_api.py with 4 working endpoints",
+            "Router registered in main api.py"
+          ],
+          "acceptance_criteria": [
+            "POST /api/coderef/scan returns JSON array of elements",
+            "POST /api/coderef/dashboard generates HTML file and returns path",
+            "POST /api/coderef/query returns dependency results",
+            "POST /api/coderef/impact returns risk assessment"
+          ]
+        },
+        {
+          "phase": 2,
+          "name": "Frontend Components",
+          "description": "Create React components for CodeRef panel",
+          "tasks": ["FRONTEND-001", "FRONTEND-002", "FRONTEND-003", "FRONTEND-004"],
+          "deliverables": [
+            "ScanResults.tsx component",
+            "QueryInterface.tsx component",
+            "DashboardViewer.tsx component",
+            "CodeRefPanel.tsx main component"
+          ],
+          "acceptance_criteria": [
+            "ScanResults displays element counts by type",
+            "QueryInterface allows searching dependencies",
+            "DashboardViewer renders HTML dashboard",
+            "CodeRefPanel integrates all sub-components"
+          ]
+        },
+        {
+          "phase": 3,
+          "name": "Integration & Testing",
+          "description": "Integrate panel into Scriptboard and add tests",
+          "tasks": ["FRONTEND-005", "TEST-001"],
+          "deliverables": [
+            "CodeRef panel accessible from MenuBar",
+            "Unit tests for CodeRefPanel"
+          ],
+          "acceptance_criteria": [
+            "CodeRef panel appears in Scriptboard menu",
+            "Full scan → view results → generate dashboard flow works",
+            "Query interface returns valid results",
+            "All tests pass"
+          ]
+        }
+      ]
+    },
+    "7_testing_strategy": {
+      "unit_tests": [
+        {
+          "file": "frontend/__tests__/CodeRefPanel.test.tsx",
+          "coverage": ["CodeRefPanel", "ScanResults", "QueryInterface", "DashboardViewer"],
+          "test_cases": [
+            "renders directory picker",
+            "renders language selector with correct options",
+            "renders scan mode toggle",
+            "calls scan API on button click",
+            "displays scan results correctly",
+            "handles API errors gracefully",
+            "query interface submits correct parameters",
+            "dashboard viewer loads HTML content"
+          ]
+        }
+      ],
+      "integration_tests": [
+        {
+          "description": "Backend API integration",
+          "test_cases": [
+            "scan endpoint calls CLI and returns valid JSON",
+            "dashboard endpoint generates HTML file",
+            "query endpoint returns dependency data",
+            "impact endpoint returns risk assessment"
+          ]
+        }
+      ],
+      "manual_tests": [
+        "Full end-to-end: Open panel → select directory → scan → view results → generate dashboard",
+        "Query flow: Search for element → view dependencies",
+        "Error handling: Invalid directory → appropriate error message"
+      ]
+    },
+    "8_success_criteria": {
+      "functional": [
+        "User can scan any directory from Scriptboard UI",
+        "Scan results display element counts by type",
+        "User can generate and view HTML dashboard",
+        "User can query element dependencies",
+        "User can analyze change impact"
+      ],
+      "non_functional": [
+        "Scan completes within 30 seconds for typical project",
+        "UI remains responsive during scan (async operation)",
+        "Error messages are clear and actionable"
+      ],
+      "acceptance_criteria": [
+        "All 4 API endpoints return valid responses",
+        "CodeRef panel appears in Scriptboard menu",
+        "All unit tests pass",
+        "Manual test scenarios complete successfully"
+      ]
+    },
+    "9_implementation_checklist": {
+      "phase_1_checklist": [
+        "[ ] Create coderef_config.py with CLI path setting",
+        "[ ] Create coderef_api.py with FastAPI router",
+        "[ ] Implement /api/coderef/scan endpoint",
+        "[ ] Implement /api/coderef/dashboard endpoint",
+        "[ ] Implement /api/coderef/query endpoint",
+        "[ ] Implement /api/coderef/impact endpoint",
+        "[ ] Register router in main api.py",
+        "[ ] Test all endpoints with curl/httpie"
+      ],
+      "phase_2_checklist": [
+        "[ ] Create ScanResults.tsx component",
+        "[ ] Create QueryInterface.tsx component",
+        "[ ] Create DashboardViewer.tsx component",
+        "[ ] Create CodeRefPanel.tsx main component",
+        "[ ] Wire up API calls to components",
+        "[ ] Add loading states and error handling"
+      ],
+      "phase_3_checklist": [
+        "[ ] Add CodeRef to MenuBar.tsx",
+        "[ ] Write unit tests for components",
+        "[ ] Run full integration test",
+        "[ ] Update documentation"
+      ]
+    }
+  }
+}

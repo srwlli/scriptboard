@@ -1,0 +1,36 @@
+{
+  "feature_name": "coderef-scriptboard-integration",
+  "description": "Add a CodeRef panel to Scriptboard that provides a GUI for the coderef-cli tool. The panel will allow users to scan codebases, generate dashboards, query dependencies, and analyze impact through a visual interface instead of command line.",
+  "goal": "Enable developers to use CodeRef's code analysis capabilities through Scriptboard's GUI, eliminating the need to use CLI commands directly and providing a more accessible way to scan code, visualize dependencies, and analyze impact.",
+  "requirements": [
+    "Backend FastAPI endpoints to call coderef-cli (scan, dashboard, query, impact)",
+    "Frontend React panel component (CodeRefPanel.tsx)",
+    "Directory picker for selecting scan targets",
+    "Language selector dropdown (ts, tsx, js, jsx, py)",
+    "Scan mode toggle (Regex fast vs AST precise)",
+    "Results display showing element counts by type",
+    "Dashboard generation and viewing capability",
+    "Query interface for searching element dependencies",
+    "Integration with existing Scriptboard panel system"
+  ],
+  "out_of_scope": [
+    "Modifying the coderef-cli itself",
+    "Real-time file watching",
+    "RAG/semantic search features (not yet implemented in CLI)",
+    "Multi-project management"
+  ],
+  "constraints": [
+    "Must use existing Scriptboard patterns (FileManager, LoggingConsolePanel)",
+    "CLI path: C:/Users/willh/Desktop/projects/coderef-system/packages/cli/dist/cli.js",
+    "Node.js must be available on the system",
+    "Must handle CLI errors gracefully",
+    "Dashboard HTML files need accessible storage location"
+  ],
+  "decisions": {},
+  "success_criteria": {},
+  "_metadata": {
+    "workorder_id": "WO-CODEREF-SCRIPTBOARD-INTEGRATION-001",
+    "workorder_assigned_at": "2025-12-17T20:09:36.897431+00:00",
+    "workorder_assigned_by": "gather_context"
+  }
+}

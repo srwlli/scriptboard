@@ -1,0 +1,144 @@
+{
+  "foundation_docs": {
+    "available": [
+      "README.md (root)",
+      "API.md (coderef/foundation-docs)",
+      "ARCHITECTURE.md (coderef/foundation-docs)",
+      "COMPONENTS.md (coderef/foundation-docs)",
+      "SCHEMA.md (coderef/foundation-docs)"
+    ],
+    "missing": [
+      "USER-GUIDE.md"
+    ]
+  },
+  "foundation_doc_content": {
+    "ARCHITECTURE.md": {
+      "location": "coderef\\foundation-docs",
+      "preview": "# Architecture Documentation\n\n## Module Dependency Graph\n\n*Run `coderef index` to generate module dependency diagrams and metrics.*\n\n## Code Patterns\n\n### Handler Functions\n\n- `handle_drop` in `coderef\\archived\\scriptboard.py`\n- `handle_prompt_drop` in `coderef\\archived\\scriptboard.py`\n\n### Common Decorators\n\n- `@app.get` (38 uses)\n- `@app.post` (24 uses)\n- `@patch` (23 uses)\n- `@dataclass` (8 uses)\n- `@pytest.fixture` (6 uses)\n- `@app.delete` (5 uses)\n- `@classmethod` (5 uses)\n- `@app.exception",
+      "headers": [
+        "Architecture Documentation",
+        "Module Dependency Graph",
+        "Code Patterns",
+        "Handler Functions",
+        "Common Decorators",
+        "Error Types",
+        "API Architecture",
+        "Recent Activity"
+      ],
+      "size": 912
+    },
+    "API.md": {
+      "location": "coderef\\foundation-docs",
+      "preview": "# API Documentation\n\n## Overview\n\n- **Framework:** FastAPI\n- **Authentication:** Unknown\n- **Error Format:** RFC 7807\n- **Total Endpoints:** 67\n\n## Endpoints\n\n| Method | Path | File |\n|--------|------|------|\n| `GET` | `/` | `backend\\api.py` |\n| `GET` | `/health` | `backend\\api.py` |\n| `GET` | `/favicon.ico` | `backend\\api.py` |\n| `GET` | `/session` | `backend\\api.py` |\n| `POST` | `/prompt` | `backend\\api.py` |\n| `DELETE` | `/prompt` | `backend\\api.py` |\n| `GET` | `/prompts` | `backend\\api.py` |",
+      "headers": [
+        "API Documentation",
+        "Overview",
+        "Endpoints",
+        "Endpoint Details",
+        "Authentication",
+        "Error Handling"
+      ],
+      "size": 7857
+    },
+    "COMPONENTS.md": {
+      "location": "coderef\\foundation-docs",
+      "preview": "# Project Components\n\n## Detected Components\n\n*Note: Run `coderef index` for comprehensive module analysis with relationships.*\n\n*No UI components detected.*\n\n*Generated: 2025-12-15T15:57:09.928269*",
+      "headers": [
+        "Project Components",
+        "Detected Components"
+      ],
+      "size": 198
+    },
+    "SCHEMA.md": {
+      "location": "coderef\\foundation-docs",
+      "preview": "# Schema Documentation\n\n## Database Tables\n\n### ErrorInfo\n\n*File: `backend\\schemas.py`*\n\n\n### ErrorResponse\n\n*File: `backend\\schemas.py`*\n\n\n### TextPayload\n\n*File: `backend\\schemas.py`*\n\n\n### PromptPreloadedPayload\n\n*File: `backend\\schemas.py`*\n\n\n### AddPromptPayload\n\n*File: `backend\\schemas.py`*\n\n\n### AttachmentTextPayload\n\n*File: `backend\\schemas.py`*\n\n\n### SaveSessionPayload\n\n*File: `backend\\schemas.py`*\n\n\n### LoadSessionPayload\n\n*File: `backend\\schemas.py`*\n\n\n### ProfilePayload\n\n*File: `back",
+      "headers": [
+        "Schema Documentation",
+        "Database Tables",
+        "ErrorInfo",
+        "ErrorResponse",
+        "TextPayload",
+        "PromptPreloadedPayload",
+        "AddPromptPayload",
+        "AttachmentTextPayload",
+        "SaveSessionPayload",
+        "LoadSessionPayload"
+      ],
+      "size": 1133
+    },
+    "README.md": {
+      "location": "root",
+      "preview": "# next\n\n## Overview\n\n<!-- AGENT: Describe what this project does -->\n\n## Quick Stats\n\n| Metric | Value |\n|--------|-------|\n| API Endpoints | 67 |\n| Database Tables | 64 |\n\n## Quick Start\n\n<!-- AGENT: Installation and usage instructions -->\n\n## Documentation\n\n- [API Reference](coderef/foundation-docs/API.md)\n- [Architecture](coderef/foundation-docs/ARCHITECTURE.md)\n- [Components](coderef/foundation-docs/COMPONENTS.md)\n- [Schema](coderef/foundation-docs/SCHEMA.md)\n\n---\n\n*Generated: 2025-12-15T15:",
+      "headers": [
+        "next",
+        "Overview",
+        "Quick Stats",
+        "Quick Start",
+        "Documentation"
+      ],
+      "size": 513
+    }
+  },
+  "inventory_data": {
+    "available": [],
+    "missing": [
+      "Run /quick-inventory to generate inventory data"
+    ]
+  },
+  "coding_standards": {
+    "available": [
+      "BEHAVIOR-STANDARDS.md",
+      "UI-STANDARDS.md",
+      "UX-PATTERNS.md",
+      "COMPONENT-INDEX.md"
+    ],
+    "missing": [
+      "COMPONENT-PATTERN.md"
+    ]
+  },
+  "reference_components": {
+    "primary": null,
+    "secondary": [],
+    "note": "Reference component matching requires feature name - not yet implemented"
+  },
+  "key_patterns_identified": [
+    "Error handling: try-catch blocks found in 45 files",
+    "File organization: barrel exports (export from) found in 3 files"
+  ],
+  "technology_stack": {
+    "language": "unknown",
+    "framework": "unknown",
+    "database": "unknown",
+    "testing": "unknown",
+    "build": "unknown"
+  },
+  "project_structure": {
+    "main_directories": [
+      "backend",
+      "frontend",
+      "shell",
+      "frontend\\__tests__",
+      "frontend\\src\\components",
+      "frontend\\src\\components\\ui"
+    ],
+    "file_counts": {
+      "frontend\\__tests__": 26,
+      "frontend\\src\\components": 19,
+      "backend": 16,
+      "frontend": 13,
+      "frontend\\src\\components\\ui": 12,
+      "shell": 11,
+      "frontend\\src\\components\\filemanager": 9,
+      "frontend\\src\\components\\system-monitor": 9,
+      "frontend\\src\\components\\theme": 8,
+      "coderef\\archived\\new-page": 8
+    },
+    "organization_pattern": "unknown"
+  },
+  "gaps_and_risks": [
+    "Missing foundation docs: USER-GUIDE.md",
+    "Missing coding standards: COMPONENT-PATTERN.md",
+    "No test directory found (tests/, test/, or __tests__/)",
+    "No CI configuration found (.github/workflows/, .gitlab-ci.yml, etc.)"
+  ]
+}
