@@ -14,8 +14,23 @@
       "feature_name": "Key Logger",
       "folder_name": "Key-Logger",
       "archived_at": "2025-12-11T02:22:18.385517+00:00"
+    },
+    {
+      "feature_name": "Terminal Settings Sync",
+      "folder_name": "terminal-settings-sync",
+      "archived_at": "2025-12-17T04:24:35.920611+00:00"
+    },
+    {
+      "feature_name": "Llm Themes Integration",
+      "folder_name": "llm-themes-integration",
+      "archived_at": "2025-12-17T04:24:36.065421+00:00"
+    },
+    {
+      "feature_name": "tool-inventory-workflow",
+      "folder_name": "tool-inventory-workflow",
+      "archived_at": "2025-12-17T04:33:24.625054+00:00"
     }
   ],
-  "total_archived": 3,
-  "last_updated": "2025-12-11T02:22:18.385517+00:00"
+  "total_archived": 6,
+  "last_updated": "2025-12-17T04:33:24.625054+00:00"
 }

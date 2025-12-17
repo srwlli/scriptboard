@@ -1,0 +1,8 @@
+{
+  "feature_name": "scriptboard-prompting-workflow",
+  "description": "Enhance the prompting workflow on Scriptboard",
+  "category": "idea",
+  "priority": "medium",
+  "created": "2025-12-15T12:08:00.000Z",
+  "status": "stub"
+}

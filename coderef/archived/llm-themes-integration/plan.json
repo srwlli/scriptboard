@@ -1,0 +1,367 @@
+{
+  "META_DOCUMENTATION": {
+    "feature_name": "llm-themes-integration",
+    "schema_version": "1.0.0",
+    "version": "1.0.0",
+    "status": "complete",
+    "generated_by": "AI Assistant",
+    "has_context": true,
+    "has_analysis": false
+  },
+  "UNIVERSAL_PLANNING_STRUCTURE": {
+    "0_preparation": {
+      "foundation_docs": ["frontend/src/components/theme/README.md"],
+      "coding_standards": ["TypeScript", "Tailwind CSS", "React"],
+      "reference_components": ["ThemeSelector.tsx", "themes.ts"],
+      "dependencies": ["lucide-react (already installed)"]
+    },
+    "1_executive_summary": {
+      "description": "Integrate 35 LLM-themed color schemes (7 brands × 5 variations each) into the existing theme system, organized by LLM brand",
+      "goal": "Add comprehensive theme options representing different LLM brands (Claude, GPT-5.1, Gemini, DeepSeek, Le Chat, GPT-4.1 Mini, Grok) with multiple style variations per brand",
+      "scope": "Add theme IDs, metadata, and CSS variables for all 35 themes. Update ThemeSelector to group themes by brand.",
+      "out_of_scope": ["Theme preview images", "Theme search/filter", "Custom theme creation", "Theme import/export"]
+    },
+    "2_risk_assessment": {
+      "complexity": "medium",
+      "risks": [
+        {
+          "risk": "Large CSS file size with 35 themes × 2 modes = 70 CSS blocks",
+          "severity": "low",
+          "mitigation": "CSS is cached and minified in production"
+        },
+        {
+          "risk": "Theme selector UI may become cluttered with 35 options",
+          "severity": "medium",
+          "mitigation": "Group themes by brand in ThemeSelector, use scrollable grid"
+        },
+        {
+          "risk": "TypeScript type union may become unwieldy with 35+ theme IDs",
+          "severity": "low",
+          "mitigation": "TypeScript handles large unions efficiently"
+        }
+      ],
+      "dependencies": [],
+      "breaking_changes": false
+    },
+    "3_current_state_analysis": {
+      "files_to_modify": [
+        {
+          "path": "frontend/src/components/theme/themes.ts",
+          "purpose": "Add all 35 theme IDs to Theme type union and add theme metadata to themes array",
+          "changes": "Extend Theme type, add 35 theme configs with brand grouping metadata"
+        },
+        {
+          "path": "frontend/src/styles/globals.css",
+          "purpose": "Add CSS variables for all 35 themes in both light and dark modes",
+          "changes": "Add 70 CSS blocks (35 themes × 2 modes) with HSL color variables"
+        },
+        {
+          "path": "frontend/src/components/theme/ThemeSelector.tsx",
+          "purpose": "Update to group themes by brand for better organization (required grouping)",
+          "changes": "Add brand grouping UI with headers, organize all themes under their brands"
+        }
+      ],
+      "files_to_create": [],
+      "files_to_reference": [
+        "frontend/src/components/theme/themes.ts",
+        "frontend/src/styles/globals.css",
+        "frontend/src/components/theme/ThemeSelector.tsx"
+      ]
+    },
+    "4_key_features": {
+      "features": [
+        {
+          "name": "Theme Type Extension",
+          "description": "Extend Theme type to include all 35 LLM theme IDs",
+          "requirements": [
+            "Add theme IDs: claude-modern-minimal, claude-modern-tech, claude-warm-organic, claude-cool-professional, claude-gridiron",
+            "Add theme IDs: gpt-5-1-thinking-modern-minimal, gpt-5-1-thinking-modern-tech, gpt-5-1-thinking-warm-organic, gpt-5-1-thinking-cool-professional, gpt-5-1-thinking-noir-focus",
+            "Add theme IDs: gemini-modern-minimal, gemini-modern-tech, gemini-warm-organic, gemini-cool-professional, gemini-nebula-dream",
+            "Add theme IDs: deepseek-modern-minimal, deepseek-modern-tech, deepseek-warm-organic, deepseek-cool-professional, deepseek-neon-noir",
+            "Add theme IDs: lechat-modern-minimal, lechat-modern-tech, lechat-warm-organic, lechat-cool-professional, lechat-midnight-aurora",
+            "Add theme IDs: gpt4.1-mini-modern-minimal, gpt4.1-mini-modern-tech, gpt4.1-mini-warm-organic, gpt4.1-mini-cool-professional, gpt4.1-mini-neon-lab",
+            "Add theme IDs: grok-modern-minimal, grok-modern-tech, grok-warm-organic, grok-cool-professional, grok-cosmic-gradient"
+          ]
+        },
+        {
+          "name": "Theme Metadata",
+          "description": "Add theme configurations with names, descriptions, and brand grouping",
+          "requirements": [
+            "Add ThemeConfig for each of 35 themes",
+            "Include brand name in description or metadata",
+            "Use specified Lucide icons per brand: Sparkles (Claude), Brain (GPT-5.1), Bot (Gemini), Zap (DeepSeek), MessageSquare (Le Chat), Cpu (GPT-4.1 Mini), Rocket (Grok)"
+          ]
+        },
+        {
+          "name": "CSS Variables",
+          "description": "Add CSS color variables for all themes in light and dark modes",
+          "requirements": [
+            "Add CSS blocks following pattern: [data-theme=\"theme-id\"][data-mode=\"light\"]",
+            "Add CSS blocks following pattern: [data-theme=\"theme-id\"][data-mode=\"dark\"]",
+            "Use HSL color values from user's session export (provided in conversation history)",
+            "CSS data source: User export contains 7 responses with all 35 themes × 2 modes = 70 CSS blocks",
+            "Maintain consistent variable names (--background, --foreground, --primary, etc.)"
+          ]
+        },
+        {
+          "name": "Theme Selector Grouping",
+          "description": "Group themes by brand in ThemeSelector UI (required, not optional)",
+          "requirements": [
+            "Add brand grouping metadata to ThemeConfig",
+            "Update ThemeSelector to display grouped sections by brand",
+            "Show brand headers (Claude, GPT-5.1, Gemini, etc.)",
+            "Maintain scrollable grid layout within each brand section",
+            "Visual separators between brand groups"
+          ]
+        }
+      ]
+    },
+    "5_task_id_system": {
+      "workorder": {
+        "id": "WO-LLM-THEMES-INTEGRATION-001",
+        "name": "LLM Themes Integration",
+        "feature_dir": "coderef/working/llm-themes-integration"
+      },
+      "tasks": [
+        {
+          "id": "THEMES-001",
+          "workorder_id": "WO-LLM-THEMES-INTEGRATION-001",
+          "description": "Extend Theme type union to include all 35 LLM theme IDs",
+          "files": ["frontend/src/components/theme/themes.ts"],
+          "acceptance_criteria": [
+            "Theme type includes all 35 theme IDs",
+            "TypeScript compiles without errors",
+            "Type safety maintained for theme IDs"
+          ]
+        },
+        {
+          "id": "THEMES-002",
+          "workorder_id": "WO-LLM-THEMES-INTEGRATION-001",
+          "description": "Add theme metadata (ThemeConfig) for all 35 themes with brand grouping",
+          "files": ["frontend/src/components/theme/themes.ts"],
+          "acceptance_criteria": [
+            "All 35 themes have ThemeConfig entries",
+            "Themes include name, description, and icon",
+            "Brand information included in metadata"
+          ]
+        },
+        {
+          "id": "THEMES-003",
+          "workorder_id": "WO-LLM-THEMES-INTEGRATION-001",
+          "description": "Add CSS variables for Claude themes (5 themes × 2 modes = 10 blocks)",
+          "files": ["frontend/src/styles/globals.css"],
+          "acceptance_criteria": [
+            "All Claude theme CSS blocks added",
+            "Light and dark modes for each theme",
+            "CSS variables match provided values"
+          ]
+        },
+        {
+          "id": "THEMES-004",
+          "workorder_id": "WO-LLM-THEMES-INTEGRATION-001",
+          "description": "Add CSS variables for GPT-5.1 Thinking themes (5 themes × 2 modes = 10 blocks)",
+          "files": ["frontend/src/styles/globals.css"],
+          "acceptance_criteria": [
+            "All GPT-5.1 Thinking theme CSS blocks added",
+            "Light and dark modes for each theme",
+            "CSS variables match provided values"
+          ]
+        },
+        {
+          "id": "THEMES-005",
+          "workorder_id": "WO-LLM-THEMES-INTEGRATION-001",
+          "description": "Add CSS variables for Gemini themes (5 themes × 2 modes = 10 blocks)",
+          "files": ["frontend/src/styles/globals.css"],
+          "acceptance_criteria": [
+            "All Gemini theme CSS blocks added",
+            "Light and dark modes for each theme",
+            "CSS variables match provided values"
+          ]
+        },
+        {
+          "id": "THEMES-006",
+          "workorder_id": "WO-LLM-THEMES-INTEGRATION-001",
+          "description": "Add CSS variables for DeepSeek themes (5 themes × 2 modes = 10 blocks)",
+          "files": ["frontend/src/styles/globals.css"],
+          "acceptance_criteria": [
+            "All DeepSeek theme CSS blocks added",
+            "Light and dark modes for each theme",
+            "CSS variables match provided values"
+          ]
+        },
+        {
+          "id": "THEMES-007",
+          "workorder_id": "WO-LLM-THEMES-INTEGRATION-001",
+          "description": "Add CSS variables for Le Chat themes (5 themes × 2 modes = 10 blocks)",
+          "files": ["frontend/src/styles/globals.css"],
+          "acceptance_criteria": [
+            "All Le Chat theme CSS blocks added",
+            "Light and dark modes for each theme",
+            "CSS variables match provided values"
+          ]
+        },
+        {
+          "id": "THEMES-008",
+          "workorder_id": "WO-LLM-THEMES-INTEGRATION-001",
+          "description": "Add CSS variables for GPT-4.1 Mini themes (5 themes × 2 modes = 10 blocks)",
+          "files": ["frontend/src/styles/globals.css"],
+          "acceptance_criteria": [
+            "All GPT-4.1 Mini theme CSS blocks added",
+            "Light and dark modes for each theme",
+            "CSS variables match provided values"
+          ]
+        },
+        {
+          "id": "THEMES-009",
+          "workorder_id": "WO-LLM-THEMES-INTEGRATION-001",
+          "description": "Add CSS variables for Grok themes (5 themes × 2 modes = 10 blocks)",
+          "files": ["frontend/src/styles/globals.css"],
+          "acceptance_criteria": [
+            "All Grok theme CSS blocks added",
+            "Light and dark modes for each theme",
+            "CSS variables match provided values"
+          ]
+        },
+        {
+          "id": "THEMES-010",
+          "workorder_id": "WO-LLM-THEMES-INTEGRATION-001",
+          "description": "Update ThemeSelector to group themes by brand (required grouping)",
+          "files": ["frontend/src/components/theme/ThemeSelector.tsx"],
+          "acceptance_criteria": [
+            "Themes grouped by brand in UI (required, not optional)",
+            "Brand headers displayed (Claude, GPT-5.1, Gemini, DeepSeek, Le Chat, GPT-4.1 Mini, Grok)",
+            "Scrollable sections for each brand",
+            "Visual separation between brand groups",
+            "All 35 themes organized under their respective brands"
+          ]
+        }
+      ]
+    },
+    "6_implementation_phases": {
+      "phases": [
+        {
+          "phase": 1,
+          "name": "Theme Type and Metadata",
+          "description": "Extend TypeScript types and add theme metadata",
+          "tasks": ["THEMES-001", "THEMES-002"],
+          "deliverables": ["Updated themes.ts with all 35 theme IDs and configs"]
+        },
+        {
+          "phase": 2,
+          "name": "CSS Variables - First Half",
+          "description": "Add CSS variables for Claude, GPT-5.1, Gemini, and DeepSeek themes",
+          "tasks": ["THEMES-003", "THEMES-004", "THEMES-005", "THEMES-006"],
+          "deliverables": ["CSS blocks for 20 themes (40 CSS blocks total)"]
+        },
+        {
+          "phase": 3,
+          "name": "CSS Variables - Second Half",
+          "description": "Add CSS variables for Le Chat, GPT-4.1 Mini, and Grok themes",
+          "tasks": ["THEMES-007", "THEMES-008", "THEMES-009"],
+          "deliverables": ["CSS blocks for remaining 15 themes (30 CSS blocks total)"]
+        },
+        {
+          "phase": 4,
+          "name": "UI Enhancement",
+          "description": "Update ThemeSelector to group themes by brand",
+          "tasks": ["THEMES-010"],
+          "deliverables": ["Updated ThemeSelector with brand grouping"]
+        }
+      ]
+    },
+    "7_testing_strategy": {
+      "unit_tests": [
+        {
+          "component": "themes.ts",
+          "tests": [
+            "All 35 themes are valid Theme type",
+            "getThemeById returns correct theme for all IDs",
+            "isValidTheme correctly validates all theme IDs"
+          ]
+        }
+      ],
+      "integration_tests": [
+        {
+          "component": "ThemeSelector",
+          "tests": [
+            "All 35 themes appear in selector",
+            "Themes are grouped by brand",
+            "Theme selection works for all themes",
+            "Color swatches display correctly"
+          ]
+        },
+        {
+          "component": "ThemeProvider",
+          "tests": [
+            "All themes can be set and persisted",
+            "Theme switching works for all 35 themes",
+            "Light/dark mode works with all themes"
+          ]
+        }
+      ],
+      "manual_testing": [
+        "Verify all 35 themes appear in ThemeSelector",
+        "Test theme switching for each brand",
+        "Verify light/dark mode works with all themes",
+        "Check color swatches match theme colors",
+        "Test theme persistence across page reloads"
+      ]
+    },
+    "8_success_criteria": {
+      "functional": [
+        "All 35 themes are available in ThemeSelector",
+        "Themes can be selected and applied",
+        "Light and dark modes work with all themes",
+        "Theme preferences persist across sessions"
+      ],
+      "visual": [
+        "Themes grouped by brand in selector",
+        "Color swatches accurately represent theme colors",
+        "Smooth transitions when switching themes",
+        "All themes render correctly in both modes"
+      ],
+      "performance": [
+        "No performance degradation with 35 themes",
+        "CSS file size acceptable (cached in production)",
+        "Theme switching is instant"
+      ]
+    },
+    "9_implementation_checklist": {
+      "phase_1": [
+        "Extend Theme type union with all 35 theme IDs",
+        "Add ThemeConfig for Claude themes (5) with icon: Sparkles",
+        "Add ThemeConfig for GPT-5.1 Thinking themes (5) with icon: Brain",
+        "Add ThemeConfig for Gemini themes (5) with icon: Bot",
+        "Add ThemeConfig for DeepSeek themes (5) with icon: Zap",
+        "Add ThemeConfig for Le Chat themes (5) with icon: MessageSquare",
+        "Add ThemeConfig for GPT-4.1 Mini themes (5) with icon: Cpu",
+        "Add ThemeConfig for Grok themes (5) with icon: Rocket",
+        "Include brand metadata in descriptions"
+      ],
+      "phase_2": [
+        "Add Claude theme CSS blocks (10 total: 5 themes × 2 modes) - use CSS from user export Response 1",
+        "Add GPT-5.1 Thinking theme CSS blocks (10 total) - use CSS from user export Response 2",
+        "Add Gemini theme CSS blocks (10 total) - use CSS from user export Response 3",
+        "Add DeepSeek theme CSS blocks (10 total) - use CSS from user export Response 4",
+        "Verify CSS syntax is correct",
+        "Test theme switching for first 20 themes"
+      ],
+      "phase_3": [
+        "Add Le Chat theme CSS blocks (10 total) - use CSS from user export Response 5",
+        "Add GPT-4.1 Mini theme CSS blocks (10 total) - use CSS from user export Response 6",
+        "Add Grok theme CSS blocks (10 total) - use CSS from user export Response 7",
+        "Verify all 70 CSS blocks are present",
+        "Test theme switching for remaining 15 themes"
+      ],
+      "phase_4": [
+        "Add brand grouping logic to ThemeSelector (required, not optional)",
+        "Update UI to show brand sections with headers",
+        "Add visual separators between brand groups",
+        "Maintain scrollable grid layout within each brand section",
+        "Test grouping display for all 7 brands",
+        "Ensure all 35 themes are properly grouped"
+      ]
+    }
+  }
+}
+

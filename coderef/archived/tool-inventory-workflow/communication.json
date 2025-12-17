@@ -1,0 +1,77 @@
+{
+  "handoff": {
+    "workorder_id": "WO-TOOL-INVENTORY-001",
+    "stub_id": "STUB-002",
+    "feature_name": "tool-inventory-workflow",
+    "status": "approved",
+    "created": "2025-12-16T00:00:00Z",
+    "last_updated": "2025-12-16T00:00:00Z"
+  },
+  "context": {
+    "problem": "Projects exist but their capabilities are undocumented. Hard to know what each tool can do.",
+    "solution": "Orchestrator sends prompt to project agents. Agents generate features.md in coderef/user/. Orchestrator collects and aggregates.",
+    "prompt_location": "coderef/features/tool-inventory-workflow/generate-features-doc.md"
+  },
+  "instructions": {
+    "for_orchestrator": [
+      "Send generate-features-doc.md prompt to each project agent",
+      "Agent generates features.md in their coderef/user/ folder",
+      "Collect completed features.md from each project",
+      "Aggregate into master inventory (optional: surface in Scriptboard)"
+    ],
+    "for_project_agents": [
+      "Read generate-features-doc.md prompt template",
+      "Document what users CAN DO (not code structure)",
+      "Include: features, shortcuts, CLI commands, API endpoints, config options",
+      "Use action-oriented language (Run workflow, not WorkflowRunner exists)",
+      "Save to coderef/user/features.md",
+      "Update communication.json status when complete"
+    ]
+  },
+  "target_projects": [
+    {
+      "stub_id": "STUB-019",
+      "name": "scriptboard",
+      "path": "C:\\Users\\willh\\Desktop\\clipboard_compannion\\next",
+      "status": "pending"
+    },
+    {
+      "stub_id": "STUB-015",
+      "name": "scrapper",
+      "path": "C:\\Users\\willh\\Desktop\\scrapper",
+      "status": "pending"
+    },
+    {
+      "stub_id": "STUB-017",
+      "name": "gridiron-franchise",
+      "path": "C:\\Users\\willh\\Desktop\\latest-sim\\gridiron-franchise",
+      "status": "pending"
+    },
+    {
+      "stub_id": "STUB-018",
+      "name": "noted",
+      "path": "C:\\Users\\willh\\Desktop\\projects\\noted",
+      "status": "pending"
+    },
+    {
+      "stub_id": "STUB-013",
+      "name": "app-documents",
+      "path": "C:\\Users\\willh\\Desktop\\app_documents",
+      "status": "pending"
+    }
+  ],
+  "communication_log": [
+    {
+      "timestamp": "2025-12-16T00:00:00Z",
+      "from": "orchestrator",
+      "action": "created",
+      "message": "Workorder created. Prompt template ready."
+    },
+    {
+      "timestamp": "2025-12-16T00:01:00Z",
+      "from": "orchestrator",
+      "action": "updated",
+      "message": "Template revised. Focus on USER-FACING docs: what users CAN DO, not code structure. Include good/bad examples."
+    }
+  ]
+}

@@ -1,0 +1,180 @@
+{
+  "META_DOCUMENTATION": {
+    "feature_name": "generate-features-inventory",
+    "schema_version": "1.0.0",
+    "version": "1.0.0",
+    "status": "complete",
+    "generated_by": "AI Assistant",
+    "has_context": false,
+    "has_analysis": false
+  },
+  "UNIVERSAL_PLANNING_STRUCTURE": {
+    "0_preparation": {
+      "foundation_docs": [],
+      "coding_standards": [],
+      "reference_components": [],
+      "patterns_to_follow": [
+        "User-centric documentation focus",
+        "Project-agnostic prompt design",
+        "Actionable feature descriptions"
+      ]
+    },
+    "1_executive_summary": {
+      "feature_description": "A reusable prompt template that generates user-focused features documentation (features.md) for any project. The prompt guides AI agents to document what users CAN DO rather than technical implementation details.",
+      "goal": "Enable consistent, user-friendly feature documentation across all projects via a single reusable prompt.",
+      "requirements": [
+        "Prompt must be project-agnostic",
+        "Output focuses on user actions, not technical details",
+        "Includes keyboard shortcuts, settings, and API endpoints",
+        "Saves to standardized location: coderef/user/features.md"
+      ],
+      "out_of_scope": [
+        "Automated execution across multiple projects",
+        "Integration with Scriptboard UI",
+        "Version tracking of generated docs"
+      ]
+    },
+    "2_risk_assessment": {
+      "complexity": "low",
+      "risk_level": "low",
+      "risks": [
+        {
+          "risk": "Prompt may not produce consistent results across different project types",
+          "mitigation": "Test on multiple projects and refine prompt based on results"
+        }
+      ],
+      "estimated_tasks": 3
+    },
+    "3_current_state_analysis": {
+      "files_to_modify": [],
+      "files_to_create": [
+        {
+          "path": "coderef/working/generate-features-inventory/prompt.md",
+          "purpose": "The reusable prompt template"
+        }
+      ],
+      "files_to_delete": [],
+      "dependencies": []
+    },
+    "4_key_features": {
+      "features": [
+        {
+          "id": "PROMPT-001",
+          "name": "User-Focused Prompt Template",
+          "description": "A prompt that guides AI to document features from user perspective"
+        },
+        {
+          "id": "PROMPT-002",
+          "name": "Standardized Output Format",
+          "description": "Consistent markdown format with categories, shortcuts, settings, API"
+        }
+      ]
+    },
+    "5_task_id_system": {
+      "workorder": {
+        "id": "WO-GENERATE-FEATURES-INVENTORY-001",
+        "name": "Generate Features Inventory",
+        "feature_dir": "coderef/working/generate-features-inventory"
+      },
+      "tasks": [
+        {
+          "id": "PROMPT-001",
+          "workorder_id": "WO-GENERATE-FEATURES-INVENTORY-001",
+          "description": "Create user-focused prompt template",
+          "type": "create",
+          "file": "coderef/working/generate-features-inventory/prompt.md",
+          "acceptance": "Prompt includes output format, key principles, discovery process",
+          "status": "complete"
+        },
+        {
+          "id": "TEST-001",
+          "workorder_id": "WO-GENERATE-FEATURES-INVENTORY-001",
+          "description": "Test prompt on Scriptboard project",
+          "type": "test",
+          "file": "coderef/user/features.md",
+          "acceptance": "Generated features.md follows user-focused format",
+          "status": "pending"
+        },
+        {
+          "id": "DOC-001",
+          "workorder_id": "WO-GENERATE-FEATURES-INVENTORY-001",
+          "description": "Document workflow usage in communication.json",
+          "type": "create",
+          "file": "coderef/working/generate-features-inventory/communication.json",
+          "acceptance": "Workflow documented for orchestrator use",
+          "status": "pending"
+        }
+      ]
+    },
+    "6_implementation_phases": {
+      "phases": [
+        {
+          "phase": 1,
+          "name": "Prompt Creation",
+          "description": "Create the reusable prompt template",
+          "tasks": ["PROMPT-001"],
+          "deliverables": ["prompt.md"]
+        },
+        {
+          "phase": 2,
+          "name": "Validation",
+          "description": "Test the prompt on a real project",
+          "tasks": ["TEST-001"],
+          "deliverables": ["coderef/user/features.md"]
+        },
+        {
+          "phase": 3,
+          "name": "Documentation",
+          "description": "Document the workflow for reuse",
+          "tasks": ["DOC-001"],
+          "deliverables": ["communication.json"]
+        }
+      ]
+    },
+    "7_testing_strategy": {
+      "unit_tests": [],
+      "integration_tests": [
+        {
+          "test": "Run prompt on Scriptboard and verify output format",
+          "validates": "PROMPT-001, PROMPT-002"
+        }
+      ],
+      "manual_tests": [
+        {
+          "test": "Review generated features.md for user-centric language",
+          "validates": "No technical jargon, actionable descriptions"
+        }
+      ]
+    },
+    "8_success_criteria": {
+      "criteria": [
+        {
+          "criterion": "Prompt generates valid features.md",
+          "measurable": "Output matches expected format"
+        },
+        {
+          "criterion": "Documentation is user-focused",
+          "measurable": "Every feature describes what user CAN DO"
+        },
+        {
+          "criterion": "Prompt is project-agnostic",
+          "measurable": "No hardcoded project names or paths"
+        }
+      ]
+    },
+    "9_implementation_checklist": {
+      "phase_1": [
+        { "task": "Create prompt.md with output format", "done": true },
+        { "task": "Include key principles section", "done": true },
+        { "task": "Include discovery process section", "done": true }
+      ],
+      "phase_2": [
+        { "task": "Run prompt on Scriptboard", "done": false },
+        { "task": "Verify output format", "done": false }
+      ],
+      "phase_3": [
+        { "task": "Create communication.json", "done": false }
+      ]
+    }
+  }
+}

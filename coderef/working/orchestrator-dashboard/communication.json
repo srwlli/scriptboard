@@ -1,0 +1,104 @@
+{
+  "handoff": {
+    "workorder_id": "WO-ORCHESTRATOR-DASHBOARD-001",
+    "stub_id": "STUB-023",
+    "feature_name": "orchestrator-dashboard",
+    "from": "orchestrator-assistant",
+    "to": "scriptboard-agent",
+    "initiated_at": "2025-12-16",
+    "status": "pending_plan"
+  },
+  "context": {
+    "problem": "No central UI to view workorders, stubs, plans, and projects across all tracked projects",
+    "solution": "Dedicated Orchestrator Dashboard page in Scriptboard with tabbed interface",
+    "data_sources": {
+      "workorders": "C:\\Users\\willh\\Desktop\\assistant\\workorders.json",
+      "projects": "C:\\Users\\willh\\Desktop\\assistant\\projects.md",
+      "plans": "Scan all project coderef/working/*/plan.json",
+      "stubs": "C:\\Users\\willh\\Desktop\\assistant\\coderef\\working\\*/stub.json"
+    }
+  },
+  "instructions": {
+    "task": "Build Orchestrator Dashboard with tabbed interface",
+    "steps": [
+      {
+        "step": 1,
+        "action": "Create new page/route",
+        "description": "Add /orchestrator or /dashboard route to Scriptboard"
+      },
+      {
+        "step": 2,
+        "action": "Build tab navigation",
+        "description": "4 tabs: Projects | Workorders | Plans | Stubs"
+      },
+      {
+        "step": 3,
+        "action": "Projects tab",
+        "description": "Display all tracked projects with path, deploy link, active WO count, active plan count"
+      },
+      {
+        "step": 4,
+        "action": "Workorders tab",
+        "description": "Display all active workorders from workorders.json with status badges"
+      },
+      {
+        "step": 5,
+        "action": "Plans tab",
+        "description": "Display all plan.json across projects, filterable by project/status"
+      },
+      {
+        "step": 6,
+        "action": "Stubs tab",
+        "description": "Display all stubs from assistant, sortable by priority"
+      },
+      {
+        "step": 7,
+        "action": "Run /create-plan",
+        "description": "Generate detailed implementation plan"
+      }
+    ]
+  },
+  "ui_spec": {
+    "tabs": [
+      {
+        "name": "Projects",
+        "columns": ["Name", "Path", "Active WOs", "Active Plans", "Deploy"],
+        "actions": ["Open in terminal", "View details"]
+      },
+      {
+        "name": "Workorders",
+        "columns": ["WO-ID", "Feature", "Project", "Status", "Next Action"],
+        "actions": ["View communication.json", "Update status"],
+        "filters": ["By project", "By status"]
+      },
+      {
+        "name": "Plans",
+        "columns": ["Feature", "Project", "Location", "Status", "Last Updated"],
+        "actions": ["View plan.json", "Archive"],
+        "filters": ["By project", "Working/Archived", "Stale only"]
+      },
+      {
+        "name": "Stubs",
+        "columns": ["STUB-ID", "Name", "Category", "Priority", "Created"],
+        "actions": ["Promote to WO", "View details"],
+        "filters": ["By priority", "By category"]
+      }
+    ],
+    "data_refresh": "Manual refresh button + auto-refresh option"
+  },
+  "design_spec": "coderef/working/orchestrator-dashboard/design-spec.md",
+  "communication_log": [
+    {
+      "timestamp": "2025-12-16T00:00:00Z",
+      "from": "orchestrator",
+      "action": "handoff_initiated",
+      "message": "Requesting Orchestrator Dashboard with 4 tabs: Projects, Workorders, Plans, Stubs. Use /create-plan to submit implementation plan."
+    },
+    {
+      "timestamp": "2025-12-17T00:00:00Z",
+      "from": "orchestrator",
+      "action": "design_spec_added",
+      "message": "Added comprehensive design-spec.md with 5 tabs (Overview added), component specs, backend endpoints, phased implementation plan, and success criteria."
+    }
+  ]
+}

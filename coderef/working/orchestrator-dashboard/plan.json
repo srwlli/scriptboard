@@ -1,0 +1,182 @@
+{
+  "META_DOCUMENTATION": {
+    "feature_name": "orchestrator-dashboard",
+    "schema_version": "1.0.0",
+    "version": "1.0.0",
+    "status": "complete",
+    "generated_by": "AI Assistant",
+    "has_context": true,
+    "has_analysis": false
+  },
+  "UNIVERSAL_PLANNING_STRUCTURE": {
+    "0_preparation": {
+      "foundation_docs": ["design-spec.md", "communication.json"],
+      "reference_components": ["PromptingWorkflowStandalone.tsx", "CollapsibleCard", "SystemMonitor"],
+      "coding_standards": "TypeScript, Tailwind CSS, FastAPI backend",
+      "project_paths": [
+        "C:/Users/willh/Desktop/clipboard_compannion/next",
+        "C:/Users/willh/Desktop/scrapper",
+        "C:/Users/willh/Desktop/latest-sim/gridiron-franchise",
+        "C:/Users/willh/Desktop/projects/noted",
+        "C:/Users/willh/Desktop/app_documents",
+        "C:/Users/willh/Desktop/projects/coderef-system",
+        "C:/Users/willh/Desktop/Business-Dash/latest-app"
+      ],
+      "orchestrator_path": "C:/Users/willh/Desktop/assistant"
+    },
+    "1_executive_summary": {
+      "goal": "Build a dynamic Orchestrator Dashboard in Scriptboard to replace static index.html files. Single source of truth for all project/workorder/plan/stub tracking.",
+      "scope": "New /orchestrator route with 5 tabs (Overview, Projects, Workorders, Plans, Stubs), 6 backend API endpoints, file scanning across 7+ projects",
+      "key_changes": [
+        "Add /orchestrator route to frontend",
+        "Create OrchestratorDashboard.tsx with 5 tabs",
+        "Add orchestrator.py router to backend",
+        "Implement file scanning for communication.json, plan.json, stub.json",
+        "Parse projects.md for project list"
+      ]
+    },
+    "2_risk_assessment": {
+      "complexity": "high",
+      "estimated_tasks": 18,
+      "risks": [
+        {
+          "risk": "Cross-project file access permissions",
+          "mitigation": "Use absolute paths, handle errors gracefully"
+        },
+        {
+          "risk": "Large number of files to scan",
+          "mitigation": "Implement caching, async scanning"
+        },
+        {
+          "risk": "projects.md parsing fragility",
+          "mitigation": "Use regex with fallbacks, validate structure"
+        }
+      ]
+    },
+    "3_current_state_analysis": {
+      "files_to_modify": [
+        { "path": "frontend/src/app/orchestrator/page.tsx", "purpose": "New route for dashboard" },
+        { "path": "backend/api.py", "purpose": "Add orchestrator router" }
+      ],
+      "files_to_create": [
+        { "path": "frontend/src/components/orchestrator/OrchestratorDashboard.tsx", "purpose": "Main dashboard component" },
+        { "path": "frontend/src/components/orchestrator/OrchestratorTabs.tsx", "purpose": "Tab navigation" },
+        { "path": "frontend/src/components/orchestrator/OverviewTab.tsx", "purpose": "Stats and quick actions" },
+        { "path": "frontend/src/components/orchestrator/ProjectsTable.tsx", "purpose": "Projects list" },
+        { "path": "frontend/src/components/orchestrator/WorkordersTable.tsx", "purpose": "Workorders list" },
+        { "path": "frontend/src/components/orchestrator/PlansTable.tsx", "purpose": "Plans list" },
+        { "path": "frontend/src/components/orchestrator/StubsGrid.tsx", "purpose": "Stubs card grid" },
+        { "path": "frontend/src/components/orchestrator/StubCard.tsx", "purpose": "Individual stub card" },
+        { "path": "frontend/src/components/orchestrator/StatsCards.tsx", "purpose": "Overview stat cards" },
+        { "path": "backend/orchestrator.py", "purpose": "Backend API router" }
+      ]
+    },
+    "4_key_features": {
+      "features": [
+        { "id": "F1", "name": "Overview Tab", "description": "Stats cards, principle reminder, recent activity, quick actions" },
+        { "id": "F2", "name": "Projects Tab", "description": "Table of tracked projects with paths, WO/plan counts, deploy links" },
+        { "id": "F3", "name": "Workorders Tab", "description": "All active workorders with status, filters by project/status/type" },
+        { "id": "F4", "name": "Plans Tab", "description": "All plan.json files with completion progress, staleness indicator" },
+        { "id": "F5", "name": "Stubs Tab", "description": "Card grid of stubs with priority badges, filters, promote action" },
+        { "id": "F6", "name": "Backend API", "description": "6 endpoints for fetching orchestrator data" }
+      ]
+    },
+    "5_task_id_system": {
+      "workorder": {
+        "id": "WO-ORCHESTRATOR-DASHBOARD-001",
+        "name": "Orchestrator Dashboard",
+        "feature_dir": "coderef/working/orchestrator-dashboard"
+      },
+      "tasks": [
+        { "id": "SETUP-001", "workorder_id": "WO-ORCHESTRATOR-DASHBOARD-001", "description": "Create /orchestrator route and page.tsx", "feature": "F1", "priority": "high", "estimated_loc": 20 },
+        { "id": "SETUP-002", "workorder_id": "WO-ORCHESTRATOR-DASHBOARD-001", "description": "Create orchestrator components folder structure", "feature": "F1", "priority": "high", "estimated_loc": 10 },
+        { "id": "BE-001", "workorder_id": "WO-ORCHESTRATOR-DASHBOARD-001", "description": "Create orchestrator.py router with project paths config", "feature": "F6", "priority": "high", "estimated_loc": 50 },
+        { "id": "BE-002", "workorder_id": "WO-ORCHESTRATOR-DASHBOARD-001", "description": "Implement GET /orchestrator/stats endpoint", "feature": "F6", "priority": "high", "estimated_loc": 40 },
+        { "id": "BE-003", "workorder_id": "WO-ORCHESTRATOR-DASHBOARD-001", "description": "Implement GET /orchestrator/projects (parse projects.md)", "feature": "F6", "priority": "high", "estimated_loc": 60 },
+        { "id": "BE-004", "workorder_id": "WO-ORCHESTRATOR-DASHBOARD-001", "description": "Implement GET /orchestrator/stubs (scan stub.json)", "feature": "F6", "priority": "high", "estimated_loc": 50 },
+        { "id": "BE-005", "workorder_id": "WO-ORCHESTRATOR-DASHBOARD-001", "description": "Implement GET /orchestrator/workorders (scan communication.json)", "feature": "F6", "priority": "medium", "estimated_loc": 60 },
+        { "id": "BE-006", "workorder_id": "WO-ORCHESTRATOR-DASHBOARD-001", "description": "Implement GET /orchestrator/plans (scan plan.json)", "feature": "F6", "priority": "medium", "estimated_loc": 60 },
+        { "id": "UI-001", "workorder_id": "WO-ORCHESTRATOR-DASHBOARD-001", "description": "Create OrchestratorDashboard.tsx shell with tab state", "feature": "F1", "priority": "high", "estimated_loc": 80 },
+        { "id": "UI-002", "workorder_id": "WO-ORCHESTRATOR-DASHBOARD-001", "description": "Create OrchestratorTabs.tsx component", "feature": "F1", "priority": "high", "estimated_loc": 40 },
+        { "id": "UI-003", "workorder_id": "WO-ORCHESTRATOR-DASHBOARD-001", "description": "Create StatsCards.tsx for overview", "feature": "F1", "priority": "high", "estimated_loc": 50 },
+        { "id": "UI-004", "workorder_id": "WO-ORCHESTRATOR-DASHBOARD-001", "description": "Create OverviewTab.tsx with stats and principle box", "feature": "F1", "priority": "high", "estimated_loc": 60 },
+        { "id": "UI-005", "workorder_id": "WO-ORCHESTRATOR-DASHBOARD-001", "description": "Create ProjectsTable.tsx", "feature": "F2", "priority": "high", "estimated_loc": 80 },
+        { "id": "UI-006", "workorder_id": "WO-ORCHESTRATOR-DASHBOARD-001", "description": "Create StubCard.tsx and StubsGrid.tsx", "feature": "F5", "priority": "high", "estimated_loc": 100 },
+        { "id": "UI-007", "workorder_id": "WO-ORCHESTRATOR-DASHBOARD-001", "description": "Create WorkordersTable.tsx with filters", "feature": "F3", "priority": "medium", "estimated_loc": 100 },
+        { "id": "UI-008", "workorder_id": "WO-ORCHESTRATOR-DASHBOARD-001", "description": "Create PlansTable.tsx with staleness indicator", "feature": "F4", "priority": "medium", "estimated_loc": 100 },
+        { "id": "INT-001", "workorder_id": "WO-ORCHESTRATOR-DASHBOARD-001", "description": "Add navigation link to orchestrator", "feature": "F1", "priority": "low", "estimated_loc": 10 },
+        { "id": "INT-002", "workorder_id": "WO-ORCHESTRATOR-DASHBOARD-001", "description": "Add API client functions in api.ts", "feature": "F6", "priority": "high", "estimated_loc": 40 }
+      ]
+    },
+    "6_implementation_phases": {
+      "phases": [
+        {
+          "phase": 1,
+          "name": "MVP Foundation",
+          "description": "Route, backend setup, Overview tab with stats",
+          "tasks": ["SETUP-001", "SETUP-002", "BE-001", "BE-002", "UI-001", "UI-002", "UI-003", "UI-004", "INT-002"],
+          "deliverables": ["/orchestrator route working", "Stats endpoint", "Overview tab with counts"]
+        },
+        {
+          "phase": 2,
+          "name": "Projects & Stubs",
+          "description": "Projects and Stubs tabs (read-only)",
+          "tasks": ["BE-003", "BE-004", "UI-005", "UI-006"],
+          "deliverables": ["Projects table", "Stubs card grid"]
+        },
+        {
+          "phase": 3,
+          "name": "Workorders & Plans",
+          "description": "Remaining tabs with filters",
+          "tasks": ["BE-005", "BE-006", "UI-007", "UI-008", "INT-001"],
+          "deliverables": ["Workorders table", "Plans table", "Nav link"]
+        }
+      ]
+    },
+    "7_testing_strategy": {
+      "manual_tests": [
+        "Verify all 7 projects are scanned correctly",
+        "Test with missing/malformed JSON files",
+        "Verify counts match actual files",
+        "Test filters on each tab",
+        "Verify staleness calculation (>7 days)"
+      ]
+    },
+    "8_success_criteria": {
+      "criteria": [
+        "Dashboard loads with accurate counts for all projects",
+        "All 9 projects visible in Projects tab",
+        "Stubs display with correct priority/category badges",
+        "Workorders show current status from communication.json",
+        "Plans show completion progress and staleness",
+        "Replaces need for assistant/index.html"
+      ]
+    },
+    "9_implementation_checklist": {
+      "phase_1": [
+        "[ ] Create /orchestrator route",
+        "[ ] Create components folder",
+        "[ ] Create orchestrator.py router",
+        "[ ] Implement /stats endpoint",
+        "[ ] Create OrchestratorDashboard shell",
+        "[ ] Create tabs navigation",
+        "[ ] Create StatsCards",
+        "[ ] Create OverviewTab",
+        "[ ] Add API client functions"
+      ],
+      "phase_2": [
+        "[ ] Implement /projects endpoint",
+        "[ ] Implement /stubs endpoint",
+        "[ ] Create ProjectsTable",
+        "[ ] Create StubCard + StubsGrid"
+      ],
+      "phase_3": [
+        "[ ] Implement /workorders endpoint",
+        "[ ] Implement /plans endpoint",
+        "[ ] Create WorkordersTable",
+        "[ ] Create PlansTable",
+        "[ ] Add nav link"
+      ]
+    }
+  }
+}

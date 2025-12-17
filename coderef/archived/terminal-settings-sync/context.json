@@ -1,0 +1,80 @@
+{
+  "feature_name": "terminal-settings-sync",
+  "workorder_id": "WO-TERMINAL-SETTINGS-SYNC-001",
+  "initiated_by": "orchestrator-assistant",
+  "initiated_at": "2025-12-16",
+
+  "description": "Visual UI in Scriptboard to manage Windows Terminal project profiles. Replace manual JSON editing with intuitive visual management.",
+
+  "goal": "Allow users to add/edit/remove Windows Terminal project profiles, set tab colors, configure hotkeys, and manage starting directories - all from Scriptboard UI.",
+
+  "requirements": [
+    "Display list of all Windows Terminal profiles (name, path, color, hotkey)",
+    "Add new project profile with form (name, path, color, hotkey)",
+    "Edit existing profile properties inline or via modal",
+    "Delete profiles with confirmation",
+    "Color picker with preset palette matching existing project colors",
+    "Hotkey capture input (Ctrl+Shift+X format)",
+    "Directory browser/picker for starting path",
+    "Backup settings.json before any write operation",
+    "MCP server version for CLI/LLM access (terminal-mcp)"
+  ],
+
+  "constraints": [
+    "Must not corrupt Windows Terminal settings.json",
+    "Must validate JSON before writing",
+    "Must handle file permission errors gracefully",
+    "Follow existing Scriptboard component patterns",
+    "Use existing UI library/styles in Scriptboard"
+  ],
+
+  "technical_context": {
+    "settings_path": "C:\\Users\\willh\\AppData\\Local\\Packages\\Microsoft.WindowsTerminal_8wekyb3d8bbwe\\LocalState\\settings.json",
+    "settings_schema": {
+      "profiles": "Array of profile objects with guid, name, commandline, startingDirectory, tabColor, tabTitle, hidden",
+      "actions": "Array of action objects defining commands with profile references",
+      "keybindings": "Array mapping action IDs to key combinations"
+    },
+    "existing_profiles": [
+      {"name": "Assistant", "color": "#3B82F6", "hotkey": "ctrl+shift+1"},
+      {"name": "Scriptboard", "color": "#8B5CF6", "hotkey": "ctrl+shift+q"},
+      {"name": "Scrapper", "color": "#EF4444", "hotkey": "ctrl+shift+w"},
+      {"name": "Gridiron", "color": "#22C55E", "hotkey": "ctrl+shift+e"},
+      {"name": "Noted", "color": "#F97316", "hotkey": "ctrl+shift+r"},
+      {"name": "MCP Servers", "color": "#EAB308", "hotkey": "ctrl+shift+t"},
+      {"name": "Selector", "color": "#06B6D4", "hotkey": "ctrl+shift+y"},
+      {"name": "CodeRef", "color": "#64748B", "hotkey": "ctrl+shift+u"},
+      {"name": "MultiTenant", "color": "#EC4899", "hotkey": "ctrl+shift+i"}
+    ]
+  },
+
+  "deliverables": {
+    "scriptboard_ui": [
+      "frontend/src/components/tools/TerminalManager.tsx",
+      "frontend/src/components/tools/TerminalManager.css",
+      "frontend/src/lib/terminal-settings.ts"
+    ],
+    "mcp_server": [
+      "terminal-mcp/src/index.ts",
+      "terminal-mcp/src/tools.ts",
+      "terminal-mcp/package.json"
+    ],
+    "integration": [
+      "Add to Scriptboard navigation",
+      "Register MCP server in Claude config"
+    ]
+  },
+
+  "reference_plan": "coderef/working/terminal-settings-sync/plan.json",
+
+  "success_criteria": [
+    "Can list all Windows Terminal profiles in Scriptboard UI",
+    "Can add new project profile with all properties",
+    "Can edit existing profile properties",
+    "Can delete profiles",
+    "Hotkeys work in Windows Terminal after assignment",
+    "Tab colors display correctly",
+    "MCP tools work via Claude CLI",
+    "No data loss - backup before every write"
+  ]
+}

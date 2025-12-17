@@ -1,0 +1,111 @@
+{
+  "handoff": {
+    "workorder_id": "WO-TERMINAL-SETTINGS-SYNC-001",
+    "feature_name": "terminal-settings-sync",
+    "from": "orchestrator-assistant",
+    "to": "scriptboard-agent",
+    "initiated_at": "2025-12-16",
+    "status": "pending_plan"
+  },
+
+  "status_values": [
+    "pending_plan",
+    "plan_submitted",
+    "changes_requested",
+    "approved",
+    "implementing",
+    "complete",
+    "verified",
+    "closed"
+  ],
+
+  "instructions": {
+    "current_phase": "planning",
+    "action_required": "Create implementation plan using /create-plan workflow",
+
+    "steps": [
+      {
+        "step": 1,
+        "action": "Review context.json",
+        "description": "Understand requirements, constraints, and technical context"
+      },
+      {
+        "step": 2,
+        "action": "Analyze existing patterns",
+        "description": "Review frontend/src/components/tools/ for component patterns"
+      },
+      {
+        "step": 3,
+        "action": "Run /create-plan terminal-settings-sync",
+        "description": "Use the /create-plan workflow to generate your plan.json in this directory"
+      },
+      {
+        "step": 4,
+        "action": "Update this communication.json",
+        "description": "Set handoff.status to 'plan_submitted' and add log entry"
+      },
+      {
+        "step": 5,
+        "action": "Wait for approval",
+        "description": "Do NOT implement until orchestrator approves plan"
+      }
+    ],
+
+    "important": [
+      "Use /create-plan workflow - do not manually create plan.json",
+      "Update communication.json after EVERY phase change",
+      "Add entries to communication_log for tracking",
+      "Do not start implementation until status is 'approved'"
+    ]
+  },
+
+  "files": {
+    "context": "context.json",
+    "plan": "plan.json",
+    "deliverables": "DELIVERABLES.md",
+    "reference_plan": "../working/terminal-settings-sync/plan.json"
+  },
+
+  "workflow": {
+    "phases": [
+      {
+        "phase": 1,
+        "name": "Planning",
+        "status": "in_progress",
+        "owner": "scriptboard-agent",
+        "expected_status_after": "plan_submitted"
+      },
+      {
+        "phase": 2,
+        "name": "Approval",
+        "status": "pending",
+        "owner": "orchestrator-assistant",
+        "expected_status_after": "approved"
+      },
+      {
+        "phase": 3,
+        "name": "Implementation",
+        "status": "pending",
+        "owner": "scriptboard-agent",
+        "expected_status_after": "complete"
+      },
+      {
+        "phase": 4,
+        "name": "Verification",
+        "status": "pending",
+        "owner": "orchestrator-assistant",
+        "expected_status_after": "closed"
+      }
+    ]
+  },
+
+  "communication_log": [
+    {
+      "timestamp": "2025-12-16T00:00:00Z",
+      "from": "orchestrator-assistant",
+      "status_change": null,
+      "message": "Initiating WO-TERMINAL-SETTINGS-SYNC-001. This feature adds a Terminal Manager tool to Scriptboard for visual management of Windows Terminal project profiles (add/edit/delete, colors, hotkeys, paths). Also includes terminal-mcp server for CLI access. Context and reference plan provided. Use /create-plan workflow to submit your implementation plan.",
+      "action": "handoff_initiated"
+    }
+  ]
+}

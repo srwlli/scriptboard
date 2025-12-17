@@ -1,0 +1,191 @@
+{
+  "META_DOCUMENTATION": {
+    "feature_name": "electron-updater",
+    "schema_version": "1.0.0",
+    "version": "1.0.0",
+    "status": "complete",
+    "generated_by": "AI Assistant",
+    "has_context": false,
+    "has_analysis": false
+  },
+  "UNIVERSAL_PLANNING_STRUCTURE": {
+    "0_preparation": {
+      "foundation_docs": ["shell/package.json", "shell/main.js", "shell/preload.js"],
+      "reference_components": ["frontend/src/components/UpdateChecker.tsx"],
+      "coding_standards": "Electron IPC patterns, TypeScript for frontend",
+      "similar_features": ["Terminal settings sync (IPC pattern)"]
+    },
+    "1_executive_summary": {
+      "goal": "Implement automatic updates using electron-updater so users can download and install updates without leaving the app",
+      "scope": "Add electron-updater package, configure GitHub releases as update source, add IPC handlers, update UI to show download progress and install button",
+      "key_changes": [
+        "Install electron-updater dependency",
+        "Add publish config to electron-builder",
+        "Implement autoUpdater in main.js",
+        "Add update IPC handlers to preload.js",
+        "Refactor UpdateChecker to use native updater"
+      ]
+    },
+    "2_risk_assessment": {
+      "complexity": "medium",
+      "estimated_tasks": 8,
+      "risks": [
+        {
+          "risk": "Code signing required for production",
+          "mitigation": "Use unsigned updates for dev, document signing for release"
+        },
+        {
+          "risk": "Update server configuration",
+          "mitigation": "Use GitHub releases (already set up)"
+        }
+      ]
+    },
+    "3_current_state_analysis": {
+      "files_to_modify": [
+        { "path": "shell/package.json", "purpose": "Add electron-updater dependency and publish config" },
+        { "path": "shell/main.js", "purpose": "Add autoUpdater initialization and event handlers" },
+        { "path": "shell/preload.js", "purpose": "Expose update API via contextBridge" },
+        { "path": "frontend/src/components/UpdateChecker.tsx", "purpose": "Use IPC instead of browser fetch" }
+      ],
+      "files_to_create": []
+    },
+    "4_key_features": {
+      "features": [
+        {
+          "id": "F1",
+          "name": "Auto-updater backend",
+          "description": "electron-updater integration in main process"
+        },
+        {
+          "id": "F2",
+          "name": "Update IPC API",
+          "description": "IPC handlers for check, download, install"
+        },
+        {
+          "id": "F3",
+          "name": "UI integration",
+          "description": "Progress bar, download/install buttons"
+        }
+      ]
+    },
+    "5_task_id_system": {
+      "workorder": {
+        "id": "WO-ELECTRON-UPDATER-001",
+        "name": "Electron Updater",
+        "feature_dir": "coderef/working/electron-updater"
+      },
+      "tasks": [
+        {
+          "id": "SETUP-001",
+          "workorder_id": "WO-ELECTRON-UPDATER-001",
+          "description": "Install electron-updater package",
+          "feature": "F1",
+          "priority": "high",
+          "estimated_loc": 5
+        },
+        {
+          "id": "SETUP-002",
+          "workorder_id": "WO-ELECTRON-UPDATER-001",
+          "description": "Add publish config to electron-builder",
+          "feature": "F1",
+          "priority": "high",
+          "estimated_loc": 10
+        },
+        {
+          "id": "CORE-001",
+          "workorder_id": "WO-ELECTRON-UPDATER-001",
+          "description": "Initialize autoUpdater in main.js",
+          "feature": "F1",
+          "priority": "high",
+          "estimated_loc": 50
+        },
+        {
+          "id": "CORE-002",
+          "workorder_id": "WO-ELECTRON-UPDATER-001",
+          "description": "Add autoUpdater event handlers (checking, available, downloaded, error)",
+          "feature": "F1",
+          "priority": "high",
+          "estimated_loc": 40
+        },
+        {
+          "id": "IPC-001",
+          "workorder_id": "WO-ELECTRON-UPDATER-001",
+          "description": "Add IPC handlers for update operations",
+          "feature": "F2",
+          "priority": "high",
+          "estimated_loc": 30
+        },
+        {
+          "id": "IPC-002",
+          "workorder_id": "WO-ELECTRON-UPDATER-001",
+          "description": "Expose update API in preload.js",
+          "feature": "F2",
+          "priority": "high",
+          "estimated_loc": 15
+        },
+        {
+          "id": "UI-001",
+          "workorder_id": "WO-ELECTRON-UPDATER-001",
+          "description": "Refactor UpdateChecker to use IPC",
+          "feature": "F3",
+          "priority": "high",
+          "estimated_loc": 80
+        },
+        {
+          "id": "UI-002",
+          "workorder_id": "WO-ELECTRON-UPDATER-001",
+          "description": "Add download progress bar and install button",
+          "feature": "F3",
+          "priority": "medium",
+          "estimated_loc": 40
+        }
+      ]
+    },
+    "6_implementation_phases": {
+      "phases": [
+        {
+          "phase": 1,
+          "name": "Setup",
+          "description": "Install dependencies and configure electron-builder",
+          "tasks": ["SETUP-001", "SETUP-002"],
+          "deliverables": ["electron-updater installed", "publish config added"]
+        },
+        {
+          "phase": 2,
+          "name": "Backend",
+          "description": "Implement autoUpdater in main process",
+          "tasks": ["CORE-001", "CORE-002", "IPC-001", "IPC-002"],
+          "deliverables": ["autoUpdater working", "IPC API exposed"]
+        },
+        {
+          "phase": 3,
+          "name": "Frontend",
+          "description": "Update UI to use native updater",
+          "tasks": ["UI-001", "UI-002"],
+          "deliverables": ["UpdateChecker uses IPC", "Progress bar working"]
+        }
+      ]
+    },
+    "7_testing_strategy": {
+      "manual_tests": [
+        "Build older version, release newer version, verify update detected",
+        "Test download progress display",
+        "Test install on quit functionality",
+        "Test error handling when offline"
+      ]
+    },
+    "8_success_criteria": {
+      "criteria": [
+        "App detects new releases from GitHub",
+        "User can download update without leaving app",
+        "Progress bar shows download status",
+        "Update installs on app restart"
+      ]
+    },
+    "9_implementation_checklist": {
+      "phase_1": ["[ ] npm install electron-updater", "[ ] Add publish config to package.json"],
+      "phase_2": ["[ ] Import autoUpdater in main.js", "[ ] Add event handlers", "[ ] Add IPC handlers", "[ ] Update preload.js"],
+      "phase_3": ["[ ] Refactor UpdateChecker", "[ ] Add progress bar", "[ ] Test end-to-end"]
+    }
+  }
+}

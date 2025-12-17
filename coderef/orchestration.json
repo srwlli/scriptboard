@@ -1,0 +1,119 @@
+{
+  "handoff": {
+    "workorder_id": "WO-PLAN-AUDIT-SCRIPTBOARD-001",
+    "type": "audit",
+    "from": "orchestrator-assistant",
+    "to": "scriptboard-agent",
+    "initiated_at": "2025-12-16",
+    "status": "complete"
+  },
+  "instructions": {
+    "task": "Plan Status Audit",
+    "description": "Review all plan.json files in this coderef folder and report status",
+    "steps": [
+      {
+        "step": 1,
+        "action": "Scan working folder",
+        "description": "List all features in coderef/working/ with their plan.json status"
+      },
+      {
+        "step": 2,
+        "action": "Assess each plan",
+        "description": "For each plan, determine: Is it active? Stale? Complete? Blocked?"
+      },
+      {
+        "step": 3,
+        "action": "Report status",
+        "description": "Update this communication.json with findings in the audit_results section"
+      },
+      {
+        "step": 4,
+        "action": "Suggest archives",
+        "description": "Identify plans that should be archived (complete or abandoned)"
+      },
+      {
+        "step": 5,
+        "action": "Archive candidates",
+        "description": "Use /archive-feature workflow to move completed features to coderef/archived/"
+      }
+    ],
+    "output_format": {
+      "active_plans": "Plans currently being worked on",
+      "stale_plans": "Plans with no recent activity (>7 days)",
+      "archive_candidates": "Plans ready to archive (complete or abandoned)",
+      "blocked_plans": "Plans waiting on external dependencies"
+    }
+  },
+  "audit_results": {
+    "scanned_at": "2025-12-17T03:15:00Z",
+    "working_folder_count": 12,
+    "active_plans": [
+      {
+        "name": "electron-updater",
+        "status": "planned",
+        "notes": "Plan created 2025-12-17, ready for implementation"
+      }
+    ],
+    "stale_plans": [
+      {
+        "name": "promptbox",
+        "status": "planned",
+        "last_activity": "2025-12-14",
+        "notes": "Standalone app concept, may be separate project"
+      },
+      {
+        "name": "llm-themes-integration",
+        "status": "implemented",
+        "last_activity": "2025-12-11",
+        "notes": "Themes exist in themes.ts - appears complete"
+      },
+      {
+        "name": "generate-features-inventory",
+        "status": "planned",
+        "notes": "Prompt template - unclear if needed"
+      }
+    ],
+    "archive_candidates": [
+      {
+        "name": "terminal-settings-sync",
+        "reason": "IMPLEMENTED - TerminalManager.tsx created, fully functional"
+      },
+      {
+        "name": "llm-themes-integration",
+        "reason": "IMPLEMENTED - themes exist in frontend/src/components/theme/themes.ts"
+      }
+    ],
+    "stubs_only": [
+      "scriptboard-prompting-workflow",
+      "file-explorer-tree-picker",
+      "scraper-engagement-sections",
+      "lovable-scraper-themes"
+    ],
+    "orphan_folders": [
+      {
+        "name": "orchestrator-dashboard",
+        "contents": "communication.json only"
+      },
+      {
+        "name": "tool-inventory-workflow",
+        "contents": "communication.json + generate-features-doc.md"
+      }
+    ],
+    "blocked_plans": [],
+    "notes": "Recommend archiving terminal-settings-sync and llm-themes-integration. Clean up orphan folders."
+  },
+  "communication_log": [
+    {
+      "timestamp": "2025-12-16T00:00:00Z",
+      "from": "orchestrator",
+      "action": "audit_requested",
+      "message": "Requesting plan status audit. Review all working/ plans, report status, suggest archives."
+    },
+    {
+      "timestamp": "2025-12-17T03:15:00Z",
+      "from": "scriptboard-agent",
+      "action": "audit_complete",
+      "message": "Scanned 12 features. Found 2 archive candidates (terminal-settings-sync, llm-themes-integration), 1 active plan (electron-updater), 4 stubs, 2 orphan folders."
+    }
+  ]
+}
