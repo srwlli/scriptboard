@@ -1,0 +1,230 @@
+{
+  "META_DOCUMENTATION": {
+    "feature_name": "file-explorer-tree-picker",
+    "schema_version": "1.0.0",
+    "version": "1.0.0",
+    "status": "complete",
+    "generated_by": "AI Assistant",
+    "has_context": false,
+    "has_analysis": false,
+    "project": "scriptboard"
+  },
+  "UNIVERSAL_PLANNING_STRUCTURE": {
+    "0_preparation": {
+      "foundation_docs": {
+        "architecture": "coderef/foundation-docs/ARCHITECTURE.md",
+        "components": "coderef/foundation-docs/COMPONENTS.md"
+      },
+      "reference_files": [
+        "frontend/src/components/filemanager/FolderPicker.tsx",
+        "shell/src/preload.ts",
+        "shell/src/main.ts"
+      ]
+    },
+    "1_executive_summary": {
+      "feature_description": "Expand the file explorer to allow users to drill down through child folders and select individual files, not just top-level folders. Provides a tree view UI with expandable folders and file selection.",
+      "goal": "Enable granular file selection through an interactive tree picker component that supports nested navigation",
+      "scope": "Frontend component + Electron IPC for directory listing"
+    },
+    "2_risk_assessment": {
+      "complexity": "medium",
+      "estimated_effort": "4-6 hours",
+      "risks": [
+        {
+          "risk": "Performance with large directories",
+          "mitigation": "Lazy load child directories on expand, virtualize long lists",
+          "severity": "medium"
+        },
+        {
+          "risk": "Cross-platform path handling",
+          "mitigation": "Use path module for consistent path normalization",
+          "severity": "low"
+        }
+      ]
+    },
+    "3_current_state_analysis": {
+      "files_to_modify": [
+        {
+          "path": "frontend/src/components/filemanager/FolderPicker.tsx",
+          "changes": "Add tree picker mode as optional prop, integrate TreePicker component"
+        },
+        {
+          "path": "shell/src/preload.ts",
+          "changes": "Add listDirectory IPC method to electronAPI"
+        },
+        {
+          "path": "shell/src/main.ts",
+          "changes": "Add IPC handler for listing directory contents"
+        }
+      ],
+      "files_to_create": [
+        {
+          "path": "frontend/src/components/filemanager/TreePicker.tsx",
+          "purpose": "Tree view component with expandable folders and file selection"
+        },
+        {
+          "path": "frontend/src/components/filemanager/TreeNode.tsx",
+          "purpose": "Individual tree node component (folder or file)"
+        }
+      ]
+    },
+    "4_key_features": {
+      "features": [
+        {
+          "id": "F1",
+          "name": "Directory Listing IPC",
+          "description": "Electron IPC to list directory contents (folders and files)"
+        },
+        {
+          "id": "F2",
+          "name": "TreePicker Component",
+          "description": "Tree view UI with expandable/collapsible folders"
+        },
+        {
+          "id": "F3",
+          "name": "File Selection",
+          "description": "Allow selecting individual files, not just folders"
+        },
+        {
+          "id": "F4",
+          "name": "FolderPicker Integration",
+          "description": "Add tree mode to existing FolderPicker component"
+        }
+      ]
+    },
+    "5_task_id_system": {
+      "workorder": {
+        "id": "WO-FILE-EXPLORER-TREE-PICKER-001",
+        "name": "File Explorer Tree Picker",
+        "feature_dir": "coderef/working/file-explorer-tree-picker"
+      },
+      "tasks": [
+        {
+          "id": "IPC-001",
+          "workorder_id": "WO-FILE-EXPLORER-TREE-PICKER-001",
+          "description": "Add listDirectory IPC handler in main.ts to read directory contents",
+          "feature_id": "F1",
+          "file": "shell/src/main.ts",
+          "acceptance_criteria": "IPC handler returns array of {name, path, isDirectory} for given directory path"
+        },
+        {
+          "id": "IPC-002",
+          "workorder_id": "WO-FILE-EXPLORER-TREE-PICKER-001",
+          "description": "Expose listDirectory in preload.ts electronAPI",
+          "feature_id": "F1",
+          "file": "shell/src/preload.ts",
+          "acceptance_criteria": "window.electronAPI.listDirectory(path) available in renderer"
+        },
+        {
+          "id": "UI-001",
+          "workorder_id": "WO-FILE-EXPLORER-TREE-PICKER-001",
+          "description": "Create TreeNode component for rendering folder/file items",
+          "feature_id": "F2",
+          "file": "frontend/src/components/filemanager/TreeNode.tsx",
+          "acceptance_criteria": "Renders folder with expand/collapse chevron, file with icon, handles click events"
+        },
+        {
+          "id": "UI-002",
+          "workorder_id": "WO-FILE-EXPLORER-TREE-PICKER-001",
+          "description": "Create TreePicker component with lazy-loading folders",
+          "feature_id": "F2",
+          "file": "frontend/src/components/filemanager/TreePicker.tsx",
+          "acceptance_criteria": "Renders root directory, expands folders on click, loads children lazily"
+        },
+        {
+          "id": "UI-003",
+          "workorder_id": "WO-FILE-EXPLORER-TREE-PICKER-001",
+          "description": "Add file selection support with onSelect callback",
+          "feature_id": "F3",
+          "file": "frontend/src/components/filemanager/TreePicker.tsx",
+          "acceptance_criteria": "Clicking file triggers onSelect(path), visual highlight on selected item"
+        },
+        {
+          "id": "INT-001",
+          "workorder_id": "WO-FILE-EXPLORER-TREE-PICKER-001",
+          "description": "Add treeMode prop to FolderPicker to show TreePicker in dropdown/modal",
+          "feature_id": "F4",
+          "file": "frontend/src/components/filemanager/FolderPicker.tsx",
+          "acceptance_criteria": "When treeMode=true, browse button opens TreePicker instead of native dialog"
+        }
+      ]
+    },
+    "6_implementation_phases": {
+      "phases": [
+        {
+          "phase": 1,
+          "name": "Electron IPC",
+          "description": "Add directory listing IPC to Electron shell",
+          "tasks": [
+            "IPC-001",
+            "IPC-002"
+          ],
+          "deliverables": [
+            "listDirectory IPC handler",
+            "electronAPI.listDirectory method"
+          ]
+        },
+        {
+          "phase": 2,
+          "name": "Tree UI Components",
+          "description": "Build TreeNode and TreePicker React components",
+          "tasks": [
+            "UI-001",
+            "UI-002",
+            "UI-003"
+          ],
+          "deliverables": [
+            "TreeNode.tsx",
+            "TreePicker.tsx with lazy loading and selection"
+          ]
+        },
+        {
+          "phase": 3,
+          "name": "Integration",
+          "description": "Integrate TreePicker into FolderPicker with treeMode",
+          "tasks": [
+            "INT-001"
+          ],
+          "deliverables": [
+            "Updated FolderPicker with tree mode support"
+          ]
+        }
+      ]
+    },
+    "7_testing_strategy": {
+      "manual_tests": [
+        "Open TreePicker, verify root folder displays",
+        "Click folder chevron, verify children load and display",
+        "Click nested folder, verify further nesting works",
+        "Click file, verify onSelect fires with correct path",
+        "Verify FolderPicker treeMode opens TreePicker on browse click"
+      ]
+    },
+    "8_success_criteria": {
+      "criteria": [
+        "User can navigate nested folder structure via expandable tree",
+        "User can select individual files, not just folders",
+        "Tree loads children lazily on expand for performance",
+        "FolderPicker supports both native dialog and tree modes"
+      ]
+    },
+    "9_implementation_checklist": {
+      "phase_1_checklist": [
+        "Add ipcMain.handle('list-directory') in main.ts",
+        "Return {name, path, isDirectory} array using fs.readdir with withFileTypes",
+        "Add listDirectory to contextBridge in preload.ts"
+      ],
+      "phase_2_checklist": [
+        "Create TreeNode with folder/file icons and expand chevron",
+        "Create TreePicker with state for expanded folders and selected item",
+        "Implement lazy loading of children on folder expand",
+        "Add visual feedback for selected item"
+      ],
+      "phase_3_checklist": [
+        "Add treeMode prop to FolderPicker",
+        "Show TreePicker in popover/modal when treeMode enabled",
+        "Pass selected path back to FolderPicker onChange"
+      ]
+    }
+  }
+}

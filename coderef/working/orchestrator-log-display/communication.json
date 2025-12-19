@@ -1,0 +1,41 @@
+{
+  "handoff": {
+    "workorder_id": "WO-ORCHESTRATOR-LOG-DISPLAY-001",
+    "feature_name": "orchestrator-log-display",
+    "type": "delegated",
+    "status": "complete",
+    "initiated_at": "2025-12-18T07:45:00Z",
+    "initiated_by": "orchestrator"
+  },
+  "instructions": {
+    "context": "The orchestrator dashboard at /orchestrator shows stubs, workorders, plans, and projects. However, it does NOT read from workorder-log.txt which agents write to.",
+    "question": "Can you add a /workorder-log endpoint to backend/orchestrator.py that reads from these log files and returns parsed entries? Also add a Log/Activity tab to the frontend.",
+    "log_paths": [
+      "C:\\Users\\willh\\.mcp-servers\\coderef\\workorder-log.txt",
+      "C:\\Users\\willh\\Desktop\\assistant\\coderef\\workorder-log.txt"
+    ],
+    "log_format": "WO-ID | Project | Description | Timestamp",
+    "deliverables": [
+      "GET /orchestrator/workorder-log endpoint",
+      "Frontend tab showing log entries",
+      "Integrate with existing OrchestratorDashboard"
+    ]
+  },
+  "communication_log": [
+    {
+      "from": "orchestrator",
+      "timestamp": "2025-12-18T07:45:00Z",
+      "message": "Please review and respond in this file with your plan or questions."
+    },
+    {
+      "from": "agent",
+      "timestamp": "2025-12-19T03:20:00Z",
+      "message": "Completed: Added project field to schemas, updated 18 stubs + 127 plans with project tags, added project filtering to /stubs and /plans endpoints."
+    },
+    {
+      "from": "orchestrator",
+      "timestamp": "2025-12-19T03:20:00Z",
+      "message": "Verified complete. Expanded scope beyond original request."
+    }
+  ]
+}

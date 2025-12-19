@@ -1,6 +1,8 @@
 "use client";
 
-import { FolderOpen } from "lucide-react";
+import { useState } from "react";
+import { FolderOpen, X } from "lucide-react";
+import { TreePicker } from "./TreePicker";
 
 interface FolderPickerProps {
   value: string;
@@ -8,12 +10,17 @@ interface FolderPickerProps {
   placeholder?: string;
   disabled?: boolean;
   label?: string;
+  /** Use in-app tree picker instead of native dialog */
+  treeMode?: boolean;
+  /** Allow selecting files in tree mode */
+  allowFiles?: boolean;
 }
 
 /**
  * Folder picker input with browse button.
  * Uses Electron's native folder dialog when available,
  * falls back to manual text input in browser.
+ * Set treeMode=true for in-app tree picker.
  */
 export function FolderPicker({
   value,
@@ -21,8 +28,16 @@ export function FolderPicker({
   placeholder = "C:\\Users\\...\\Folder",
   disabled = false,
   label = "Target Folder",
+  treeMode = true,
+  allowFiles = false,
 }: FolderPickerProps) {
+  const [showTreePicker, setShowTreePicker] = useState(false);
+
   const handleBrowse = async () => {
+    if (treeMode) {
+      setShowTreePicker(true);
+      return;
+    }
     // Check if running in Electron with electronAPI available
     if (typeof window !== "undefined" && (window as any).electronAPI?.selectFolder) {
       try {
@@ -68,6 +83,35 @@ export function FolderPicker({
           Browse
         </button>
       </div>
+
+      {/* Tree Picker Modal */}
+      {treeMode && showTreePicker && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="bg-background border border-border rounded-lg shadow-lg w-[400px] max-h-[500px] flex flex-col">
+            <div className="flex items-center justify-between px-3 py-2 border-b border-border">
+              <span className="text-sm font-medium">Select {allowFiles ? "File or Folder" : "Folder"}</span>
+              <button
+                onClick={() => setShowTreePicker(false)}
+                className="p-1 hover:bg-muted rounded"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <div className="flex-1 overflow-hidden p-2">
+              <TreePicker
+                rootPath={value || undefined}
+                onSelect={(path) => {
+                  onChange(path);
+                  setShowTreePicker(false);
+                }}
+                allowFiles={allowFiles}
+                allowFolders={true}
+                maxHeight="350px"
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

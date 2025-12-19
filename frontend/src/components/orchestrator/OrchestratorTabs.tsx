@@ -1,9 +1,9 @@
 "use client";
 
 import { OrchestratorStats } from "@/lib/api";
-import { LayoutDashboard, FolderKanban, FileText, ClipboardList, Lightbulb } from "lucide-react";
+import { LayoutDashboard, FolderKanban, FileText, ClipboardList, Lightbulb, ScrollText } from "lucide-react";
 
-type TabId = "overview" | "projects" | "workorders" | "plans" | "stubs";
+type TabId = "overview" | "projects" | "workorders" | "plans" | "stubs" | "log";
 
 interface Tab {
   id: TabId;
@@ -25,6 +25,7 @@ export function OrchestratorTabs({ activeTab, onTabChange, stats }: Orchestrator
     { id: "workorders", label: "WOs", icon: <ClipboardList className="w-3.5 h-3.5" />, count: stats?.active_workorders },
     { id: "plans", label: "Plans", icon: <FileText className="w-3.5 h-3.5" />, count: stats?.plans },
     { id: "stubs", label: "Stubs", icon: <Lightbulb className="w-3.5 h-3.5" />, count: stats?.stubs },
+    { id: "log", label: "Log", icon: <ScrollText className="w-3.5 h-3.5" /> },
   ];
 
   return (

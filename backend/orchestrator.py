@@ -196,31 +196,55 @@ async def get_projects():
 
 
 @router.get("/stubs")
-async def get_stubs(priority: Optional[str] = None, category: Optional[str] = None):
-    """Get all stubs from orchestrator."""
+async def get_stubs(priority: Optional[str] = None, category: Optional[str] = None, project: Optional[str] = None):
+    """Get all stubs from orchestrator and all projects."""
     stubs = []
-    stubs_path = os.path.join(ORCHESTRATOR_PATH, "coderef", "working")
 
-    if not os.path.exists(stubs_path):
-        return {"stubs": stubs}
+    # Scan orchestrator working folder
+    orchestrator_stubs_path = os.path.join(ORCHESTRATOR_PATH, "coderef", "working")
+    if os.path.exists(orchestrator_stubs_path):
+        for folder in os.listdir(orchestrator_stubs_path):
+            stub_file = os.path.join(orchestrator_stubs_path, folder, "stub.json")
+            if os.path.exists(stub_file):
+                try:
+                    with open(stub_file, "r", encoding="utf-8") as f:
+                        data = json.load(f)
+                        data["folder"] = folder
+                        # Default project if not specified in file
+                        if "project" not in data:
+                            data["project"] = "orchestrator"
+                        stubs.append(data)
+                except (json.JSONDecodeError, IOError):
+                    pass
 
-    for folder in os.listdir(stubs_path):
-        stub_file = os.path.join(stubs_path, folder, "stub.json")
-        if os.path.exists(stub_file):
-            try:
-                with open(stub_file, "r", encoding="utf-8") as f:
-                    data = json.load(f)
-                    data["folder"] = folder
+    # Scan all project paths for stubs
+    for project_path in PROJECT_PATHS:
+        project_name = get_project_name(project_path)
+        for loc in ["working", "archived"]:
+            loc_path = os.path.join(project_path, "coderef", loc)
+            if not os.path.exists(loc_path):
+                continue
+            for folder in os.listdir(loc_path):
+                stub_file = os.path.join(loc_path, folder, "stub.json")
+                if os.path.exists(stub_file):
+                    try:
+                        with open(stub_file, "r", encoding="utf-8") as f:
+                            data = json.load(f)
+                            data["folder"] = folder
+                            # Use project from file or derive from path
+                            if "project" not in data:
+                                data["project"] = project_name
+                            stubs.append(data)
+                    except (json.JSONDecodeError, IOError):
+                        pass
 
-                    # Apply filters
-                    if priority and data.get("priority") != priority:
-                        continue
-                    if category and data.get("category") != category:
-                        continue
-
-                    stubs.append(data)
-            except (json.JSONDecodeError, IOError):
-                pass
+    # Apply filters
+    if priority:
+        stubs = [s for s in stubs if s.get("priority") == priority]
+    if category:
+        stubs = [s for s in stubs if s.get("category") == category]
+    if project:
+        stubs = [s for s in stubs if s.get("project") == project]
 
     # Sort by priority
     priority_order = {"high": 0, "medium": 1, "low": 2}
@@ -305,7 +329,7 @@ async def get_plans(project: Optional[str] = None, location: Optional[str] = Non
 
                     plans.append({
                         "feature_name": meta.get("feature_name", folder),
-                        "project": project_name,
+                        "project": meta.get("project", project_name),  # Prefer META_DOCUMENTATION.project
                         "location": loc,
                         "status": meta.get("status", "unknown"),
                         "last_modified": modified.isoformat(),
@@ -381,3 +405,66 @@ async def get_gist_config_endpoint():
         "raw_url": config.get("raw_url"),
         "gist_id": config.get("gist_id"),
     }
+
+
+# Workorder log file paths
+WORKORDER_LOG_PATHS = [
+    r"C:\Users\willh\.mcp-servers\coderef\workorder-log.txt",
+    r"C:\Users\willh\Desktop\assistant\coderef\workorder-log.txt",
+]
+
+
+def parse_workorder_log(file_path: str) -> list[dict]:
+    """Parse workorder log file. Format: WO-ID | Project | Description | Timestamp"""
+    entries = []
+    if not os.path.exists(file_path):
+        return entries
+
+    try:
+        with open(file_path, "r", encoding="utf-8") as f:
+            for line in f:
+                line = line.strip()
+                if not line or not line.startswith("WO-"):
+                    continue
+
+                parts = [p.strip() for p in line.split("|")]
+                if len(parts) >= 4:
+                    entries.append({
+                        "workorder_id": parts[0],
+                        "project": parts[1],
+                        "description": parts[2],
+                        "timestamp": parts[3],
+                        "_source": file_path,
+                    })
+                elif len(parts) >= 3:
+                    entries.append({
+                        "workorder_id": parts[0],
+                        "project": parts[1],
+                        "description": parts[2],
+                        "timestamp": None,
+                        "_source": file_path,
+                    })
+    except IOError:
+        pass
+
+    return entries
+
+
+@router.get("/workorder-log")
+async def get_workorder_log(project: Optional[str] = None, limit: int = 100):
+    """Get workorder log entries from all log files."""
+    all_entries = []
+
+    for log_path in WORKORDER_LOG_PATHS:
+        entries = parse_workorder_log(log_path)
+        all_entries.extend(entries)
+
+    # Filter by project if specified
+    if project:
+        all_entries = [e for e in all_entries if e.get("project") == project]
+
+    # Sort by timestamp (newest first) - entries are already prepended, so reverse order
+    # Limit results
+    all_entries = all_entries[:limit]
+
+    return {"entries": all_entries, "total": len(all_entries)}

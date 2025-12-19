@@ -8,6 +8,7 @@ const { spawn } = require("child_process");
 const path = require("path");
 const http = require("http");
 const fs = require("fs");
+const { autoUpdater } = require("electron-updater");
 
 let mainWindow = null;
 let backendProcess = null;
@@ -583,5 +584,144 @@ ipcMain.handle("is-window-maximized", async () => {
   } catch (error) {
     return { error: error.message };
   }
+});
+
+ipcMain.handle("list-directory", async (event, dirPath) => {
+  try {
+    if (!dirPath) {
+      return { error: "No directory path provided" };
+    }
+
+    // Validate path exists and is a directory
+    const stats = fs.statSync(dirPath);
+    if (!stats.isDirectory()) {
+      return { error: "Path is not a directory" };
+    }
+
+    // Read directory contents with file types
+    const entries = fs.readdirSync(dirPath, { withFileTypes: true });
+
+    // Map to structured format, sorted: folders first, then files
+    const items = entries
+      .filter(entry => !entry.name.startsWith('.')) // Skip hidden files
+      .map(entry => ({
+        name: entry.name,
+        path: path.join(dirPath, entry.name),
+        isDirectory: entry.isDirectory(),
+      }))
+      .sort((a, b) => {
+        // Folders first, then alphabetical
+        if (a.isDirectory !== b.isDirectory) {
+          return a.isDirectory ? -1 : 1;
+        }
+        return a.name.localeCompare(b.name);
+      });
+
+    return { items };
+  } catch (error) {
+    return { error: error.message };
+  }
+});
+
+// ============================================
+// AUTO-UPDATER
+// ============================================
+
+// Configure auto-updater
+autoUpdater.autoDownload = false;
+autoUpdater.autoInstallOnAppQuit = true;
+
+// Auto-updater event handlers
+autoUpdater.on("checking-for-update", () => {
+  console.log("[AutoUpdater] Checking for update...");
+  if (mainWindow) {
+    mainWindow.webContents.send("update-status", { status: "checking" });
+  }
+});
+
+autoUpdater.on("update-available", (info) => {
+  console.log("[AutoUpdater] Update available:", info.version);
+  if (mainWindow) {
+    mainWindow.webContents.send("update-status", {
+      status: "available",
+      version: info.version,
+      releaseNotes: info.releaseNotes,
+    });
+  }
+});
+
+autoUpdater.on("update-not-available", (info) => {
+  console.log("[AutoUpdater] No update available");
+  if (mainWindow) {
+    mainWindow.webContents.send("update-status", {
+      status: "not-available",
+      version: info.version,
+    });
+  }
+});
+
+autoUpdater.on("download-progress", (progress) => {
+  console.log(`[AutoUpdater] Download progress: ${progress.percent.toFixed(1)}%`);
+  if (mainWindow) {
+    mainWindow.webContents.send("update-status", {
+      status: "downloading",
+      percent: progress.percent,
+      bytesPerSecond: progress.bytesPerSecond,
+      transferred: progress.transferred,
+      total: progress.total,
+    });
+  }
+});
+
+autoUpdater.on("update-downloaded", (info) => {
+  console.log("[AutoUpdater] Update downloaded:", info.version);
+  if (mainWindow) {
+    mainWindow.webContents.send("update-status", {
+      status: "downloaded",
+      version: info.version,
+    });
+  }
+});
+
+autoUpdater.on("error", (error) => {
+  console.error("[AutoUpdater] Error:", error.message);
+  if (mainWindow) {
+    mainWindow.webContents.send("update-status", {
+      status: "error",
+      error: error.message,
+    });
+  }
+});
+
+// Auto-updater IPC handlers
+ipcMain.handle("check-for-updates", async () => {
+  try {
+    const result = await autoUpdater.checkForUpdates();
+    return { success: true, updateInfo: result?.updateInfo };
+  } catch (error) {
+    return { error: error.message };
+  }
+});
+
+ipcMain.handle("download-update", async () => {
+  try {
+    await autoUpdater.downloadUpdate();
+    return { success: true };
+  } catch (error) {
+    return { error: error.message };
+  }
+});
+
+ipcMain.handle("install-update", async () => {
+  try {
+    autoUpdater.quitAndInstall(false, true);
+    return { success: true };
+  } catch (error) {
+    return { error: error.message };
+  }
+});
+
+ipcMain.handle("get-app-version", async () => {
+  return { version: app.getVersion() };
 });
 

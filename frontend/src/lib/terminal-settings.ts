@@ -82,6 +82,30 @@ export const PRESET_COLORS = [
   { name: "Amber", value: "#F59E0B" },
 ];
 
+// Preset icons for project profiles (emojis)
+// Note: Avoid emojis with variation selectors (U+FE0F) as Windows Terminal may not render them
+export const PRESET_ICONS = [
+  { name: "Rocket", value: "🚀" },
+  { name: "Code", value: "💻" },
+  { name: "Folder", value: "📁" },
+  { name: "Tools", value: "🔧" },
+  { name: "Lightning", value: "⚡" },
+  { name: "Star", value: "⭐" },
+  { name: "Fire", value: "🔥" },
+  { name: "Gear", value: "⚙" },
+  { name: "Package", value: "📦" },
+  { name: "Plug", value: "🔌" },
+  { name: "Globe", value: "🌐" },
+  { name: "Game", value: "🎮" },
+  { name: "Lock", value: "🔒" },
+  { name: "Bug", value: "🐛" },
+  { name: "Test", value: "🧪" },
+  { name: "Book", value: "📚" },
+  { name: "Chart", value: "📊" },
+  { name: "Hammer", value: "🔨" },
+  { name: "Football", value: "🏈" },
+];
+
 // ============================================
 // FILE OPERATIONS (Electron IPC)
 // ============================================
@@ -250,7 +274,7 @@ export function generateProjectGuid(settings: TerminalSettings): string {
   const existing = settings.profiles.list
     .filter(isProjectProfile)
     .map((p) => {
-      const match = p.guid.match(/111111111(\d+)\}$/);
+      const match = p.guid.match(/1111111111(\d+)\}$/);
       return match ? parseInt(match[1], 10) : 0;
     });
 
@@ -274,7 +298,8 @@ export async function addProfile(
   name: string,
   startingDirectory: string,
   tabColor: string,
-  hotkey?: string
+  hotkey?: string,
+  icon?: string
 ): Promise<boolean> {
   const settings = await readSettings();
   if (!settings) return false;
@@ -295,6 +320,7 @@ export async function addProfile(
     tabColor,
     tabTitle: name,
     hidden: false,
+    ...(icon && { icon }),
   };
   settings.profiles.list.push(newProfile);
 
@@ -321,7 +347,7 @@ export async function addProfile(
  */
 export async function updateProfile(
   guid: string,
-  updates: Partial<Pick<TerminalProfile, "name" | "startingDirectory" | "tabColor">>
+  updates: Partial<Pick<TerminalProfile, "name" | "startingDirectory" | "tabColor" | "icon">>
 ): Promise<boolean> {
   const settings = await readSettings();
   if (!settings) return false;
@@ -345,6 +371,9 @@ export async function updateProfile(
   }
   if (updates.tabColor !== undefined) {
     profile.tabColor = updates.tabColor;
+  }
+  if (updates.icon !== undefined) {
+    profile.icon = updates.icon;
   }
 
   // If name changed, update the action

@@ -1,62 +1,96 @@
 "use client";
 
-import { useState } from "react";
-import { RefreshCw, ExternalLink, Check, AlertCircle } from "lucide-react";
+import { useState, useEffect } from "react";
+import { RefreshCw, Download, Check, AlertCircle, Loader2 } from "lucide-react";
 
-// Current app version - should match shell/package.json
-const CURRENT_VERSION = "0.2.2";
+type UpdateStatus =
+  | "idle"
+  | "checking"
+  | "available"
+  | "not-available"
+  | "downloading"
+  | "downloaded"
+  | "error";
 
-// GitHub releases API URL
-const RELEASES_URL = "https://api.github.com/repos/srwlli/scriptboard/releases/latest";
-const DOWNLOAD_URL = "https://github.com/srwlli/scriptboard/releases/latest";
-
-type UpdateStatus = "idle" | "checking" | "up-to-date" | "update-available" | "error";
-
-interface ReleaseInfo {
-  version: string;
-  releaseNotes: string;
-  downloadUrl: string;
+interface UpdateInfo {
+  version?: string;
+  percent?: number;
+  error?: string;
 }
 
 /**
- * UpdateChecker - Manual update check component for Settings page.
- *
- * Checks GitHub releases for newer versions and displays download link.
+ * UpdateChecker - Native Electron auto-updater component.
+ * Uses electron-updater via IPC for in-app updates.
  */
 export function UpdateChecker() {
   const [status, setStatus] = useState<UpdateStatus>("idle");
-  const [releaseInfo, setReleaseInfo] = useState<ReleaseInfo | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [info, setInfo] = useState<UpdateInfo>({});
+  const [currentVersion, setCurrentVersion] = useState<string>("...");
+
+  // Get current version on mount
+  useEffect(() => {
+    const electronAPI = (window as any)?.electronAPI;
+    if (electronAPI?.getAppVersion) {
+      electronAPI.getAppVersion().then((result: { version: string }) => {
+        setCurrentVersion(result.version);
+      });
+    }
+
+    // Listen for update status from main process
+    if (electronAPI?.onUpdateStatus) {
+      electronAPI.onUpdateStatus((data: any) => {
+        setStatus(data.status);
+        setInfo({
+          version: data.version,
+          percent: data.percent,
+          error: data.error,
+        });
+      });
+    }
+
+    return () => {
+      if (electronAPI?.removeUpdateStatusListener) {
+        electronAPI.removeUpdateStatusListener();
+      }
+    };
+  }, []);
 
   const checkForUpdates = async () => {
-    setStatus("checking");
-    setError(null);
-    setReleaseInfo(null);
-
-    try {
-      const response = await fetch(RELEASES_URL);
-
-      if (!response.ok) {
-        throw new Error("Failed to check for updates");
-      }
-
-      const data = await response.json();
-      const latestVersion = data.tag_name?.replace(/^v/, "") || data.name;
-
-      if (isNewerVersion(latestVersion, CURRENT_VERSION)) {
-        setReleaseInfo({
-          version: latestVersion,
-          releaseNotes: data.body || "No release notes available",
-          downloadUrl: data.html_url || DOWNLOAD_URL,
-        });
-        setStatus("update-available");
-      } else {
-        setStatus("up-to-date");
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to check for updates");
+    const electronAPI = (window as any)?.electronAPI;
+    if (!electronAPI?.checkForUpdates) {
       setStatus("error");
+      setInfo({ error: "Updates not available in browser" });
+      return;
     }
+
+    setStatus("checking");
+    setInfo({});
+
+    const result = await electronAPI.checkForUpdates();
+    if (result.error) {
+      setStatus("error");
+      setInfo({ error: result.error });
+    }
+    // Status will be updated via onUpdateStatus listener
+  };
+
+  const downloadUpdate = async () => {
+    const electronAPI = (window as any)?.electronAPI;
+    if (!electronAPI?.downloadUpdate) return;
+
+    const result = await electronAPI.downloadUpdate();
+    if (result.error) {
+      setStatus("error");
+      setInfo({ error: result.error });
+    }
+  };
+
+  const installUpdate = async () => {
+    const electronAPI = (window as any)?.electronAPI;
+    if (!electronAPI?.installUpdate) return;
+
+    await electronAPI.installUpdate();
+    // App will restart automatically
   };
 
   return (
@@ -65,12 +99,12 @@ export function UpdateChecker() {
         <div>
           <p className="text-sm font-medium text-foreground">Version</p>
           <p className="text-sm text-muted-foreground">
-            Current: v{CURRENT_VERSION}
+            Current: v{currentVersion}
           </p>
         </div>
         <button
           onClick={checkForUpdates}
-          disabled={status === "checking"}
+          disabled={status === "checking" || status === "downloading"}
           className="px-4 py-2 rounded-md border border-border bg-background hover:bg-accent text-foreground transition-colors disabled:opacity-50 flex items-center gap-2"
         >
           <RefreshCw size={14} className={status === "checking" ? "animate-spin" : ""} />
@@ -78,60 +112,75 @@ export function UpdateChecker() {
         </button>
       </div>
 
-      {/* Status messages */}
-      {status === "up-to-date" && (
+      {/* Up to date */}
+      {status === "not-available" && (
         <div className="flex items-center gap-2 text-sm text-green-600 dark:text-green-400">
           <Check size={14} />
           You're running the latest version
         </div>
       )}
 
+      {/* Error */}
       {status === "error" && (
         <div className="flex items-center gap-2 text-sm text-red-600 dark:text-red-400">
           <AlertCircle size={14} />
-          {error}
+          {info.error || "Failed to check for updates"}
         </div>
       )}
 
-      {status === "update-available" && releaseInfo && (
+      {/* Update available */}
+      {status === "available" && (
         <div className="p-3 rounded-md border border-primary/30 bg-primary/5">
-          <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center justify-between">
             <span className="text-sm font-medium text-foreground">
-              v{releaseInfo.version} available
+              v{info.version} available
             </span>
-            <a
-              href={releaseInfo.downloadUrl}
-              target="_blank"
-              rel="noopener noreferrer"
+            <button
+              onClick={downloadUpdate}
               className="px-3 py-1.5 rounded-md bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors flex items-center gap-1"
             >
+              <Download size={12} />
               Download
-              <ExternalLink size={12} />
-            </a>
+            </button>
           </div>
-          {releaseInfo.releaseNotes && (
-            <p className="text-xs text-muted-foreground line-clamp-2">
-              {releaseInfo.releaseNotes}
-            </p>
-          )}
+        </div>
+      )}
+
+      {/* Downloading */}
+      {status === "downloading" && (
+        <div className="p-3 rounded-md border border-border bg-muted/30">
+          <div className="flex items-center gap-2 mb-2">
+            <Loader2 size={14} className="animate-spin" />
+            <span className="text-sm text-foreground">
+              Downloading... {info.percent?.toFixed(0)}%
+            </span>
+          </div>
+          <div className="w-full bg-muted rounded-full h-2">
+            <div
+              className="bg-primary h-2 rounded-full transition-all"
+              style={{ width: `${info.percent || 0}%` }}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Downloaded - ready to install */}
+      {status === "downloaded" && (
+        <div className="p-3 rounded-md border border-green-500/30 bg-green-500/5">
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-medium text-foreground">
+              v{info.version} ready to install
+            </span>
+            <button
+              onClick={installUpdate}
+              className="px-3 py-1.5 rounded-md bg-green-600 text-white text-sm font-medium hover:bg-green-700 transition-colors flex items-center gap-1"
+            >
+              <Check size={12} />
+              Install & Restart
+            </button>
+          </div>
         </div>
       )}
     </div>
   );
-}
-
-/**
- * Compare semantic versions. Returns true if latest > current.
- */
-function isNewerVersion(latest: string, current: string): boolean {
-  const latestParts = latest.split(".").map(Number);
-  const currentParts = current.split(".").map(Number);
-
-  for (let i = 0; i < Math.max(latestParts.length, currentParts.length); i++) {
-    const l = latestParts[i] || 0;
-    const c = currentParts[i] || 0;
-    if (l > c) return true;
-    if (l < c) return false;
-  }
-  return false;
 }

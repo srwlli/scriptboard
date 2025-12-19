@@ -24,6 +24,11 @@
   "build": {
     "appId": "com.scriptboard.app",
     "productName": "Scriptboard",
+    "publish": {
+      "provider": "github",
+      "owner": "srwlli",
+      "repo": "scriptboard"
+    },
     "directories": {
       "output": "dist"
     },
@@ -54,7 +59,9 @@
       "target": [
         {
           "target": "nsis",
-          "arch": ["x64"]
+          "arch": [
+            "x64"
+          ]
         }
       ],
       "icon": "build/icon.ico",
@@ -64,7 +71,10 @@
       "target": [
         {
           "target": "dmg",
-          "arch": ["x64", "arm64"]
+          "arch": [
+            "x64",
+            "arm64"
+          ]
         }
       ],
       "icon": "build/icon.icns",
@@ -74,7 +84,9 @@
       "target": [
         {
           "target": "AppImage",
-          "arch": ["x64"]
+          "arch": [
+            "x64"
+          ]
         }
       ],
       "icon": "build/icon.png",
@@ -87,5 +99,8 @@
       "runAfterFinish": true,
       "include": "build/installer.nsh"
     }
+  },
+  "dependencies": {
+    "electron-updater": "^6.6.2"
   }
 }

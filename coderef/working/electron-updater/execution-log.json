@@ -1,0 +1,55 @@
+[
+  {
+    "timestamp": "2025-12-18T03:17:24.855639",
+    "workorder_id": "WO-ELECTRON-UPDATER-001",
+    "feature_name": "electron-updater",
+    "task_count": 9,
+    "tasks": [
+      {
+        "content": "PHASE-1-001: [ ] npm install electron-updater",
+        "activeForm": "PHASE-1-001: [ing ] npm install electron-updater",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-1-002: [ ] Add publish config to package.json",
+        "activeForm": "PHASE-1-002: [ing ] Add publish config to package.json",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-2-001: [ ] Import autoUpdater in main.js",
+        "activeForm": "PHASE-2-001: [ing ] Import autoUpdater in main.js",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-2-002: [ ] Add event handlers",
+        "activeForm": "PHASE-2-002: [ing ] Add event handlers",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-2-003: [ ] Add IPC handlers",
+        "activeForm": "PHASE-2-003: [ing ] Add IPC handlers",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-2-004: [ ] Update preload.js",
+        "activeForm": "PHASE-2-004: [ing ] Update preload.js",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-3-001: [ ] Refactor UpdateChecker",
+        "activeForm": "PHASE-3-001: [ing ] Refactor UpdateChecker",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-3-002: [ ] Add progress bar",
+        "activeForm": "PHASE-3-002: [ing ] Add progress bar",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-3-003: [ ] Test end-to-end",
+        "activeForm": "PHASE-3-003: [ing ] Test end-to-end",
+        "status": "pending"
+      }
+    ]
+  }
+]

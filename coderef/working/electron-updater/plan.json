@@ -6,14 +6,23 @@
     "status": "complete",
     "generated_by": "AI Assistant",
     "has_context": false,
-    "has_analysis": false
+    "has_analysis": false,
+    "project": "scriptboard"
   },
   "UNIVERSAL_PLANNING_STRUCTURE": {
     "0_preparation": {
-      "foundation_docs": ["shell/package.json", "shell/main.js", "shell/preload.js"],
-      "reference_components": ["frontend/src/components/UpdateChecker.tsx"],
+      "foundation_docs": [
+        "shell/package.json",
+        "shell/main.js",
+        "shell/preload.js"
+      ],
+      "reference_components": [
+        "frontend/src/components/UpdateChecker.tsx"
+      ],
       "coding_standards": "Electron IPC patterns, TypeScript for frontend",
-      "similar_features": ["Terminal settings sync (IPC pattern)"]
+      "similar_features": [
+        "Terminal settings sync (IPC pattern)"
+      ]
     },
     "1_executive_summary": {
       "goal": "Implement automatic updates using electron-updater so users can download and install updates without leaving the app",
@@ -42,10 +51,22 @@
     },
     "3_current_state_analysis": {
       "files_to_modify": [
-        { "path": "shell/package.json", "purpose": "Add electron-updater dependency and publish config" },
-        { "path": "shell/main.js", "purpose": "Add autoUpdater initialization and event handlers" },
-        { "path": "shell/preload.js", "purpose": "Expose update API via contextBridge" },
-        { "path": "frontend/src/components/UpdateChecker.tsx", "purpose": "Use IPC instead of browser fetch" }
+        {
+          "path": "shell/package.json",
+          "purpose": "Add electron-updater dependency and publish config"
+        },
+        {
+          "path": "shell/main.js",
+          "purpose": "Add autoUpdater initialization and event handlers"
+        },
+        {
+          "path": "shell/preload.js",
+          "purpose": "Expose update API via contextBridge"
+        },
+        {
+          "path": "frontend/src/components/UpdateChecker.tsx",
+          "purpose": "Use IPC instead of browser fetch"
+        }
       ],
       "files_to_create": []
     },
@@ -147,22 +168,42 @@
           "phase": 1,
           "name": "Setup",
           "description": "Install dependencies and configure electron-builder",
-          "tasks": ["SETUP-001", "SETUP-002"],
-          "deliverables": ["electron-updater installed", "publish config added"]
+          "tasks": [
+            "SETUP-001",
+            "SETUP-002"
+          ],
+          "deliverables": [
+            "electron-updater installed",
+            "publish config added"
+          ]
         },
         {
           "phase": 2,
           "name": "Backend",
           "description": "Implement autoUpdater in main process",
-          "tasks": ["CORE-001", "CORE-002", "IPC-001", "IPC-002"],
-          "deliverables": ["autoUpdater working", "IPC API exposed"]
+          "tasks": [
+            "CORE-001",
+            "CORE-002",
+            "IPC-001",
+            "IPC-002"
+          ],
+          "deliverables": [
+            "autoUpdater working",
+            "IPC API exposed"
+          ]
         },
         {
           "phase": 3,
           "name": "Frontend",
           "description": "Update UI to use native updater",
-          "tasks": ["UI-001", "UI-002"],
-          "deliverables": ["UpdateChecker uses IPC", "Progress bar working"]
+          "tasks": [
+            "UI-001",
+            "UI-002"
+          ],
+          "deliverables": [
+            "UpdateChecker uses IPC",
+            "Progress bar working"
+          ]
         }
       ]
     },
@@ -183,9 +224,21 @@
       ]
     },
     "9_implementation_checklist": {
-      "phase_1": ["[ ] npm install electron-updater", "[ ] Add publish config to package.json"],
-      "phase_2": ["[ ] Import autoUpdater in main.js", "[ ] Add event handlers", "[ ] Add IPC handlers", "[ ] Update preload.js"],
-      "phase_3": ["[ ] Refactor UpdateChecker", "[ ] Add progress bar", "[ ] Test end-to-end"]
+      "phase_1": [
+        "[ ] npm install electron-updater",
+        "[ ] Add publish config to package.json"
+      ],
+      "phase_2": [
+        "[ ] Import autoUpdater in main.js",
+        "[ ] Add event handlers",
+        "[ ] Add IPC handlers",
+        "[ ] Update preload.js"
+      ],
+      "phase_3": [
+        "[ ] Refactor UpdateChecker",
+        "[ ] Add progress bar",
+        "[ ] Test end-to-end"
+      ]
     }
   }
 }

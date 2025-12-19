@@ -1,0 +1,191 @@
+{
+  "META_DOCUMENTATION": {
+    "feature_name": "terminal-profile-icons",
+    "schema_version": "1.0.0",
+    "version": "1.0.0",
+    "status": "complete",
+    "generated_by": "AI Assistant",
+    "has_context": false,
+    "has_analysis": false,
+    "project": "scriptboard"
+  },
+  "UNIVERSAL_PLANNING_STRUCTURE": {
+    "0_preparation": {
+      "foundation_docs": {
+        "architecture": "coderef/foundation-docs/ARCHITECTURE.md",
+        "components": "coderef/foundation-docs/COMPONENTS.md"
+      },
+      "reference_files": [
+        "frontend/src/lib/terminal-settings.ts",
+        "frontend/src/components/TerminalManager.tsx"
+      ]
+    },
+    "1_executive_summary": {
+      "feature_description": "Add icon selection to Windows Terminal profile management, allowing users to choose from 15+ preset emojis when creating or editing terminal profiles",
+      "goal": "Enhance terminal profile customization with visual icons for easier identification",
+      "scope": "Frontend-only change to terminal-settings.ts and TerminalManager.tsx"
+    },
+    "2_risk_assessment": {
+      "complexity": "low",
+      "estimated_effort": "1-2 hours",
+      "risks": [
+        {
+          "risk": "Icon not displaying in Windows Terminal",
+          "mitigation": "Use well-supported emojis that Windows Terminal renders correctly",
+          "severity": "low"
+        }
+      ]
+    },
+    "3_current_state_analysis": {
+      "files_to_modify": [
+        {
+          "path": "frontend/src/lib/terminal-settings.ts",
+          "changes": "Add PRESET_ICONS constant, update addProfile and updateProfile functions to accept icon parameter"
+        },
+        {
+          "path": "frontend/src/components/TerminalManager.tsx",
+          "changes": "Add icon picker UI similar to existing color picker"
+        }
+      ],
+      "files_to_create": []
+    },
+    "4_key_features": {
+      "features": [
+        {
+          "id": "F1",
+          "name": "Preset Icons Array",
+          "description": "Define 15+ preset emoji icons in terminal-settings.ts"
+        },
+        {
+          "id": "F2",
+          "name": "Icon Picker UI",
+          "description": "Add icon selection buttons in add/edit profile forms"
+        },
+        {
+          "id": "F3",
+          "name": "Profile Icon Storage",
+          "description": "Update addProfile and updateProfile to save icon to Windows Terminal settings"
+        }
+      ]
+    },
+    "5_task_id_system": {
+      "workorder": {
+        "id": "WO-TERMINAL-PROFILE-ICONS-001",
+        "name": "Terminal Profile Icons",
+        "feature_dir": "coderef/working/terminal-profile-icons"
+      },
+      "tasks": [
+        {
+          "id": "ICON-001",
+          "workorder_id": "WO-TERMINAL-PROFILE-ICONS-001",
+          "description": "Add PRESET_ICONS constant with 15+ emojis to terminal-settings.ts",
+          "feature_id": "F1",
+          "file": "frontend/src/lib/terminal-settings.ts",
+          "acceptance_criteria": "PRESET_ICONS array exported with at least 15 emoji options"
+        },
+        {
+          "id": "ICON-002",
+          "workorder_id": "WO-TERMINAL-PROFILE-ICONS-001",
+          "description": "Update addProfile function to accept and save icon parameter",
+          "feature_id": "F3",
+          "file": "frontend/src/lib/terminal-settings.ts",
+          "acceptance_criteria": "addProfile accepts icon parameter and writes to profile"
+        },
+        {
+          "id": "ICON-003",
+          "workorder_id": "WO-TERMINAL-PROFILE-ICONS-001",
+          "description": "Update updateProfile function to accept and save icon parameter",
+          "feature_id": "F3",
+          "file": "frontend/src/lib/terminal-settings.ts",
+          "acceptance_criteria": "updateProfile accepts icon in updates and writes to profile"
+        },
+        {
+          "id": "ICON-004",
+          "workorder_id": "WO-TERMINAL-PROFILE-ICONS-001",
+          "description": "Add icon picker UI to add profile form in TerminalManager.tsx",
+          "feature_id": "F2",
+          "file": "frontend/src/components/TerminalManager.tsx",
+          "acceptance_criteria": "Icon picker displays preset icons, user can select one"
+        },
+        {
+          "id": "ICON-005",
+          "workorder_id": "WO-TERMINAL-PROFILE-ICONS-001",
+          "description": "Add icon picker UI to edit profile form in TerminalManager.tsx",
+          "feature_id": "F2",
+          "file": "frontend/src/components/TerminalManager.tsx",
+          "acceptance_criteria": "Edit form shows current icon and allows changing"
+        },
+        {
+          "id": "ICON-006",
+          "workorder_id": "WO-TERMINAL-PROFILE-ICONS-001",
+          "description": "Display icon in profile list view",
+          "feature_id": "F2",
+          "file": "frontend/src/components/TerminalManager.tsx",
+          "acceptance_criteria": "Profile cards show icon next to profile name"
+        }
+      ]
+    },
+    "6_implementation_phases": {
+      "phases": [
+        {
+          "phase": 1,
+          "name": "Backend Logic",
+          "description": "Add preset icons and update terminal-settings.ts functions",
+          "tasks": [
+            "ICON-001",
+            "ICON-002",
+            "ICON-003"
+          ],
+          "deliverables": [
+            "PRESET_ICONS constant",
+            "Updated addProfile",
+            "Updated updateProfile"
+          ]
+        },
+        {
+          "phase": 2,
+          "name": "Frontend UI",
+          "description": "Add icon picker to TerminalManager forms and list view",
+          "tasks": [
+            "ICON-004",
+            "ICON-005",
+            "ICON-006"
+          ],
+          "deliverables": [
+            "Icon picker in add form",
+            "Icon picker in edit form",
+            "Icon display in list"
+          ]
+        }
+      ]
+    },
+    "7_testing_strategy": {
+      "manual_tests": [
+        "Create new profile with icon - verify icon appears in Windows Terminal",
+        "Edit existing profile to add/change icon - verify icon updates",
+        "Verify all 15+ preset icons render correctly in picker UI"
+      ]
+    },
+    "8_success_criteria": {
+      "criteria": [
+        "User can select from 15+ preset emoji icons when creating a profile",
+        "User can change icon when editing an existing profile",
+        "Icons display correctly in profile list view",
+        "Icons appear in Windows Terminal tab/dropdown"
+      ]
+    },
+    "9_implementation_checklist": {
+      "phase_1_checklist": [
+        "Add PRESET_ICONS array with 15+ emojis",
+        "Update addProfile signature and implementation",
+        "Update updateProfile to handle icon changes"
+      ],
+      "phase_2_checklist": [
+        "Add icon state to add profile form",
+        "Render icon picker buttons (same style as color picker)",
+        "Add icon state to edit profile form",
+        "Show icon in profile card list"
+      ]
+    }
+  }
+}

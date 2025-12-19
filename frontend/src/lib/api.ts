@@ -719,6 +719,14 @@ class ApiClient {
       throw err;
     }
   }
+
+  async getOrchestratorLog(params?: { project?: string; limit?: number }): Promise<OrchestratorLogResponse> {
+    const searchParams = new URLSearchParams();
+    if (params?.project) searchParams.set("project", params.project);
+    if (params?.limit) searchParams.set("limit", params.limit.toString());
+    const query = searchParams.toString();
+    return await this.request<OrchestratorLogResponse>(`/orchestrator/workorder-log${query ? `?${query}` : ""}`);
+  }
 }
 
 // =========================================================================
@@ -1086,6 +1094,7 @@ export interface OrchestratorProjectsResponse {
 
 export interface OrchestratorStub {
   feature_name?: string;
+  project?: string;
   description?: string;
   category?: string;
   priority?: string;
@@ -1127,7 +1136,18 @@ export interface OrchestratorPlansResponse {
   plans: OrchestratorPlan[];
 }
 
+export interface OrchestratorLogEntry {
+  workorder_id: string;
+  project: string;
+  description: string;
+  timestamp: string | null;
+  _source?: string;
+}
 
+export interface OrchestratorLogResponse {
+  entries: OrchestratorLogEntry[];
+  total: number;
+}
 
 // Gist fallback data
 export interface OrchestratorGistData {

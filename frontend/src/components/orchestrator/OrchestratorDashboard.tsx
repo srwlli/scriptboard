@@ -9,8 +9,9 @@ import { ProjectsTab } from "./ProjectsTab";
 import { StubsTab } from "./StubsTab";
 import { WorkordersTab } from "./WorkordersTab";
 import { PlansTab } from "./PlansTab";
+import { LogTab } from "./LogTab";
 
-type TabId = "overview" | "projects" | "workorders" | "plans" | "stubs";
+type TabId = "overview" | "projects" | "workorders" | "plans" | "stubs" | "log";
 
 /**
  * Orchestrator Dashboard - Central hub for tracking projects, workorders, plans, stubs
@@ -90,6 +91,7 @@ export function OrchestratorDashboard() {
         {activeTab === "stubs" && <StubsTab />}
         {activeTab === "workorders" && <WorkordersTab />}
         {activeTab === "plans" && <PlansTab />}
+        {activeTab === "log" && <LogTab />}
       </div>
     </div>
   );

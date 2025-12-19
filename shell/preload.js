@@ -23,5 +23,18 @@ contextBridge.exposeInMainWorld("electronAPI", {
   maximizeWindow: () => ipcRenderer.invoke("maximize-window"),
   closeWindow: () => ipcRenderer.invoke("close-window"),
   isWindowMaximized: () => ipcRenderer.invoke("is-window-maximized"),
+  // File explorer tree picker
+  listDirectory: (dirPath) => ipcRenderer.invoke("list-directory", dirPath),
+  // Auto-updater
+  checkForUpdates: () => ipcRenderer.invoke("check-for-updates"),
+  downloadUpdate: () => ipcRenderer.invoke("download-update"),
+  installUpdate: () => ipcRenderer.invoke("install-update"),
+  getAppVersion: () => ipcRenderer.invoke("get-app-version"),
+  onUpdateStatus: (callback) => {
+    ipcRenderer.on("update-status", (event, data) => callback(data));
+  },
+  removeUpdateStatusListener: () => {
+    ipcRenderer.removeAllListeners("update-status");
+  },
 });
 

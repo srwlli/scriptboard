@@ -1,0 +1,134 @@
+{
+  "META_DOCUMENTATION": {
+    "feature_name": "orchestrator-log-display",
+    "schema_version": "1.0.0",
+    "version": "1.0.0",
+    "status": "complete",
+    "generated_by": "AI Assistant",
+    "has_context": true,
+    "has_analysis": false
+  },
+  "UNIVERSAL_PLANNING_STRUCTURE": {
+    "0_preparation": {
+      "foundation_docs": {
+        "api": "coderef/foundation-docs/API.md"
+      },
+      "reference_files": [
+        "backend/orchestrator.py",
+        "frontend/src/app/orchestrator/page.tsx"
+      ]
+    },
+    "1_executive_summary": {
+      "feature_description": "Add workorder log display to orchestrator dashboard - read from workorder-log.txt files and show in a new Log tab",
+      "goal": "Allow users to view workorder activity log entries from multiple sources in the orchestrator dashboard",
+      "scope": "Backend endpoint + frontend tab"
+    },
+    "2_risk_assessment": {
+      "complexity": "low",
+      "estimated_effort": "1-2 hours",
+      "risks": [
+        {
+          "risk": "Log files may not exist",
+          "mitigation": "Handle missing files gracefully, return empty array",
+          "severity": "low"
+        }
+      ]
+    },
+    "3_current_state_analysis": {
+      "files_to_modify": [
+        {
+          "path": "backend/orchestrator.py",
+          "changes": "Add GET /orchestrator/workorder-log endpoint"
+        },
+        {
+          "path": "frontend/src/app/orchestrator/page.tsx",
+          "changes": "Add Log tab to display workorder entries"
+        }
+      ],
+      "files_to_create": []
+    },
+    "4_key_features": {
+      "features": [
+        {
+          "id": "F1",
+          "name": "Backend Endpoint",
+          "description": "GET /orchestrator/workorder-log returns parsed log entries"
+        },
+        {
+          "id": "F2",
+          "name": "Frontend Tab",
+          "description": "New Log/Activity tab showing workorder entries"
+        }
+      ]
+    },
+    "5_task_id_system": {
+      "workorder": {
+        "id": "WO-ORCHESTRATOR-LOG-DISPLAY-001",
+        "name": "Orchestrator Log Display",
+        "feature_dir": "coderef/working/orchestrator-log-display"
+      },
+      "tasks": [
+        {
+          "id": "LOG-001",
+          "workorder_id": "WO-ORCHESTRATOR-LOG-DISPLAY-001",
+          "description": "Add GET /orchestrator/workorder-log endpoint that reads from log files",
+          "feature_id": "F1",
+          "file": "backend/orchestrator.py",
+          "acceptance_criteria": "Endpoint returns array of {workorder_id, project, description, timestamp}"
+        },
+        {
+          "id": "LOG-002",
+          "workorder_id": "WO-ORCHESTRATOR-LOG-DISPLAY-001",
+          "description": "Add Log tab to orchestrator dashboard",
+          "feature_id": "F2",
+          "file": "frontend/src/app/orchestrator/page.tsx",
+          "acceptance_criteria": "New tab displays log entries with WO-ID, project, description, timestamp"
+        }
+      ]
+    },
+    "6_implementation_phases": {
+      "phases": [
+        {
+          "phase": 1,
+          "name": "Backend",
+          "description": "Add workorder-log endpoint",
+          "tasks": ["LOG-001"],
+          "deliverables": ["GET /orchestrator/workorder-log endpoint"]
+        },
+        {
+          "phase": 2,
+          "name": "Frontend",
+          "description": "Add Log tab to dashboard",
+          "tasks": ["LOG-002"],
+          "deliverables": ["Log tab in orchestrator dashboard"]
+        }
+      ]
+    },
+    "7_testing_strategy": {
+      "manual_tests": [
+        "Call /orchestrator/workorder-log and verify response format",
+        "Open orchestrator dashboard, verify Log tab appears",
+        "Verify log entries display correctly"
+      ]
+    },
+    "8_success_criteria": {
+      "criteria": [
+        "Endpoint returns parsed log entries from both log file locations",
+        "Frontend displays log entries in chronological order",
+        "Empty state handled when no logs exist"
+      ]
+    },
+    "9_implementation_checklist": {
+      "phase_1_checklist": [
+        "Add workorder-log endpoint to orchestrator.py",
+        "Parse log format: WO-ID | Project | Description | Timestamp",
+        "Read from multiple log file paths"
+      ],
+      "phase_2_checklist": [
+        "Add Log tab to tabs array",
+        "Create LogEntry interface",
+        "Fetch and display log entries"
+      ]
+    }
+  }
+}

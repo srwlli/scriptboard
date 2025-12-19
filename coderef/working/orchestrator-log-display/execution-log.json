@@ -1,0 +1,40 @@
+[
+  {
+    "timestamp": "2025-12-18T22:15:55.962454",
+    "workorder_id": "WO-ORCHESTRATOR-LOG-DISPLAY-001",
+    "feature_name": "orchestrator-log-display",
+    "task_count": 6,
+    "tasks": [
+      {
+        "content": "PHASE-1--001: Add workorder-log endpoint to orchestrator.py",
+        "activeForm": "PHASE-1--001: Adding workorder-log endpoint to orchestrator.py",
+        "status": "pending"
+      },
+      {
+        "content": "Parse log format: WO-ID | Project | Description | Timestamp",
+        "activeForm": "Parse log format: WO-IDing | Project | Description | Timestamp",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-1--003: Read from multiple log file paths",
+        "activeForm": "PHASE-1--003: Reading from multiple log file paths",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-2--001: Add Log tab to tabs array",
+        "activeForm": "PHASE-2--001: Adding Log tab to tabs array",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-2--002: Create LogEntry interface",
+        "activeForm": "PHASE-2--002: Creating LogEntry interface",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-2--003: Fetch and display log entries",
+        "activeForm": "PHASE-2--003: Fetching and display log entries",
+        "status": "pending"
+      }
+    ]
+  }
+]

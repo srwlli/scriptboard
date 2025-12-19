@@ -1,0 +1,60 @@
+[
+  {
+    "timestamp": "2025-12-18T02:16:54.746433",
+    "workorder_id": "WO-FILE-EXPLORER-TREE-PICKER-001",
+    "feature_name": "file-explorer-tree-picker",
+    "task_count": 10,
+    "tasks": [
+      {
+        "content": "PHASE-1--001: Add ipcMain.handle('list-directory') in main.ts",
+        "activeForm": "PHASE-1--001: Adding ipcMain.handle('list-directory') in main.ts",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-1--002: Return {name, path, isDirectory} array using fs.readdir with withFileTypes",
+        "activeForm": "PHASE-1--002: Returning {name, path, isDirectory} array using fs.readdir with withFileTypes",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-1--003: Add listDirectory to contextBridge in preload.ts",
+        "activeForm": "PHASE-1--003: Adding listDirectory to contextBridge in preload.ts",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-2--001: Create TreeNode with folder/file icons and expand chevron",
+        "activeForm": "PHASE-2--001: Creating TreeNode with folder/file icons and expand chevron",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-2--002: Create TreePicker with state for expanded folders and selected item",
+        "activeForm": "PHASE-2--002: Creating TreePicker with state for expanded folders and selected item",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-2--003: Implement lazy loading of children on folder expand",
+        "activeForm": "PHASE-2--003: Implementing lazy loading of children on folder expand",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-2--004: Add visual feedback for selected item",
+        "activeForm": "PHASE-2--004: Adding visual feedback for selected item",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-3--001: Add treeMode prop to FolderPicker",
+        "activeForm": "PHASE-3--001: Adding treeMode prop to FolderPicker",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-3--002: Show TreePicker in popover/modal when treeMode enabled",
+        "activeForm": "PHASE-3--002: Showing TreePicker in popover/modal when treeMode enabled",
+        "status": "pending"
+      },
+      {
+        "content": "PHASE-3--003: Pass selected path back to FolderPicker onChange",
+        "activeForm": "PHASE-3--003: Passing selected path back to FolderPicker onChange",
+        "status": "pending"
+      }
+    ]
+  }
+]
