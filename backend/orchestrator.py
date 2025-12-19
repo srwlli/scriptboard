@@ -65,6 +65,46 @@ def get_project_name(path: str) -> str:
     """Extract project name from path."""
     return os.path.basename(path)
 
+
+def get_file_age(file_path: str) -> int:
+    """
+    Get file age in days since last modification.
+    SCAN-005 - WO-FILE-DISCOVERY-ENHANCEMENT-001
+    """
+    if not os.path.exists(file_path):
+        return -1
+
+    mtime = os.path.getmtime(file_path)
+    modified = datetime.fromtimestamp(mtime)
+    age_delta = datetime.now() - modified
+    return age_delta.days
+
+
+def atomic_write_json(file_path: str, data: dict) -> bool:
+    """
+    Atomically write JSON data to file using temp file + rename pattern.
+    Prevents corruption from concurrent access or crashes mid-write.
+    SCAN-009 - WO-FILE-DISCOVERY-ENHANCEMENT-001
+    """
+    import tempfile
+    import shutil
+
+    try:
+        # Write to temp file first
+        temp_fd, temp_path = tempfile.mkstemp(suffix=".json", dir=os.path.dirname(file_path))
+        with os.fdopen(temp_fd, "w", encoding="utf-8") as f:
+            json.dump(data, f, indent=2)
+
+        # Atomic rename (overwrites target on Windows/Unix)
+        shutil.move(temp_path, file_path)
+        return True
+    except Exception as e:
+        # Clean up temp file if it still exists
+        if os.path.exists(temp_path):
+            os.remove(temp_path)
+        return False
+
+
 def load_gist_config() -> dict:
     """Load gist configuration from file."""
     if GIST_CONFIG_PATH.exists():
@@ -123,11 +163,16 @@ async def update_gist(gist_id: str, content: str) -> dict:
 
 @router.get("/stats")
 async def get_stats():
-    """Get aggregate counts for dashboard overview."""
+    """
+    Get aggregate counts for dashboard overview.
+    SCAN-010: Added stale_count and internal_count - WO-FILE-DISCOVERY-ENHANCEMENT-001
+    """
     projects_count = len(PROJECT_PATHS)
     stubs_count = 0
     workorders_count = 0
     plans_count = 0
+    stale_count = 0
+    internal_count = 0
 
     # Count stubs from orchestrator
     stubs_path = os.path.join(ORCHESTRATOR_PATH, "coderef", "working")
@@ -149,11 +194,21 @@ async def get_stats():
             if "handoff" in comm and comm.get("handoff", {}).get("status") != "complete":
                 workorders_count += 1
 
+    # Count stale plans (SCAN-010)
+    stale_result = await get_stale_plans(days=7)
+    stale_count = stale_result["count"]
+
+    # Count internal workorders (SCAN-010)
+    internal_result = await get_internal_workorders()
+    internal_count = internal_result["count"]
+
     return {
         "projects": projects_count,
         "stubs": stubs_count,
         "active_workorders": workorders_count,
         "plans": plans_count,
+        "stale_count": stale_count,
+        "internal_count": internal_count,
     }
 
 
@@ -289,10 +344,13 @@ async def get_workorders(project: Optional[str] = None, status: Optional[str] = 
 
 
 @router.get("/plans")
-async def get_plans(project: Optional[str] = None, location: Optional[str] = None, stale: bool = False):
-    """Get all plans across projects."""
+async def get_plans(project: Optional[str] = None, location: Optional[str] = None, stale: bool = False, stale_days: int = 7):
+    """
+    Get all plans across projects.
+    SCAN-006: Added stale_days parameter (default 7) - WO-FILE-DISCOVERY-ENHANCEMENT-001
+    """
     plans = []
-    stale_threshold = datetime.now() - timedelta(days=7)
+    stale_threshold = datetime.now() - timedelta(days=stale_days)
 
     for project_path in PROJECT_PATHS:
         project_name = get_project_name(project_path)
@@ -579,3 +637,60 @@ async def get_internal_workorders(project: Optional[str] = None):
                 pass
 
     return {"workorders": internal_wos, "count": len(internal_wos)}
+
+
+@router.get("/stale")
+async def get_stale_plans(days: int = 7, project: Optional[str] = None):
+    """
+    Get only stale plans (plans older than N days without updates).
+    Dedicated endpoint for stale plan detection.
+    SCAN-007 - WO-FILE-DISCOVERY-ENHANCEMENT-001
+    """
+    # Reuse get_plans with stale=True filter
+    result = await get_plans(project=project, stale=True, stale_days=days)
+    return {"plans": result["plans"], "count": len(result["plans"]), "threshold_days": days}
+
+
+@router.post("/register-internal")
+async def register_internal_workorder(workorder_id: str, feature_name: str, project: str, description: str):
+    """
+    Register an internal workorder to workorders.json central tracking.
+    Converts a discovered internal workorder (plan with no communication.json) into a tracked workorder.
+    SCAN-008 - WO-FILE-DISCOVERY-ENHANCEMENT-001
+    """
+    # Load current workorders.json
+    data = get_workorders_master()
+
+    if "error" in data:
+        return {"success": False, "error": data["error"]}
+
+    # Create new workorder entry
+    new_entry = {
+        "workorder_id": workorder_id,
+        "type": "internal",
+        "feature_name": feature_name,
+        "target_project": project,
+        "status": "plan_created",
+        "created": datetime.now().strftime("%Y-%m-%d"),
+        "description": description,
+    }
+
+    # Add to active_workorders
+    if "active_workorders" not in data:
+        data["active_workorders"] = []
+
+    # Check if already exists
+    existing = [wo for wo in data["active_workorders"] if wo.get("workorder_id") == workorder_id]
+    if existing:
+        return {"success": False, "error": f"Workorder {workorder_id} already exists"}
+
+    data["active_workorders"].append(new_entry)
+    data["last_updated"] = datetime.now().strftime("%Y-%m-%d")
+
+    # Atomic write
+    success = atomic_write_json(WORKORDERS_JSON_PATH, data)
+
+    if success:
+        return {"success": True, "workorder": new_entry}
+    else:
+        return {"success": False, "error": "Failed to write workorders.json"}
