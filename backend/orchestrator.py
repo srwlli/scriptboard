@@ -327,6 +327,11 @@ async def get_plans(project: Optional[str] = None, location: Optional[str] = Non
 
                     meta = data.get("META_DOCUMENTATION", {})
 
+                    # Extract workorder_id from task system (SCAN-003)
+                    task_system = data.get("UNIVERSAL_PLANNING_STRUCTURE", {}).get("5_task_id_system", {})
+                    workorder_info = task_system.get("workorder", {})
+                    workorder_id = workorder_info.get("id")
+
                     plans.append({
                         "feature_name": meta.get("feature_name", folder),
                         "project": meta.get("project", project_name),  # Prefer META_DOCUMENTATION.project
@@ -334,6 +339,7 @@ async def get_plans(project: Optional[str] = None, location: Optional[str] = Non
                         "status": meta.get("status", "unknown"),
                         "last_modified": modified.isoformat(),
                         "is_stale": is_stale,
+                        "workorder_id": workorder_id,  # SCAN-003: Extract workorder_id
                         "_file_path": plan_file,
                     })
                 except (json.JSONDecodeError, IOError):
@@ -413,6 +419,9 @@ WORKORDER_LOG_PATHS = [
     r"C:\Users\willh\Desktop\assistant\coderef\workorder-log.txt",
 ]
 
+# Workorders.json central tracking file
+WORKORDERS_JSON_PATH = r"C:\Users\willh\Desktop\assistant\workorders.json"
+
 
 def parse_workorder_log(file_path: str) -> list[dict]:
     """Parse workorder log file. Format: WO-ID | Project | Description | Timestamp"""
@@ -468,3 +477,105 @@ async def get_workorder_log(project: Optional[str] = None, limit: int = 100):
     all_entries = all_entries[:limit]
 
     return {"entries": all_entries, "total": len(all_entries)}
+
+
+def get_workorders_master() -> dict:
+    """
+    Parse workorders.json central tracking file.
+    Returns the full workorders.json structure including active and completed workorders.
+    SCAN-002 - WO-FILE-DISCOVERY-ENHANCEMENT-001
+    """
+    if not os.path.exists(WORKORDERS_JSON_PATH):
+        return {
+            "error": "workorders.json not found",
+            "path": WORKORDERS_JSON_PATH,
+            "active_workorders": [],
+            "completed_workorders": [],
+        }
+
+    try:
+        with open(WORKORDERS_JSON_PATH, "r", encoding="utf-8") as f:
+            data = json.load(f)
+            return data
+    except (json.JSONDecodeError, IOError) as e:
+        return {
+            "error": f"Failed to parse workorders.json: {str(e)}",
+            "path": WORKORDERS_JSON_PATH,
+            "active_workorders": [],
+            "completed_workorders": [],
+        }
+
+
+@router.get("/workorders-master")
+async def get_workorders_master_endpoint():
+    """
+    Get workorders.json central tracking file content.
+    Returns all active and completed workorders from the orchestrator's master tracking file.
+    SCAN-001 - WO-FILE-DISCOVERY-ENHANCEMENT-001
+    """
+    data = get_workorders_master()
+    return data
+
+
+@router.get("/internal-workorders")
+async def get_internal_workorders(project: Optional[str] = None):
+    """
+    Detect internal workorders: plans with workorder_id but NO communication.json.
+    These are plans that have been created but not yet delegated or externally tracked.
+    SCAN-004 - WO-FILE-DISCOVERY-ENHANCEMENT-001
+    """
+    internal_wos = []
+
+    for project_path in PROJECT_PATHS:
+        project_name = get_project_name(project_path)
+
+        if project and project_name != project:
+            continue
+
+        # Only scan working folder for active internal workorders
+        loc_path = os.path.join(project_path, "coderef", "working")
+        if not os.path.exists(loc_path):
+            continue
+
+        for folder in os.listdir(loc_path):
+            plan_file = os.path.join(loc_path, folder, "plan.json")
+            comm_file = os.path.join(loc_path, folder, "communication.json")
+
+            # Must have plan.json
+            if not os.path.exists(plan_file):
+                continue
+
+            # Must NOT have communication.json (that's what makes it "internal")
+            if os.path.exists(comm_file):
+                continue
+
+            try:
+                with open(plan_file, "r", encoding="utf-8") as f:
+                    data = json.load(f)
+
+                meta = data.get("META_DOCUMENTATION", {})
+                task_system = data.get("UNIVERSAL_PLANNING_STRUCTURE", {}).get("5_task_id_system", {})
+                workorder_info = task_system.get("workorder", {})
+                workorder_id = workorder_info.get("id")
+
+                # Only include if it has a workorder_id
+                if not workorder_id:
+                    continue
+
+                # Get file modification time
+                mtime = os.path.getmtime(plan_file)
+                modified = datetime.fromtimestamp(mtime)
+
+                internal_wos.append({
+                    "workorder_id": workorder_id,
+                    "feature_name": meta.get("feature_name", folder),
+                    "project": project_name,
+                    "status": meta.get("status", "unknown"),
+                    "last_modified": modified.isoformat(),
+                    "_file_path": plan_file,
+                    "_type": "internal",
+                })
+            except (json.JSONDecodeError, IOError):
+                pass
+
+    return {"workorders": internal_wos, "count": len(internal_wos)}
