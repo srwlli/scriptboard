@@ -31,6 +31,26 @@ export function ProjectsTab() {
     }
   };
 
+  const handleBrowse = async () => {
+    try {
+      // Use Electron's selectFolder API
+      const selectedPath = await (window as any).electronAPI.selectFolder();
+
+      if (selectedPath) {
+        setNewProjectPath(selectedPath);
+
+        // Auto-populate project name from directory name if not set
+        if (!newProjectName.trim()) {
+          const dirName = selectedPath.split(/[\\/]/).pop() || '';
+          setNewProjectName(dirName);
+        }
+      }
+    } catch (err) {
+      console.error('Failed to open directory dialog:', err);
+      toast.error('Failed to open directory browser');
+    }
+  };
+
   const handleAddProject = async () => {
     if (!newProjectName.trim() || !newProjectPath.trim()) {
       toast.error("Please fill in both name and path");
@@ -142,14 +162,25 @@ export function ProjectsTab() {
               </div>
               <div>
                 <label className="text-xs text-muted-foreground block mb-1">Project Path</label>
-                <input
-                  type="text"
-                  value={newProjectPath}
-                  onChange={(e) => setNewProjectPath(e.target.value)}
-                  placeholder="C:\path\to\project"
-                  className="w-full px-2 py-1.5 text-xs bg-muted border border-border rounded focus:outline-none focus:ring-1 focus:ring-primary"
-                  disabled={isAdding}
-                />
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={newProjectPath}
+                    onChange={(e) => setNewProjectPath(e.target.value)}
+                    placeholder="C:\path\to\project"
+                    className="flex-1 px-2 py-1.5 text-xs bg-muted border border-border rounded focus:outline-none focus:ring-1 focus:ring-primary"
+                    disabled={isAdding}
+                  />
+                  <button
+                    type="button"
+                    onClick={handleBrowse}
+                    className="px-2 py-1.5 text-xs bg-muted hover:bg-muted/80 border border-border rounded transition-colors flex items-center gap-1"
+                    disabled={isAdding}
+                  >
+                    <FolderOpen className="w-3 h-3" />
+                    Browse
+                  </button>
+                </div>
               </div>
               <div className="flex gap-2 justify-end pt-2">
                 <button
