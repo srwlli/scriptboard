@@ -1,0 +1,29 @@
+{
+  "feature_name": "websocket-realtime-updates",
+  "description": "Add WebSocket-based real-time updates to the Orchestrator Dashboard to eliminate manual refresh. File watchers monitor all tracked projects (coderef/working/, coderef/archived/, coderef/stubs/) and broadcast events to connected clients via WebSocket.",
+  "goal": "Enable real-time visibility of multi-agent work across projects, allowing the orchestrator dashboard to automatically update when agents create/modify plans, stubs, and workorders.",
+  "requirements": [
+    "File watcher for all projects monitoring coderef/working/, coderef/archived/, coderef/stubs/ across all tracked projects",
+    "FastAPI WebSocket endpoint at /orchestrator/ws with connection management and heartbeat",
+    "Auto-reconnect logic with exponential backoff on disconnect",
+    "Event types: plan_added, plan_updated, plan_deleted, stub_added, stub_updated, stub_deleted, workorder_added"
+  ],
+  "out_of_scope": [
+    "Remove manual refresh button - keep as backup",
+    "Polling fallback if WebSocket fails",
+    "Multi-user conflict resolution"
+  ],
+  "constraints": [
+    "Must work reliably on Windows with watchdog library",
+    "Electron backend runs on dynamic port - WebSocket must discover it via existing API",
+    "File watcher must not consume excessive CPU/memory with 7+ projects",
+    "Debouncing required for rapid file changes (e.g., git operations) to prevent event flooding"
+  ],
+  "decisions": {},
+  "success_criteria": {},
+  "_metadata": {
+    "workorder_id": "WO-WEBSOCKET-REALTIME-UPDATES-001",
+    "workorder_assigned_at": "2025-12-20T21:52:52.718279+00:00",
+    "workorder_assigned_by": "gather_context"
+  }
+}

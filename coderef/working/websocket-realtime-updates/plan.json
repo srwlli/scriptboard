@@ -1,0 +1,813 @@
+{
+  "META_DOCUMENTATION": {
+    "feature_name": "websocket-realtime-updates",
+    "schema_version": "1.0.0",
+    "version": "1.0.0",
+    "status": "complete",
+    "generated_by": "AI Assistant",
+    "generated_at": "2025-12-20T21:53:00Z",
+    "has_context": true,
+    "has_analysis": true,
+    "source_files": [
+      "coderef/working/websocket-realtime-updates/context.json",
+      "coderef/working/websocket-realtime-updates/analysis.json"
+    ]
+  },
+  "UNIVERSAL_PLANNING_STRUCTURE": {
+    "0_preparation": {
+      "foundation_docs_available": [
+        "README.md",
+        "API.md",
+        "ARCHITECTURE.md",
+        "COMPONENTS.md",
+        "SCHEMA.md"
+      ],
+      "foundation_docs_missing": [
+        "USER-GUIDE.md"
+      ],
+      "coding_standards_available": [
+        "BEHAVIOR-STANDARDS.md",
+        "UI-STANDARDS.md",
+        "UX-PATTERNS.md",
+        "COMPONENT-INDEX.md"
+      ],
+      "coding_standards_missing": [
+        "COMPONENT-PATTERN.md"
+      ],
+      "reference_components": {
+        "primary": "OrchestratorDashboard.tsx",
+        "secondary": [
+          "PlansTab.tsx",
+          "StubsTab.tsx",
+          "WorkordersTab.tsx",
+          "ProjectsTab.tsx"
+        ],
+        "rationale": "WebSocket integration will affect main dashboard and all tabs that need real-time updates"
+      },
+      "technology_stack": {
+        "backend": "FastAPI (Python)",
+        "frontend": "Next.js 16 + React 19",
+        "websocket": "FastAPI WebSocket + browser WebSocket API",
+        "file_watching": "watchdog (Python)",
+        "build_tools": "PyInstaller (backend), electron-builder (installer)"
+      },
+      "key_patterns_identified": [
+        "Error handling with try-catch blocks (47 files)",
+        "Barrel exports pattern (3 files)",
+        "API client pattern (frontend/src/lib/api.ts)",
+        "React hooks for state management",
+        "Toast notifications via sonner"
+      ],
+      "project_structure_notes": "Backend in backend/, Frontend in frontend/src/, Electron shell in shell/, Orchestrator components in frontend/src/components/orchestrator/"
+    },
+    "1_executive_summary": {
+      "feature_overview": "Add WebSocket-based real-time updates to the Orchestrator Dashboard to eliminate manual refresh. File watchers monitor all tracked projects (coderef/working/, coderef/archived/, coderef/stubs/) and broadcast events to connected clients via WebSocket.",
+      "primary_goal": "Enable real-time visibility of multi-agent work across projects, allowing the orchestrator dashboard to automatically update when agents create/modify plans, stubs, and workorders.",
+      "key_benefits": [
+        "Eliminates manual refresh requirement for dashboard",
+        "Instant visibility of agent activity across 7+ tracked projects",
+        "Improved multi-agent coordination workflow",
+        "Reduced cognitive load - dashboard updates automatically",
+        "Maintains manual refresh as reliable backup option"
+      ],
+      "target_users": [
+        "Developers using multi-agent workflows",
+        "Users tracking multiple projects simultaneously",
+        "Teams coordinating feature implementation across repositories"
+      ],
+      "success_metrics": [
+        "WebSocket connection establishes within 2 seconds of dashboard load",
+        "Events broadcast within 500ms of file system changes",
+        "Auto-reconnect succeeds after backend restart within 30 seconds",
+        "File watcher CPU usage < 5% with 7+ projects monitored",
+        "Zero event loss during normal operation"
+      ]
+    },
+    "2_risk_assessment": {
+      "overall_complexity": "medium-high",
+      "estimated_effort": "6-8 hours",
+      "confidence_level": "high",
+      "technical_risks": [
+        {
+          "risk": "File watcher performance degradation with many projects",
+          "probability": "medium",
+          "impact": "medium",
+          "mitigation": "Implement debouncing (500ms), limit watched file patterns to specific JSON files, use efficient watchdog handlers"
+        },
+        {
+          "risk": "WebSocket connection instability on Windows",
+          "probability": "low",
+          "impact": "high",
+          "mitigation": "Implement robust reconnection logic with exponential backoff, keep manual refresh as fallback, add heartbeat ping/pong"
+        },
+        {
+          "risk": "Event flood from git operations (checkout, rebase)",
+          "probability": "high",
+          "impact": "medium",
+          "mitigation": "Debounce file changes to batch rapid events, implement event deduplication logic"
+        },
+        {
+          "risk": "Dynamic port discovery for WebSocket in Electron",
+          "probability": "low",
+          "impact": "medium",
+          "mitigation": "WebSocket URL constructed from existing API base URL which already handles port discovery"
+        }
+      ],
+      "business_risks": [
+        {
+          "risk": "Users rely on WebSocket and don't notice connection loss",
+          "probability": "medium",
+          "impact": "medium",
+          "mitigation": "Clear connection status indicator in UI (green/yellow/red dot), toast notification on disconnect"
+        }
+      ],
+      "dependencies": [
+        "watchdog Python library (BSD-3-Clause license)",
+        "FastAPI WebSocket support (already available)",
+        "Browser WebSocket API (native)",
+        "Existing projects.json configuration"
+      ],
+      "breaking_changes": "None - additive feature only, no API changes",
+      "rollback_plan": "Remove WebSocket code, revert to manual refresh only (no data loss risk)"
+    },
+    "3_current_state_analysis": {
+      "current_behavior": "Users must manually click refresh button in OrchestratorDashboard to see updated stats. Each tab (Projects, Plans, Stubs, Workorders) loads independently on mount. No automatic updates when files change in monitored projects.",
+      "existing_infrastructure": {
+        "backend": "FastAPI app with orchestrator.py endpoints (stats, projects, plans, stubs, workorders)",
+        "frontend": "React components with useEffect hooks for data loading",
+        "refresh_mechanism": "Manual refresh button calls loadStats() to re-fetch data",
+        "project_tracking": "projects.json config file with 7 tracked project paths"
+      },
+      "files_to_modify": [
+        {
+          "path": "backend/requirements.txt",
+          "purpose": "Add watchdog dependency",
+          "changes": "Add watchdog==4.0.0"
+        },
+        {
+          "path": "backend/orchestrator.py",
+          "purpose": "Add WebSocket endpoint",
+          "changes": "Add /orchestrator/ws WebSocket route, import websocket_manager"
+        },
+        {
+          "path": "backend/main.py",
+          "purpose": "Start/stop file watcher on app lifecycle",
+          "changes": "Add startup event to initialize file watcher, shutdown event to stop watcher"
+        },
+        {
+          "path": "frontend/src/components/orchestrator/OrchestratorDashboard.tsx",
+          "purpose": "Integrate WebSocket hook for live updates",
+          "changes": "Add useOrchestratorWebSocket hook, handle events, show connection status"
+        },
+        {
+          "path": "frontend/src/components/orchestrator/PlansTab.tsx",
+          "purpose": "Add WebSocket event listener for plan changes",
+          "changes": "Accept onReload prop, reload plans when plan_added/updated/deleted events received"
+        },
+        {
+          "path": "frontend/src/components/orchestrator/StubsTab.tsx",
+          "purpose": "Add WebSocket event listener for stub changes",
+          "changes": "Accept onReload prop, reload stubs when stub_added/updated/deleted events received"
+        },
+        {
+          "path": "frontend/src/components/orchestrator/WorkordersTab.tsx",
+          "purpose": "Add WebSocket event listener for workorder changes",
+          "changes": "Accept onReload prop, reload workorders when workorder_added event received"
+        },
+        {
+          "path": "frontend/src/components/orchestrator/ProjectsTab.tsx",
+          "purpose": "Add WebSocket event listener for project changes",
+          "changes": "Accept onReload prop, reload projects when project_added/removed events received"
+        }
+      ],
+      "files_to_create": [
+        {
+          "path": "backend/websocket_manager.py",
+          "purpose": "Manage WebSocket connections and broadcast events"
+        },
+        {
+          "path": "backend/file_watcher.py",
+          "purpose": "Monitor file system changes across all projects using watchdog"
+        },
+        {
+          "path": "frontend/src/hooks/useOrchestratorWebSocket.ts",
+          "purpose": "React hook for WebSocket connection with auto-reconnect"
+        }
+      ],
+      "integration_points": [
+        "orchestrator.py - Add WebSocket route, connect to websocket_manager",
+        "main.py - Lifecycle hooks for file watcher initialization",
+        "OrchestratorDashboard.tsx - WebSocket hook integration",
+        "All tabs - Event-driven reload callbacks"
+      ],
+      "data_migration_required": false,
+      "backward_compatibility": "100% - all changes are additive, no breaking changes"
+    },
+    "4_key_features": {
+      "features": [
+        {
+          "name": "WebSocket Connection Management",
+          "description": "Backend WebSocket endpoint at /orchestrator/ws with client connection pooling, heartbeat ping/pong (30s interval), and graceful disconnection handling",
+          "priority": "critical",
+          "user_story": "As a developer, I want a stable WebSocket connection so that I receive real-time updates reliably",
+          "acceptance_criteria": [
+            "WebSocket endpoint accepts connections at /orchestrator/ws",
+            "Connection pool tracks all active clients",
+            "Heartbeat ping every 30 seconds keeps connection alive",
+            "Graceful cleanup on client disconnect",
+            "Broadcast function sends events to all connected clients"
+          ]
+        },
+        {
+          "name": "File System Monitoring",
+          "description": "Python watchdog-based file watcher monitoring coderef/working/*/plan.json, coderef/archived/*/plan.json, coderef/stubs/*/stub.json, and workorder-log.txt across all projects in projects.json",
+          "priority": "critical",
+          "user_story": "As a developer, I want the system to detect file changes automatically so I don't have to manually refresh",
+          "acceptance_criteria": [
+            "Watcher monitors all paths from projects.json dynamically",
+            "Detects create, modify, delete events for plan.json, stub.json, workorder-log.txt",
+            "Debounces rapid changes (500ms) to prevent event storms",
+            "Emits structured events: {type, project, feature_name, file_path, timestamp}",
+            "CPU usage < 5% during idle monitoring"
+          ]
+        },
+        {
+          "name": "Frontend WebSocket Integration",
+          "description": "React hook (useOrchestratorWebSocket) connecting to WebSocket endpoint with auto-reconnect logic (exponential backoff: 1s, 2s, 4s, 8s, max 30s)",
+          "priority": "critical",
+          "user_story": "As a user, I want the dashboard to automatically reconnect after network issues so updates resume without intervention",
+          "acceptance_criteria": [
+            "Hook establishes WebSocket connection on mount",
+            "Auto-reconnect on disconnect with exponential backoff",
+            "Connection status tracked: connecting, connected, disconnected",
+            "Event callbacks fire for plan_added, plan_updated, stub_added, etc.",
+            "Cleanup on unmount prevents memory leaks"
+          ]
+        },
+        {
+          "name": "Dashboard Live Updates",
+          "description": "OrchestratorDashboard and all tabs automatically reload data when relevant WebSocket events received, with visual connection status indicator",
+          "priority": "high",
+          "user_story": "As a user, I want to see real-time updates in the dashboard without clicking refresh",
+          "acceptance_criteria": [
+            "Overview tab reloads stats on any plan/stub/workorder event",
+            "PlansTab reloads on plan_added/updated/deleted",
+            "StubsTab reloads on stub_added/updated/deleted",
+            "WorkordersTab reloads on workorder_added",
+            "ProjectsTab reloads on project_added/removed",
+            "Connection status indicator shows green/yellow/red based on WebSocket state",
+            "Toast notification on disconnect/reconnect"
+          ]
+        },
+        {
+          "name": "Event Debouncing",
+          "description": "Backend debouncing logic batches rapid file changes (e.g., git operations) into single broadcast event to prevent UI thrashing",
+          "priority": "medium",
+          "user_story": "As a user, I want smooth updates even during git operations so the UI remains responsive",
+          "acceptance_criteria": [
+            "File changes within 500ms window batched into single event",
+            "Duplicate events filtered (same file, same event type)",
+            "Event queue processes in FIFO order",
+            "Max queue size of 100 events with overflow protection"
+          ]
+        }
+      ]
+    },
+    "5_task_id_system": {
+      "workorder": {
+        "id": "WO-WEBSOCKET-REALTIME-UPDATES-001",
+        "name": "WebSocket Real-Time Updates",
+        "feature_dir": "coderef/working/websocket-realtime-updates",
+        "status": "planning"
+      },
+      "prefix_convention": "Component/Area prefix + sequential number (e.g., WSOCK-001, WATCH-001, HOOK-001)",
+      "task_id_format": "{PREFIX}-{NUMBER}",
+      "tasks": [
+        {
+          "id": "WSOCK-001",
+          "workorder_id": "WO-WEBSOCKET-REALTIME-UPDATES-001",
+          "description": "Create websocket_manager.py with connection pool and broadcast function",
+          "category": "backend",
+          "estimated_effort": "1 hour",
+          "dependencies": [],
+          "files": ["backend/websocket_manager.py"]
+        },
+        {
+          "id": "WSOCK-002",
+          "workorder_id": "WO-WEBSOCKET-REALTIME-UPDATES-001",
+          "description": "Add WebSocket endpoint /orchestrator/ws to orchestrator.py",
+          "category": "backend",
+          "estimated_effort": "1 hour",
+          "dependencies": ["WSOCK-001"],
+          "files": ["backend/orchestrator.py"]
+        },
+        {
+          "id": "WSOCK-003",
+          "workorder_id": "WO-WEBSOCKET-REALTIME-UPDATES-001",
+          "description": "Add heartbeat ping/pong to WebSocket endpoint (30s interval)",
+          "category": "backend",
+          "estimated_effort": "30 minutes",
+          "dependencies": ["WSOCK-002"],
+          "files": ["backend/orchestrator.py"]
+        },
+        {
+          "id": "WATCH-001",
+          "workorder_id": "WO-WEBSOCKET-REALTIME-UPDATES-001",
+          "description": "Add watchdog to requirements.txt",
+          "category": "backend",
+          "estimated_effort": "5 minutes",
+          "dependencies": [],
+          "files": ["backend/requirements.txt"]
+        },
+        {
+          "id": "WATCH-002",
+          "workorder_id": "WO-WEBSOCKET-REALTIME-UPDATES-001",
+          "description": "Create file_watcher.py with watchdog FileSystemEventHandler",
+          "category": "backend",
+          "estimated_effort": "1.5 hours",
+          "dependencies": ["WATCH-001"],
+          "files": ["backend/file_watcher.py"]
+        },
+        {
+          "id": "WATCH-003",
+          "workorder_id": "WO-WEBSOCKET-REALTIME-UPDATES-001",
+          "description": "Implement debouncing logic (500ms) in file_watcher.py",
+          "category": "backend",
+          "estimated_effort": "45 minutes",
+          "dependencies": ["WATCH-002"],
+          "files": ["backend/file_watcher.py"]
+        },
+        {
+          "id": "WATCH-004",
+          "workorder_id": "WO-WEBSOCKET-REALTIME-UPDATES-001",
+          "description": "Integrate file_watcher with websocket_manager to broadcast events",
+          "category": "backend",
+          "estimated_effort": "30 minutes",
+          "dependencies": ["WATCH-003", "WSOCK-001"],
+          "files": ["backend/file_watcher.py", "backend/websocket_manager.py"]
+        },
+        {
+          "id": "LIFECYCLE-001",
+          "workorder_id": "WO-WEBSOCKET-REALTIME-UPDATES-001",
+          "description": "Add startup event to main.py to initialize file watcher",
+          "category": "backend",
+          "estimated_effort": "20 minutes",
+          "dependencies": ["WATCH-004"],
+          "files": ["backend/main.py"]
+        },
+        {
+          "id": "LIFECYCLE-002",
+          "workorder_id": "WO-WEBSOCKET-REALTIME-UPDATES-001",
+          "description": "Add shutdown event to main.py to stop file watcher gracefully",
+          "category": "backend",
+          "estimated_effort": "15 minutes",
+          "dependencies": ["LIFECYCLE-001"],
+          "files": ["backend/main.py"]
+        },
+        {
+          "id": "HOOK-001",
+          "workorder_id": "WO-WEBSOCKET-REALTIME-UPDATES-001",
+          "description": "Create useOrchestratorWebSocket.ts hook with connection management",
+          "category": "frontend",
+          "estimated_effort": "1 hour",
+          "dependencies": [],
+          "files": ["frontend/src/hooks/useOrchestratorWebSocket.ts"]
+        },
+        {
+          "id": "HOOK-002",
+          "workorder_id": "WO-WEBSOCKET-REALTIME-UPDATES-001",
+          "description": "Implement auto-reconnect with exponential backoff in WebSocket hook",
+          "category": "frontend",
+          "estimated_effort": "45 minutes",
+          "dependencies": ["HOOK-001"],
+          "files": ["frontend/src/hooks/useOrchestratorWebSocket.ts"]
+        },
+        {
+          "id": "HOOK-003",
+          "workorder_id": "WO-WEBSOCKET-REALTIME-UPDATES-001",
+          "description": "Add connection status tracking (connecting, connected, disconnected) to hook",
+          "category": "frontend",
+          "estimated_effort": "20 minutes",
+          "dependencies": ["HOOK-002"],
+          "files": ["frontend/src/hooks/useOrchestratorWebSocket.ts"]
+        },
+        {
+          "id": "UI-001",
+          "workorder_id": "WO-WEBSOCKET-REALTIME-UPDATES-001",
+          "description": "Integrate useOrchestratorWebSocket hook into OrchestratorDashboard.tsx",
+          "category": "frontend",
+          "estimated_effort": "30 minutes",
+          "dependencies": ["HOOK-003"],
+          "files": ["frontend/src/components/orchestrator/OrchestratorDashboard.tsx"]
+        },
+        {
+          "id": "UI-002",
+          "workorder_id": "WO-WEBSOCKET-REALTIME-UPDATES-001",
+          "description": "Add connection status indicator (green/yellow/red dot) to dashboard header",
+          "category": "frontend",
+          "estimated_effort": "30 minutes",
+          "dependencies": ["UI-001"],
+          "files": ["frontend/src/components/orchestrator/OrchestratorDashboard.tsx"]
+        },
+        {
+          "id": "UI-003",
+          "workorder_id": "WO-WEBSOCKET-REALTIME-UPDATES-001",
+          "description": "Add toast notifications for disconnect/reconnect events",
+          "category": "frontend",
+          "estimated_effort": "15 minutes",
+          "dependencies": ["UI-001"],
+          "files": ["frontend/src/components/orchestrator/OrchestratorDashboard.tsx"]
+        },
+        {
+          "id": "UI-004",
+          "workorder_id": "WO-WEBSOCKET-REALTIME-UPDATES-001",
+          "description": "Update PlansTab.tsx to accept onReload prop and reload on plan events",
+          "category": "frontend",
+          "estimated_effort": "20 minutes",
+          "dependencies": ["UI-001"],
+          "files": ["frontend/src/components/orchestrator/PlansTab.tsx"]
+        },
+        {
+          "id": "UI-005",
+          "workorder_id": "WO-WEBSOCKET-REALTIME-UPDATES-001",
+          "description": "Update StubsTab.tsx to accept onReload prop and reload on stub events",
+          "category": "frontend",
+          "estimated_effort": "20 minutes",
+          "dependencies": ["UI-001"],
+          "files": ["frontend/src/components/orchestrator/StubsTab.tsx"]
+        },
+        {
+          "id": "UI-006",
+          "workorder_id": "WO-WEBSOCKET-REALTIME-UPDATES-001",
+          "description": "Update WorkordersTab.tsx to accept onReload prop and reload on workorder events",
+          "category": "frontend",
+          "estimated_effort": "20 minutes",
+          "dependencies": ["UI-001"],
+          "files": ["frontend/src/components/orchestrator/WorkordersTab.tsx"]
+        },
+        {
+          "id": "UI-007",
+          "workorder_id": "WO-WEBSOCKET-REALTIME-UPDATES-001",
+          "description": "Update ProjectsTab.tsx to accept onReload prop and reload on project events",
+          "category": "frontend",
+          "estimated_effort": "20 minutes",
+          "dependencies": ["UI-001"],
+          "files": ["frontend/src/components/orchestrator/ProjectsTab.tsx"]
+        },
+        {
+          "id": "BUILD-001",
+          "workorder_id": "WO-WEBSOCKET-REALTIME-UPDATES-001",
+          "description": "Rebuild backend with PyInstaller including new dependencies",
+          "category": "build",
+          "estimated_effort": "10 minutes",
+          "dependencies": ["LIFECYCLE-002", "WATCH-004", "WSOCK-003"],
+          "files": []
+        },
+        {
+          "id": "BUILD-002",
+          "workorder_id": "WO-WEBSOCKET-REALTIME-UPDATES-001",
+          "description": "Rebuild frontend with Next.js including WebSocket integration",
+          "category": "build",
+          "estimated_effort": "5 minutes",
+          "dependencies": ["UI-007"],
+          "files": []
+        },
+        {
+          "id": "BUILD-003",
+          "workorder_id": "WO-WEBSOCKET-REALTIME-UPDATES-001",
+          "description": "Package new installer with electron-builder",
+          "category": "build",
+          "estimated_effort": "10 minutes",
+          "dependencies": ["BUILD-001", "BUILD-002"],
+          "files": []
+        }
+      ]
+    },
+    "6_implementation_phases": {
+      "phases": [
+        {
+          "phase": 1,
+          "name": "Backend WebSocket Infrastructure",
+          "description": "Set up WebSocket connection management and endpoint in FastAPI backend",
+          "tasks": ["WSOCK-001", "WSOCK-002", "WSOCK-003"],
+          "deliverables": [
+            "backend/websocket_manager.py with connection pool and broadcast function",
+            "WebSocket endpoint at /orchestrator/ws in backend/orchestrator.py",
+            "Heartbeat ping/pong implementation (30s interval)"
+          ],
+          "validation": [
+            "WebSocket endpoint accessible via ws://localhost:8000/orchestrator/ws",
+            "Multiple clients can connect simultaneously",
+            "Heartbeat keeps connection alive for 5+ minutes",
+            "Broadcast sends test events to all connected clients"
+          ]
+        },
+        {
+          "phase": 2,
+          "name": "File System Monitoring",
+          "description": "Implement watchdog-based file watcher with debouncing and event broadcasting",
+          "tasks": ["WATCH-001", "WATCH-002", "WATCH-003", "WATCH-004", "LIFECYCLE-001", "LIFECYCLE-002"],
+          "deliverables": [
+            "watchdog dependency added to requirements.txt",
+            "backend/file_watcher.py with FileSystemEventHandler",
+            "Debouncing logic (500ms batching)",
+            "Integration with websocket_manager for event broadcasting",
+            "Lifecycle hooks in main.py (startup/shutdown events)"
+          ],
+          "validation": [
+            "File watcher starts on backend startup",
+            "Creating plan.json broadcasts plan_added event",
+            "Modifying stub.json broadcasts stub_updated event",
+            "Rapid changes (5 edits in 2 seconds) batched into 1 event",
+            "File watcher stops gracefully on backend shutdown",
+            "CPU usage < 5% during idle monitoring"
+          ]
+        },
+        {
+          "phase": 3,
+          "name": "Frontend WebSocket Integration",
+          "description": "Create React hook for WebSocket connection with auto-reconnect logic",
+          "tasks": ["HOOK-001", "HOOK-002", "HOOK-003"],
+          "deliverables": [
+            "frontend/src/hooks/useOrchestratorWebSocket.ts",
+            "Auto-reconnect with exponential backoff (1s, 2s, 4s, 8s, max 30s)",
+            "Connection status tracking (connecting, connected, disconnected)",
+            "Event callback system for plan/stub/workorder events"
+          ],
+          "validation": [
+            "Hook connects to WebSocket on mount",
+            "Auto-reconnect succeeds after backend restart within 30s",
+            "Connection status updates correctly (connecting → connected)",
+            "Event callbacks fire when test events broadcast",
+            "Hook cleans up on unmount (no memory leaks)"
+          ]
+        },
+        {
+          "phase": 4,
+          "name": "Dashboard UI Integration & Build",
+          "description": "Integrate WebSocket hook into dashboard and all tabs, add connection status UI, rebuild and package",
+          "tasks": ["UI-001", "UI-002", "UI-003", "UI-004", "UI-005", "UI-006", "UI-007", "BUILD-001", "BUILD-002", "BUILD-003"],
+          "deliverables": [
+            "OrchestratorDashboard.tsx with WebSocket integration",
+            "Connection status indicator (green/yellow/red dot)",
+            "Toast notifications for disconnect/reconnect",
+            "All tabs (Plans, Stubs, Workorders, Projects) with event-driven reloads",
+            "Rebuilt backend executable with watchdog",
+            "Rebuilt frontend bundle with WebSocket code",
+            "New installer package"
+          ],
+          "validation": [
+            "Dashboard shows green dot when WebSocket connected",
+            "Creating plan.json in coderef/working/ auto-updates PlansTab within 1 second",
+            "Disconnecting backend shows yellow dot and toast notification",
+            "Reconnecting shows green dot and success toast",
+            "Manual refresh button still works as backup",
+            "New installer includes all WebSocket functionality"
+          ]
+        }
+      ]
+    },
+    "7_testing_strategy": {
+      "unit_tests": [
+        {
+          "component": "websocket_manager.py",
+          "tests": [
+            "Test connection pool adds/removes clients correctly",
+            "Test broadcast sends events to all connected clients",
+            "Test broadcast handles client disconnections gracefully"
+          ]
+        },
+        {
+          "component": "file_watcher.py",
+          "tests": [
+            "Test debouncing batches events within 500ms window",
+            "Test event deduplication (same file, same type)",
+            "Test pattern matching for plan.json, stub.json, workorder-log.txt",
+            "Test projects.json reload updates watched paths"
+          ]
+        },
+        {
+          "component": "useOrchestratorWebSocket.ts",
+          "tests": [
+            "Test connection establishment",
+            "Test auto-reconnect with exponential backoff",
+            "Test connection status transitions",
+            "Test event callback firing",
+            "Test cleanup on unmount"
+          ]
+        }
+      ],
+      "integration_tests": [
+        {
+          "scenario": "End-to-end event flow",
+          "steps": [
+            "Start backend and frontend",
+            "Open OrchestratorDashboard",
+            "Create plan.json in coderef/working/test-feature/",
+            "Verify PlansTab updates within 1 second",
+            "Verify stats counter increments"
+          ]
+        },
+        {
+          "scenario": "Reconnection after backend restart",
+          "steps": [
+            "Establish WebSocket connection",
+            "Stop backend",
+            "Verify disconnect toast and red dot",
+            "Restart backend",
+            "Verify reconnect within 30 seconds with green dot and success toast"
+          ]
+        },
+        {
+          "scenario": "Multi-project file changes",
+          "steps": [
+            "Monitor 7 projects from projects.json",
+            "Create plan.json in 3 different projects simultaneously",
+            "Verify all 3 events broadcast",
+            "Verify PlansTab shows all 3 new plans"
+          ]
+        }
+      ],
+      "performance_tests": [
+        {
+          "test": "File watcher CPU usage",
+          "target": "< 5% CPU during idle monitoring of 7 projects",
+          "measurement": "Task Manager or top command for 5 minutes"
+        },
+        {
+          "test": "Event broadcast latency",
+          "target": "< 500ms from file change to WebSocket event received",
+          "measurement": "Timestamp file write vs. frontend event callback"
+        },
+        {
+          "test": "Debouncing effectiveness",
+          "target": "10 rapid file changes (within 2 seconds) result in 1 broadcast event",
+          "measurement": "Log event count in frontend vs. actual file changes"
+        }
+      ],
+      "manual_testing_checklist": [
+        "Test with 1 project, 3 projects, 7+ projects",
+        "Test creating, modifying, deleting plan.json",
+        "Test creating, modifying, deleting stub.json",
+        "Test adding entries to workorder-log.txt",
+        "Test backend restart while dashboard open",
+        "Test network disconnect/reconnect simulation",
+        "Test manual refresh button still works",
+        "Test git operations (checkout branch) don't flood events",
+        "Test Windows file system operations",
+        "Test installer includes all dependencies"
+      ]
+    },
+    "8_success_criteria": {
+      "functional_requirements": [
+        "WebSocket endpoint /orchestrator/ws accepts connections and maintains heartbeat",
+        "File watcher monitors all projects in projects.json for plan.json, stub.json, workorder-log.txt changes",
+        "Events broadcast within 500ms of file changes",
+        "Frontend auto-reconnects with exponential backoff (max 30s)",
+        "Dashboard tabs auto-reload on relevant events (plan_added, stub_updated, etc.)",
+        "Connection status indicator shows accurate state (green/yellow/red)",
+        "Manual refresh button remains functional as backup"
+      ],
+      "performance_requirements": [
+        "File watcher CPU usage < 5% with 7+ projects",
+        "Event broadcast latency < 500ms",
+        "WebSocket connection establishes within 2 seconds",
+        "Auto-reconnect succeeds within 30 seconds after backend restart",
+        "Debouncing reduces 10 rapid changes to 1 event"
+      ],
+      "usability_requirements": [
+        "No user configuration required - works out of the box",
+        "Clear visual feedback for connection status",
+        "Toast notifications for disconnect/reconnect events",
+        "Dashboard updates feel instant (< 1 second perceived delay)",
+        "Manual refresh available if user prefers explicit control"
+      ],
+      "quality_requirements": [
+        "Zero data loss during normal operation",
+        "Graceful degradation if WebSocket fails (manual refresh works)",
+        "No memory leaks from WebSocket connections",
+        "No event duplication or missed events",
+        "Backward compatible with existing orchestrator functionality"
+      ],
+      "acceptance_tests": [
+        {
+          "test": "Real-time plan updates",
+          "steps": "Open dashboard, create plan.json in external editor, verify dashboard updates within 1 second"
+        },
+        {
+          "test": "Multi-project monitoring",
+          "steps": "Add stub.json to 3 different projects, verify all 3 appear in StubsTab automatically"
+        },
+        {
+          "test": "Connection resilience",
+          "steps": "Restart backend while dashboard open, verify auto-reconnect and updates resume"
+        },
+        {
+          "test": "Manual refresh fallback",
+          "steps": "Disconnect WebSocket, verify manual refresh button still works"
+        }
+      ]
+    },
+    "9_implementation_checklist": {
+      "phase_1_checklist": [
+        "[ ] Create backend/websocket_manager.py with ConnectionManager class",
+        "[ ] Implement active_connections set for client pool",
+        "[ ] Implement connect(websocket) method",
+        "[ ] Implement disconnect(websocket) method",
+        "[ ] Implement broadcast(message: dict) method",
+        "[ ] Add WebSocket route @router.websocket('/ws') to backend/orchestrator.py",
+        "[ ] Import websocket_manager in orchestrator.py",
+        "[ ] Accept WebSocket connection in endpoint",
+        "[ ] Implement heartbeat ping loop (30s interval)",
+        "[ ] Handle pong responses from client",
+        "[ ] Test WebSocket endpoint with browser WebSocket client",
+        "[ ] Verify multiple clients can connect",
+        "[ ] Verify broadcast sends to all clients"
+      ],
+      "phase_2_checklist": [
+        "[ ] Add watchdog==4.0.0 to backend/requirements.txt",
+        "[ ] pip install watchdog in backend environment",
+        "[ ] Create backend/file_watcher.py",
+        "[ ] Import Observer, FileSystemEventHandler from watchdog",
+        "[ ] Implement CodeRefEventHandler(FileSystemEventHandler) class",
+        "[ ] Implement on_created, on_modified, on_deleted methods",
+        "[ ] Add pattern matching for plan.json, stub.json, workorder-log.txt",
+        "[ ] Implement debouncing with threading.Timer (500ms delay)",
+        "[ ] Create event queue for batching",
+        "[ ] Implement event deduplication logic",
+        "[ ] Integrate with websocket_manager.broadcast()",
+        "[ ] Create start_watching(project_paths) function",
+        "[ ] Create stop_watching() function",
+        "[ ] Add @app.on_event('startup') to backend/main.py",
+        "[ ] Load project_paths from projects.json in startup event",
+        "[ ] Call file_watcher.start_watching() in startup event",
+        "[ ] Add @app.on_event('shutdown') to backend/main.py",
+        "[ ] Call file_watcher.stop_watching() in shutdown event",
+        "[ ] Test file creation broadcasts event",
+        "[ ] Test rapid changes debounce correctly",
+        "[ ] Monitor CPU usage during idle (should be < 5%)"
+      ],
+      "phase_3_checklist": [
+        "[ ] Create frontend/src/hooks/useOrchestratorWebSocket.ts",
+        "[ ] Import useState, useEffect, useRef from react",
+        "[ ] Define WebSocketStatus type (connecting | connected | disconnected)",
+        "[ ] Define event callback types (onPlanAdded, onStubUpdated, etc.)",
+        "[ ] Create useOrchestratorWebSocket(callbacks) hook",
+        "[ ] Initialize WebSocket ref with useRef",
+        "[ ] Track connection status with useState",
+        "[ ] Implement connect() function",
+        "[ ] Get backend URL from existing API base",
+        "[ ] Construct WebSocket URL (ws://localhost:PORT/orchestrator/ws)",
+        "[ ] Set up WebSocket.onopen handler",
+        "[ ] Set up WebSocket.onmessage handler to parse events and fire callbacks",
+        "[ ] Set up WebSocket.onerror handler",
+        "[ ] Set up WebSocket.onclose handler",
+        "[ ] Implement reconnect logic with exponential backoff",
+        "[ ] Track reconnect attempts (1s, 2s, 4s, 8s, max 30s)",
+        "[ ] Reset attempt counter on successful connection",
+        "[ ] Implement cleanup in useEffect return",
+        "[ ] Close WebSocket on unmount",
+        "[ ] Clear reconnect timers on unmount",
+        "[ ] Return { status, connected } from hook",
+        "[ ] Test hook connection in dev environment",
+        "[ ] Test auto-reconnect after simulated disconnect"
+      ],
+      "phase_4_checklist": [
+        "[ ] Import useOrchestratorWebSocket in OrchestratorDashboard.tsx",
+        "[ ] Define event callbacks for all event types",
+        "[ ] Call hook: const { status, connected } = useOrchestratorWebSocket({ callbacks })",
+        "[ ] Create reloadStats callback to refresh overview data",
+        "[ ] Create reloadPlans callback to refresh PlansTab",
+        "[ ] Create reloadStubs callback to refresh StubsTab",
+        "[ ] Add connection status indicator in dashboard header",
+        "[ ] Use green dot for 'connected' status",
+        "[ ] Use yellow dot for 'connecting' status",
+        "[ ] Use red dot for 'disconnected' status",
+        "[ ] Add tooltip showing connection state",
+        "[ ] Import toast from sonner",
+        "[ ] Show toast.error on disconnect",
+        "[ ] Show toast.success on reconnect",
+        "[ ] Add onReload prop to PlansTab component signature",
+        "[ ] Call loadPlans() when onReload fires in PlansTab",
+        "[ ] Add onReload prop to StubsTab component signature",
+        "[ ] Call loadStubs() when onReload fires in StubsTab",
+        "[ ] Add onReload prop to WorkordersTab component signature",
+        "[ ] Call loadWorkorders() when onReload fires in WorkordersTab",
+        "[ ] Add onReload prop to ProjectsTab component signature",
+        "[ ] Call loadProjects() when onReload fires in ProjectsTab",
+        "[ ] Test creating plan.json triggers PlansTab reload",
+        "[ ] Test connection indicator shows correct status",
+        "[ ] Test manual refresh button still works",
+        "[ ] Run npm run build in frontend/",
+        "[ ] Verify build completes without errors",
+        "[ ] Run pyinstaller backend/scriptboard-backend.spec",
+        "[ ] Verify backend .exe includes watchdog dependency",
+        "[ ] Copy backend .exe to shell/resources/",
+        "[ ] Run npm run package:win in shell/",
+        "[ ] Test installed app WebSocket connection",
+        "[ ] Test installed app file watcher events",
+        "[ ] Verify installer version number incremented"
+      ]
+    }
+  }
+}
