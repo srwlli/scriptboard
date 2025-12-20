@@ -1,0 +1,128 @@
+{
+  "META_DOCUMENTATION": {
+    "feature_name": "multi-project-stub-tracking",
+    "schema_version": "1.0.0",
+    "version": "1.0.0",
+    "status": "complete",
+    "generated_by": "AI Assistant",
+    "has_context": true,
+    "has_analysis": true,
+    "created_at": "2025-12-20T06:40:00Z"
+  },
+  "UNIVERSAL_PLANNING_STRUCTURE": {
+    "0_preparation": {
+      "foundation_docs": [
+        "backend/orchestrator.py (lines 253-308: stub scanning already implemented)",
+        "backend/orchestrator.py (lines 164-212: stats endpoint needs update)"
+      ],
+      "reference_implementations": [
+        "get_stubs() function already scans all PROJECT_PATHS",
+        "Existing multi-project scanning pattern from plans/workorders"
+      ],
+      "constraints": [
+        "Must not break existing /orchestrator/stubs endpoint",
+        "Must maintain backward compatibility with current stats response"
+      ]
+    },
+    "1_executive_summary": {
+      "feature_name": "Multi-Project Stub Tracking Stats Fix",
+      "goal": "Fix /orchestrator/stats to count stubs from all projects, not just orchestrator project",
+      "scope": "Update stats endpoint to reuse get_stubs() function for accurate cross-project stub counting",
+      "estimated_complexity": "trivial",
+      "files_affected": 1,
+      "target_project": "scriptboard (backend)"
+    },
+    "2_risk_assessment": {
+      "overall_risk": "very_low",
+      "risks": [
+        {
+          "risk": "Performance impact from calling get_stubs() in stats",
+          "mitigation": "get_stubs() already exists and is fast; stats already calls other async functions",
+          "severity": "low"
+        }
+      ]
+    },
+    "3_current_state_analysis": {
+      "existing_functionality": [
+        "get_stubs() already scans all PROJECT_PATHS for stub.json files (lines 253-308)",
+        "get_stubs() scans both working/ and archived/ locations",
+        "get_stubs() adds project field to stub response objects",
+        "get_stubs() supports filtering by project, priority, category"
+      ],
+      "gaps": [
+        "get_stats() only counts stubs from orchestrator project (lines 177-183)",
+        "Inconsistency: other entities counted cross-project, stubs only from orchestrator"
+      ],
+      "files_to_modify": [
+        { "path": "backend/orchestrator.py", "purpose": "Update get_stats() to use get_stubs() for accurate count" }
+      ],
+      "files_to_create": []
+    },
+    "4_key_features": {
+      "features": [
+        {
+          "id": "F1",
+          "name": "Multi-Project Stub Count in Stats",
+          "description": "Update /orchestrator/stats to count stubs from all projects using get_stubs() function"
+        }
+      ]
+    },
+    "5_task_id_system": {
+      "workorder": {
+        "id": "WO-MULTI-PROJECT-STUB-TRACKING-001",
+        "name": "Multi-Project Stub Tracking Stats Fix",
+        "feature_dir": "coderef/working/multi-project-stub-tracking"
+      },
+      "tasks": [
+        {
+          "id": "STATS-001",
+          "workorder_id": "WO-MULTI-PROJECT-STUB-TRACKING-001",
+          "description": "Replace manual stub counting in get_stats() with get_stubs() call",
+          "feature": "F1",
+          "estimated_effort": "small",
+          "status": "pending"
+        }
+      ]
+    },
+    "6_implementation_phases": {
+      "phases": [
+        {
+          "phase": 1,
+          "name": "Stats Fix",
+          "description": "Update get_stats() to count stubs from all projects",
+          "tasks": ["STATS-001"],
+          "deliverables": ["/orchestrator/stats returns accurate stub count across all projects"]
+        }
+      ]
+    },
+    "7_testing_strategy": {
+      "unit_tests": [
+        "Verify get_stats() returns count matching get_stubs() length"
+      ],
+      "integration_tests": [
+        "Test /orchestrator/stats endpoint returns multi-project stub count",
+        "Verify count increases when stub added to any project"
+      ],
+      "manual_tests": [
+        "Call /orchestrator/stats and compare stubs count to /orchestrator/stubs array length"
+      ]
+    },
+    "8_success_criteria": {
+      "functional": [
+        "/orchestrator/stats returns total stub count across all projects",
+        "Stub count matches length of /orchestrator/stubs response"
+      ],
+      "quality": [
+        "No performance regression in stats endpoint",
+        "Backward compatible with existing stats response structure"
+      ]
+    },
+    "9_implementation_checklist": {
+      "phase_1": [
+        "[ ] Replace lines 177-183 in orchestrator.py with get_stubs() call",
+        "[ ] Test stats endpoint returns correct count",
+        "[ ] Verify count matches stubs endpoint length"
+      ]
+    }
+  }
+}

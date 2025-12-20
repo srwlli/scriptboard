@@ -166,6 +166,7 @@ async def get_stats():
     """
     Get aggregate counts for dashboard overview.
     SCAN-010: Added stale_count and internal_count - WO-FILE-DISCOVERY-ENHANCEMENT-001
+    STATS-001: Updated to count stubs from all projects - WO-MULTI-PROJECT-STUB-TRACKING-001
     """
     projects_count = len(PROJECT_PATHS)
     stubs_count = 0
@@ -174,13 +175,9 @@ async def get_stats():
     stale_count = 0
     internal_count = 0
 
-    # Count stubs from orchestrator
-    stubs_path = os.path.join(ORCHESTRATOR_PATH, "coderef", "working")
-    if os.path.exists(stubs_path):
-        for folder in os.listdir(stubs_path):
-            stub_file = os.path.join(stubs_path, folder, "stub.json")
-            if os.path.exists(stub_file):
-                stubs_count += 1
+    # Count stubs from all projects (STATS-001)
+    stubs_result = await get_stubs()
+    stubs_count = len(stubs_result["stubs"])
 
     # Scan all projects
     for project_path in PROJECT_PATHS:

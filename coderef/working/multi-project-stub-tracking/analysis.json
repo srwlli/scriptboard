@@ -1,0 +1,159 @@
+{
+  "foundation_docs": {
+    "available": [
+      "README.md (root)",
+      "API.md (coderef/foundation-docs)",
+      "ARCHITECTURE.md (coderef/foundation-docs)",
+      "COMPONENTS.md (coderef/foundation-docs)",
+      "SCHEMA.md (coderef/foundation-docs)"
+    ],
+    "missing": [
+      "USER-GUIDE.md"
+    ]
+  },
+  "foundation_doc_content": {
+    "ARCHITECTURE.md": {
+      "location": "coderef\\foundation-docs",
+      "preview": "# ARCHITECTURE.md\n\n**Project:** Scriptboard\n**Date:** 2025-12-18\n**Version:** 1.0.0\n\n---\n\n## System Overview\n\nScriptboard is a desktop productivity application for developers, featuring prompt management, code analysis, system monitoring, and project orchestration.\n\n## Topology\n\n```\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502                         ELECTRON SHELL                          \u2502\n\u2502                         (shell/main.js)                         \u2502\n\u2502  \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "headers": [
+        "ARCHITECTURE.md",
+        "System Overview",
+        "Topology",
+        "Module Boundaries",
+        "Frontend (`frontend/`)",
+        "Backend (`backend/`)",
+        "Shell (`shell/`)",
+        "Stack Decisions",
+        "Data Flow",
+        "Prompt Workflow"
+      ],
+      "size": 5609
+    },
+    "API.md": {
+      "location": "coderef\\foundation-docs",
+      "preview": "# API.md\n\n**Project:** Scriptboard\n**Date:** 2025-12-18\n**Version:** 1.0.0\n\n---\n\n## Overview\n\n- **Base URL:** `http://localhost:8000`\n- **Framework:** FastAPI\n- **Authentication:** None (local app)\n- **Error Format:** RFC 7807\n- **Total Endpoints:** 80+\n\n---\n\n## Endpoint Categories\n\n### Core Session\n\n| Method | Endpoint | Description |\n|--------|----------|-------------|\n| GET | `/` | Redirect to docs |\n| GET | `/health` | Health check |\n| GET | `/session` | Get session summary |\n\n### Prompt Man",
+      "headers": [
+        "API.md",
+        "Overview",
+        "Endpoint Categories",
+        "Core Session",
+        "Prompt Management",
+        "Attachments",
+        "Responses",
+        "Export",
+        "Sessions & Autosave",
+        "Git Integration"
+      ],
+      "size": 6674
+    },
+    "COMPONENTS.md": {
+      "location": "coderef\\foundation-docs",
+      "preview": "# COMPONENTS.md\n\n**Project:** Scriptboard\n**Framework:** Next.js 16 + React 19\n**Version:** 1.0.0\n\n---\n\n## Component Hierarchy\n\n```\nApp (layout.tsx)\n\u251c\u2500\u2500 MenuBar\n\u2502   \u251c\u2500\u2500 MenuDropdown\n\u2502   \u2514\u2500\u2500 WindowControls\n\u251c\u2500\u2500 Pages\n\u2502   \u251c\u2500\u2500 Home (page.tsx)\n\u2502   \u2502   \u251c\u2500\u2500 PromptingWorkflowStandalone\n\u2502   \u2502   \u251c\u2500\u2500 SystemMonitor\n\u2502   \u2502   \u251c\u2500\u2500 FileManager\n\u2502   \u2502   \u251c\u2500\u2500 GitIntegrationPanel\n\u2502   \u2502   \u2514\u2500\u2500 SessionManagerPanel\n\u2502   \u251c\u2500\u2500 Orchestrator\n\u2502   \u2502   \u251c\u2500\u2500 PlansTab\n\u2502   \u2502   \u251c\u2500\u2500 WorkordersTab\n\u2502   \u2502   \u2514\u2500\u2500 StubsTab\n\u2502   \u251c\u2500\u2500 CodeRef\n\u2502 ",
+      "headers": [
+        "COMPONENTS.md",
+        "Component Hierarchy",
+        "Feature Panels",
+        "MenuBar",
+        "SystemMonitor",
+        "FileManager",
+        "GitIntegrationPanel",
+        "CodeRefPanel",
+        "TerminalManager",
+        "UI Components (`components/ui/`)"
+      ],
+      "size": 4981
+    },
+    "SCHEMA.md": {
+      "location": "coderef\\foundation-docs",
+      "preview": "# SCHEMA.md\n\n**Project:** Scriptboard\n**Date:** 2025-12-18\n**Schema Version:** 1.0.0\n\n---\n\n## Enums\n\n### SearchItemType\n```python\nPROMPT = \"prompt\"\nATTACHMENT = \"attachment\"\nRESPONSE = \"response\"\nFAVORITE = \"favorite\"\n```\n\n### BatchJobStatus\n```python\nPENDING = \"pending\"\nRUNNING = \"running\"\nCOMPLETED = \"completed\"\nFAILED = \"failed\"\nCANCELLED = \"cancelled\"\n```\n\n### ErrorCode\n```python\nVALIDATION_ERROR | NOT_FOUND | CONFLICT | INTERNAL_ERROR\nGIT_ERROR | CONFIG_ERROR | IO_ERROR | SECURITY_ERROR\nLLM",
+      "headers": [
+        "SCHEMA.md",
+        "Enums",
+        "SearchItemType",
+        "BatchJobStatus",
+        "ErrorCode",
+        "ProcessCategory",
+        "MacroEventType",
+        "Core Models",
+        "ErrorInfo",
+        "SessionSummary"
+      ],
+      "size": 5170
+    },
+    "README.md": {
+      "location": "root",
+      "preview": "# next\n\n## Overview\n\n<!-- AGENT: Describe what this project does -->\n\n## Quick Stats\n\n| Metric | Value |\n|--------|-------|\n| API Endpoints | 80 |\n| Database Tables | 74 |\n\n## Quick Start\n\n<!-- AGENT: Installation and usage instructions -->\n\n## Documentation\n\n- [API Reference](coderef/foundation-docs/API.md)\n- [Architecture](coderef/foundation-docs/ARCHITECTURE.md)\n- [Components](coderef/foundation-docs/COMPONENTS.md)\n- [Schema](coderef/foundation-docs/SCHEMA.md)\n\n---\n\n*Generated: 2025-12-18T00:",
+      "headers": [
+        "next",
+        "Overview",
+        "Quick Stats",
+        "Quick Start",
+        "Documentation"
+      ],
+      "size": 513
+    }
+  },
+  "inventory_data": {
+    "available": [],
+    "missing": [
+      "Run /quick-inventory to generate inventory data"
+    ]
+  },
+  "coding_standards": {
+    "available": [
+      "BEHAVIOR-STANDARDS.md",
+      "UI-STANDARDS.md",
+      "UX-PATTERNS.md",
+      "COMPONENT-INDEX.md"
+    ],
+    "missing": [
+      "COMPONENT-PATTERN.md"
+    ]
+  },
+  "reference_components": {
+    "primary": null,
+    "secondary": [],
+    "note": "Reference component matching requires feature name - not yet implemented"
+  },
+  "key_patterns_identified": [
+    "Error handling: try-catch blocks found in 47 files",
+    "File organization: barrel exports (export from) found in 3 files"
+  ],
+  "technology_stack": {
+    "language": "unknown",
+    "framework": "unknown",
+    "database": "unknown",
+    "testing": "unknown",
+    "build": "unknown"
+  },
+  "project_structure": {
+    "main_directories": [
+      "backend",
+      "frontend",
+      "shell",
+      "frontend\\__tests__",
+      "frontend\\src\\components",
+      "frontend\\src\\components\\filemanager",
+      "frontend\\src\\components\\ui"
+    ],
+    "file_counts": {
+      "frontend\\__tests__": 26,
+      "frontend\\src\\components": 20,
+      "backend": 18,
+      "frontend": 13,
+      "frontend\\src\\components\\ui": 12,
+      "shell": 11,
+      "frontend\\src\\components\\filemanager": 11,
+      "frontend\\src\\components\\system-monitor": 9,
+      "frontend\\src\\components\\orchestrator": 8,
+      "frontend\\src\\components\\theme": 8
+    },
+    "organization_pattern": "unknown"
+  },
+  "gaps_and_risks": [
+    "Missing foundation docs: USER-GUIDE.md",
+    "Missing coding standards: COMPONENT-PATTERN.md",
+    "No test directory found (tests/, test/, or __tests__/)",
+    "No CI configuration found (.github/workflows/, .gitlab-ci.yml, etc.)"
+  ]
+}

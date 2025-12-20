@@ -1,0 +1,21 @@
+{
+  "feature_name": "multi-project-stub-tracking",
+  "description": "Enhance orchestrator stub scanning to track stub.json files across all projects (not just assistant project), similar to how plans are currently tracked across PROJECT_PATHS",
+  "goal": "Enable comprehensive stub tracking across all monitored projects so stubs from any project appear in orchestrator dashboard and stats",
+  "requirements": [
+    "Scan all PROJECT_PATHS for stub.json files in coderef/working/",
+    "Update /orchestrator/stubs endpoint to return stubs from all projects",
+    "Add project field to stub response objects",
+    "Update /orchestrator/stats to show total stub count across all projects",
+    "Maintain backward compatibility with existing stub.json structure"
+  ],
+  "out_of_scope": [],
+  "constraints": [],
+  "decisions": {},
+  "success_criteria": {},
+  "_metadata": {
+    "workorder_id": "WO-MULTI-PROJECT-STUB-TRACKING-001",
+    "workorder_assigned_at": "2025-12-20T06:39:23.196624+00:00",
+    "workorder_assigned_by": "gather_context"
+  }
+}
