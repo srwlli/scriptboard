@@ -727,6 +727,19 @@ class ApiClient {
     const query = searchParams.toString();
     return await this.request<OrchestratorLogResponse>(`/orchestrator/workorder-log${query ? `?${query}` : ""}`);
   }
+
+  async addOrchestratorProject(name: string, path: string): Promise<{ success: boolean; project?: { name: string; path: string }; error?: string }> {
+    return this.request("/orchestrator/projects", {
+      method: "POST",
+      body: JSON.stringify({ name, path }),
+    });
+  }
+
+  async removeOrchestratorProject(name: string): Promise<{ success: boolean; message?: string; error?: string }> {
+    return this.request(`/orchestrator/projects/${encodeURIComponent(name)}`, {
+      method: "DELETE",
+    });
+  }
 }
 
 // =========================================================================

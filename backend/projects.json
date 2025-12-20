@@ -1,0 +1,32 @@
+{
+  "projects": [
+    {
+      "name": "scriptboard",
+      "path": "C:\\Users\\willh\\Desktop\\clipboard_compannion\\next"
+    },
+    {
+      "name": "scrapper",
+      "path": "C:\\Users\\willh\\Desktop\\scrapper"
+    },
+    {
+      "name": "gridiron-franchise",
+      "path": "C:\\Users\\willh\\Desktop\\latest-sim\\gridiron-franchise"
+    },
+    {
+      "name": "noted",
+      "path": "C:\\Users\\willh\\Desktop\\projects\\noted"
+    },
+    {
+      "name": "app-documents",
+      "path": "C:\\Users\\willh\\Desktop\\app_documents"
+    },
+    {
+      "name": "coderef-system",
+      "path": "C:\\Users\\willh\\Desktop\\projects\\coderef-system"
+    },
+    {
+      "name": "multi-tenant",
+      "path": "C:\\Users\\willh\\Desktop\\Business-Dash\\latest-app"
+    }
+  ]
+}

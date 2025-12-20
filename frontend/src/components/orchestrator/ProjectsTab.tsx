@@ -2,12 +2,17 @@
 
 import { useState, useEffect } from "react";
 import { api, OrchestratorProject } from "@/lib/api";
-import { FolderOpen, ExternalLink, Check, X } from "lucide-react";
+import { FolderOpen, ExternalLink, Check, X, Plus } from "lucide-react";
+import { toast } from "sonner";
 
 export function ProjectsTab() {
   const [projects, setProjects] = useState<OrchestratorProject[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showAddDialog, setShowAddDialog] = useState(false);
+  const [newProjectName, setNewProjectName] = useState("");
+  const [newProjectPath, setNewProjectPath] = useState("");
+  const [isAdding, setIsAdding] = useState(false);
 
   useEffect(() => {
     loadProjects();
@@ -23,6 +28,31 @@ export function ProjectsTab() {
       setError(err instanceof Error ? err.message : "Failed to load projects");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleAddProject = async () => {
+    if (!newProjectName.trim() || !newProjectPath.trim()) {
+      toast.error("Please fill in both name and path");
+      return;
+    }
+
+    setIsAdding(true);
+    try {
+      const result = await api.addOrchestratorProject(newProjectName.trim(), newProjectPath.trim());
+      if (result.success) {
+        toast.success(`Project "${newProjectName}" added successfully`);
+        setShowAddDialog(false);
+        setNewProjectName("");
+        setNewProjectPath("");
+        await loadProjects();
+      } else {
+        toast.error(result.error || "Failed to add project");
+      }
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to add project");
+    } finally {
+      setIsAdding(false);
     }
   };
 
@@ -81,6 +111,70 @@ export function ProjectsTab() {
           </div>
         </div>
       ))}
+
+      {/* Add New Project Button */}
+      <button
+        onClick={() => setShowAddDialog(true)}
+        className="w-full grid grid-cols-12 gap-2 px-2 py-2 rounded hover:bg-muted/50 items-center group text-left border border-dashed border-muted-foreground/20 hover:border-muted-foreground/40 transition-colors"
+      >
+        <div className="col-span-12 flex items-center gap-2 justify-center">
+          <Plus className="w-3 h-3 text-muted-foreground" />
+          <span className="text-xs text-muted-foreground">Add New Project</span>
+        </div>
+      </button>
+
+      {/* Add Project Dialog */}
+      {showAddDialog && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={() => setShowAddDialog(false)}>
+          <div className="bg-background border border-border rounded-lg p-4 w-96 max-w-[90vw]" onClick={(e) => e.stopPropagation()}>
+            <h3 className="text-sm font-semibold mb-3">Add New Project</h3>
+            <div className="space-y-3">
+              <div>
+                <label className="text-xs text-muted-foreground block mb-1">Project Name</label>
+                <input
+                  type="text"
+                  value={newProjectName}
+                  onChange={(e) => setNewProjectName(e.target.value)}
+                  placeholder="e.g., my-project"
+                  className="w-full px-2 py-1.5 text-xs bg-muted border border-border rounded focus:outline-none focus:ring-1 focus:ring-primary"
+                  disabled={isAdding}
+                />
+              </div>
+              <div>
+                <label className="text-xs text-muted-foreground block mb-1">Project Path</label>
+                <input
+                  type="text"
+                  value={newProjectPath}
+                  onChange={(e) => setNewProjectPath(e.target.value)}
+                  placeholder="C:\path\to\project"
+                  className="w-full px-2 py-1.5 text-xs bg-muted border border-border rounded focus:outline-none focus:ring-1 focus:ring-primary"
+                  disabled={isAdding}
+                />
+              </div>
+              <div className="flex gap-2 justify-end pt-2">
+                <button
+                  onClick={() => {
+                    setShowAddDialog(false);
+                    setNewProjectName("");
+                    setNewProjectPath("");
+                  }}
+                  className="px-3 py-1.5 text-xs bg-muted hover:bg-muted/80 rounded transition-colors"
+                  disabled={isAdding}
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleAddProject}
+                  className="px-3 py-1.5 text-xs bg-primary hover:bg-primary/80 text-primary-foreground rounded transition-colors disabled:opacity-50"
+                  disabled={isAdding}
+                >
+                  {isAdding ? "Adding..." : "Add Project"}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -21,20 +21,53 @@ router = APIRouter(prefix="/orchestrator", tags=["orchestrator"])
 GIST_CONFIG_PATH = Path(__file__).parent / "gist_config.json"
 GITHUB_GIST_TOKEN = os.getenv("GITHUB_GIST_TOKEN")
 
-
-# Project paths to scan
-PROJECT_PATHS = [
-    r"C:\Users\willh\Desktop\clipboard_compannion\next",
-    r"C:\Users\willh\Desktop\scrapper",
-    r"C:\Users\willh\Desktop\latest-sim\gridiron-franchise",
-    r"C:\Users\willh\Desktop\projects\noted",
-    r"C:\Users\willh\Desktop\app_documents",
-    r"C:\Users\willh\Desktop\projects\coderef-system",
-    r"C:\Users\willh\Desktop\Business-Dash\latest-app",
-]
+# Projects configuration
+PROJECTS_CONFIG_PATH = Path(__file__).parent / "projects.json"
 
 ORCHESTRATOR_PATH = r"C:\Users\willh\Desktop\assistant"
 PROJECTS_MD_PATH = os.path.join(ORCHESTRATOR_PATH, "projects.md")
+
+
+def load_projects() -> list[str]:
+    """Load project paths from projects.json config file."""
+    try:
+        if PROJECTS_CONFIG_PATH.exists():
+            with open(PROJECTS_CONFIG_PATH, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+                return [project['path'] for project in data.get('projects', [])]
+        return []
+    except (json.JSONDecodeError, IOError):
+        return []
+
+
+def save_projects(projects: list[dict]):
+    """Save projects to projects.json config file."""
+    try:
+        data = {'projects': projects}
+        # Atomic write
+        temp_path = PROJECTS_CONFIG_PATH.with_suffix('.tmp')
+        with open(temp_path, 'w', encoding='utf-8') as f:
+            json.dump(data, f, indent=2, ensure_ascii=False)
+        temp_path.replace(PROJECTS_CONFIG_PATH)
+        return True
+    except (IOError, OSError):
+        return False
+
+
+def get_all_projects() -> list[dict]:
+    """Load all projects with metadata from projects.json."""
+    try:
+        if PROJECTS_CONFIG_PATH.exists():
+            with open(PROJECTS_CONFIG_PATH, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+                return data.get('projects', [])
+        return []
+    except (json.JSONDecodeError, IOError):
+        return []
+
+
+# Project paths to scan (loaded dynamically)
+PROJECT_PATHS = load_projects()
 
 
 def scan_json_files(base_path: str, pattern: str) -> list[dict]:
@@ -701,3 +734,74 @@ async def register_internal_workorder(workorder_id: str, feature_name: str, proj
         return {"success": True, "workorder": new_entry}
     else:
         return {"success": False, "error": "Failed to write workorders.json"}
+
+
+@router.post("/projects")
+async def add_project(name: str, path: str):
+    """
+    Add a new project to the orchestrator tracking.
+    Validates the path exists and has a coderef folder before adding.
+    """
+    try:
+        # Validate path exists
+        if not os.path.exists(path):
+            return {"success": False, "error": f"Path does not exist: {path}"}
+
+        # Check for coderef folder
+        coderef_path = os.path.join(path, "coderef")
+        if not os.path.exists(coderef_path):
+            return {"success": False, "error": f"No coderef folder found at {path}"}
+
+        # Load current projects
+        projects = get_all_projects()
+
+        # Check if project with same name or path already exists
+        for project in projects:
+            if project['name'] == name:
+                return {"success": False, "error": f"Project with name '{name}' already exists"}
+            if project['path'] == path:
+                return {"success": False, "error": f"Project with path '{path}' already exists"}
+
+        # Add new project
+        new_project = {"name": name, "path": path}
+        projects.append(new_project)
+
+        # Save to file
+        if save_projects(projects):
+            # Reload PROJECT_PATHS global
+            global PROJECT_PATHS
+            PROJECT_PATHS = load_projects()
+            return {"success": True, "project": new_project}
+        else:
+            return {"success": False, "error": "Failed to save projects.json"}
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
+
+@router.delete("/projects/{project_name}")
+async def remove_project(project_name: str):
+    """
+    Remove a project from orchestrator tracking.
+    Does not delete any files, only removes from tracking list.
+    """
+    try:
+        # Load current projects
+        projects = get_all_projects()
+
+        # Find and remove the project
+        original_count = len(projects)
+        projects = [p for p in projects if p['name'] != project_name]
+
+        if len(projects) == original_count:
+            return {"success": False, "error": f"Project '{project_name}' not found"}
+
+        # Save to file
+        if save_projects(projects):
+            # Reload PROJECT_PATHS global
+            global PROJECT_PATHS
+            PROJECT_PATHS = load_projects()
+            return {"success": True, "message": f"Project '{project_name}' removed from tracking"}
+        else:
+            return {"success": False, "error": "Failed to save projects.json"}
+    except Exception as e:
+        return {"success": False, "error": str(e)}
