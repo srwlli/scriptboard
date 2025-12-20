@@ -78,6 +78,26 @@ app.include_router(orchestrator_router)
 app.include_router(coderef_router)
 
 
+# File watcher lifecycle hooks
+@app.on_event("startup")
+async def startup_event():
+    """Initialize file watcher on application startup."""
+    from file_watcher import start_watching
+    from websocket_manager import manager
+    from orchestrator import load_projects
+
+    project_paths = load_projects()
+    if project_paths:
+        start_watching(project_paths, manager)
+
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    """Stop file watcher on application shutdown."""
+    from file_watcher import stop_watching
+    stop_watching()
+
+
 def get_config_path() -> Path:
     """Get path to user config file."""
     home = Path.home()

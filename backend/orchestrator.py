@@ -9,12 +9,16 @@ import re
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Optional
-from fastapi import APIRouter
+from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 import httpx
 from dotenv import load_dotenv
+import asyncio
 
 # Load environment variables from .env file
 load_dotenv(Path(__file__).parent / ".env")
+
+# Import WebSocket manager
+from websocket_manager import manager
 
 router = APIRouter(prefix="/orchestrator", tags=["orchestrator"])
 # Gist configuration
@@ -805,3 +809,39 @@ async def remove_project(project_name: str):
             return {"success": False, "error": "Failed to save projects.json"}
     except Exception as e:
         return {"success": False, "error": str(e)}
+
+
+@router.websocket("/ws")
+async def websocket_endpoint(websocket: WebSocket):
+    """
+    WebSocket endpoint for real-time orchestrator updates.
+    Maintains connection with heartbeat ping/pong every 30 seconds.
+    """
+    await manager.connect(websocket)
+
+    try:
+        # Heartbeat ping task
+        async def send_ping():
+            while True:
+                try:
+                    await asyncio.sleep(30)
+                    await websocket.send_json({"type": "ping"})
+                except Exception:
+                    break
+
+        # Start heartbeat task
+        ping_task = asyncio.create_task(send_ping())
+
+        # Listen for client messages (pong responses)
+        while True:
+            data = await websocket.receive_text()
+            # Client can send pong or other messages
+            # We don't need to act on them, just keep connection alive
+
+    except WebSocketDisconnect:
+        manager.disconnect(websocket)
+        ping_task.cancel()
+    except Exception as e:
+        manager.disconnect(websocket)
+        if 'ping_task' in locals():
+            ping_task.cancel()
