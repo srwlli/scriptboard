@@ -140,10 +140,10 @@ export function OrchestratorDashboard() {
       {/* Tab Content */}
       <div className="flex-1 overflow-auto mt-4">
         {activeTab === "overview" && <OverviewTab stats={stats} loading={loading} />}
-        {activeTab === "projects" && <ProjectsTab />}
-        {activeTab === "stubs" && <StubsTab />}
-        {activeTab === "workorders" && <WorkordersTab />}
-        {activeTab === "plans" && <PlansTab />}
+        {activeTab === "projects" && <ProjectsTab ref={projectsTabRef} />}
+        {activeTab === "stubs" && <StubsTab ref={stubsTabRef} />}
+        {activeTab === "workorders" && <WorkordersTab ref={workordersTabRef} />}
+        {activeTab === "plans" && <PlansTab ref={plansTabRef} />}
         {activeTab === "log" && <LogTab />}
       </div>
     </div>

@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, forwardRef, useImperativeHandle } from "react";
 import { api, OrchestratorWorkorder } from "@/lib/api";
 import { ClipboardList, Clock, FolderKanban } from "lucide-react";
 
-export function WorkordersTab() {
+export const WorkordersTab = forwardRef<{ reload: () => void }>(function WorkordersTab(props, ref) {
   const [allWorkorders, setAllWorkorders] = useState<OrchestratorWorkorder[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -26,10 +26,6 @@ export function WorkordersTab() {
     });
   }, [allWorkorders, statusFilter, projectFilter]);
 
-  useEffect(() => {
-    loadWorkorders();
-  }, []);
-
   const loadWorkorders = async () => {
     setLoading(true);
     setError(null);
@@ -42,6 +38,15 @@ export function WorkordersTab() {
       setLoading(false);
     }
   };
+
+  // Expose reload method via ref
+  useImperativeHandle(ref, () => ({
+    reload: loadWorkorders
+  }));
+
+  useEffect(() => {
+    loadWorkorders();
+  }, []);
 
   if (loading) {
     return <div className="text-center text-muted-foreground py-8 text-sm">Loading...</div>;
@@ -136,7 +141,7 @@ export function WorkordersTab() {
       )}
     </div>
   );
-}
+});
 
 function StatusBadge({ status }: { status: string }) {
   const colors: Record<string, string> = {

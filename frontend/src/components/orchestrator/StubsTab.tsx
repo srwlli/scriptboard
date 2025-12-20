@@ -1,15 +1,16 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, forwardRef, useImperativeHandle } from "react";
 import { api, OrchestratorStub } from "@/lib/api";
-import { Lightbulb, Clock, Tag } from "lucide-react";
+import { Lightbulb, Clock, Tag, FolderKanban } from "lucide-react";
 
-export function StubsTab() {
+export const StubsTab = forwardRef<{ reload: () => void }>(function StubsTab(props, ref) {
   const [allStubs, setAllStubs] = useState<OrchestratorStub[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [priorityFilter, setPriorityFilter] = useState<"all" | "high" | "medium" | "low">("all");
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
+  const [projectFilter, setProjectFilter] = useState<string>("all");
 
   // Extract unique categories from loaded stubs
   const categories = useMemo(() => {
@@ -17,18 +18,21 @@ export function StubsTab() {
     return ["all", ...Array.from(cats).sort()];
   }, [allStubs]);
 
+  // Extract unique projects from loaded stubs
+  const projects = useMemo(() => {
+    const projs = new Set(allStubs.map(s => s.project).filter(Boolean));
+    return ["all", ...Array.from(projs).sort()];
+  }, [allStubs]);
+
   // Filter stubs based on selected filters
   const stubs = useMemo(() => {
     return allStubs.filter(s => {
       if (priorityFilter !== "all" && s.priority?.toLowerCase() !== priorityFilter) return false;
       if (categoryFilter !== "all" && s.category !== categoryFilter) return false;
+      if (projectFilter !== "all" && s.project !== projectFilter) return false;
       return true;
     });
-  }, [allStubs, priorityFilter, categoryFilter]);
-
-  useEffect(() => {
-    loadStubs();
-  }, []);
+  }, [allStubs, priorityFilter, categoryFilter, projectFilter]);
 
   const loadStubs = async () => {
     setLoading(true);
@@ -42,6 +46,15 @@ export function StubsTab() {
       setLoading(false);
     }
   };
+
+  // Expose reload method via ref
+  useImperativeHandle(ref, () => ({
+    reload: loadStubs
+  }));
+
+  useEffect(() => {
+    loadStubs();
+  }, []);
 
   if (loading) {
     return <div className="text-center text-muted-foreground py-8 text-sm">Loading...</div>;
@@ -71,6 +84,20 @@ export function StubsTab() {
             </button>
           ))}
         </div>
+        {/* Project Filter */}
+        {projects.length > 1 && (
+          <select
+            value={projectFilter}
+            onChange={(e) => setProjectFilter(e.target.value)}
+            className="px-2 py-1 text-xs rounded bg-muted border-none outline-none"
+          >
+            {projects.map((proj) => (
+              <option key={proj} value={proj}>
+                {proj === "all" ? "All Projects" : proj}
+              </option>
+            ))}
+          </select>
+        )}
         {/* Category Filter */}
         {categories.length > 1 && (
           <select
@@ -122,6 +149,12 @@ export function StubsTab() {
                   {stub.priority && (
                     <PriorityBadge priority={stub.priority} />
                   )}
+                  {stub.project && (
+                    <span className="flex items-center gap-1 text-[10px] text-muted-foreground">
+                      <FolderKanban className="w-2.5 h-2.5" />
+                      {stub.project}
+                    </span>
+                  )}
                   {stub.category && (
                     <span className="flex items-center gap-1 text-[10px] text-muted-foreground">
                       <Tag className="w-2.5 h-2.5" />
@@ -142,7 +175,7 @@ export function StubsTab() {
       )}
     </div>
   );
-}
+});
 
 function PriorityBadge({ priority }: { priority: string }) {
   const colors: Record<string, string> = {

@@ -1,38 +1,55 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo, forwardRef, useImperativeHandle } from "react";
 import { api, OrchestratorPlan } from "@/lib/api";
 import { FileText, Clock, FolderKanban, AlertTriangle, Archive } from "lucide-react";
 
-export function PlansTab() {
-  const [plans, setPlans] = useState<OrchestratorPlan[]>([]);
+export const PlansTab = forwardRef<{ reload: () => void }>(function PlansTab(props, ref) {
+  const [allPlans, setAllPlans] = useState<OrchestratorPlan[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [filter, setFilter] = useState<"all" | "working" | "archived" | "stale">("all");
+  const [locationFilter, setLocationFilter] = useState<"all" | "working" | "archived" | "stale">("all");
+  const [projectFilter, setProjectFilter] = useState<string>("all");
 
-  useEffect(() => {
-    loadPlans();
-  }, [filter]);
+  // Extract unique projects from loaded plans
+  const projects = useMemo(() => {
+    const projs = new Set(allPlans.map(p => p.project).filter(Boolean));
+    return ["all", ...Array.from(projs).sort()];
+  }, [allPlans]);
+
+  // Filter plans based on selected filters
+  const plans = useMemo(() => {
+    return allPlans.filter(p => {
+      if (locationFilter === "working" && p.location !== "working") return false;
+      if (locationFilter === "archived" && p.location !== "archived") return false;
+      if (locationFilter === "stale" && !p.is_stale) return false;
+      if (projectFilter !== "all" && p.project !== projectFilter) return false;
+      return true;
+    });
+  }, [allPlans, locationFilter, projectFilter]);
 
   const loadPlans = async () => {
     setLoading(true);
     setError(null);
     try {
-      const params: { location?: string; stale?: boolean } = {};
-      if (filter === "working" || filter === "archived") {
-        params.location = filter;
-      }
-      if (filter === "stale") {
-        params.stale = true;
-      }
-      const data = await api.getOrchestratorPlans(params);
-      setPlans(data.plans);
+      // Load all plans, filter client-side for better UX
+      const data = await api.getOrchestratorPlans();
+      setAllPlans(data.plans);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load plans");
     } finally {
       setLoading(false);
     }
   };
+
+  // Expose reload method via ref
+  useImperativeHandle(ref, () => ({
+    reload: loadPlans
+  }));
+
+  useEffect(() => {
+    loadPlans();
+  }, []);
 
   if (loading) {
     return <div className="text-center text-muted-foreground py-8 text-sm">Loading...</div>;
@@ -44,21 +61,38 @@ export function PlansTab() {
 
   return (
     <div className="space-y-3">
-      {/* Filter Buttons */}
-      <div className="flex gap-1">
-        {(["all", "working", "archived", "stale"] as const).map((f) => (
-          <button
-            key={f}
-            onClick={() => setFilter(f)}
-            className={`px-2 py-1 text-xs rounded transition-colors ${
-              filter === f
-                ? "bg-primary text-primary-foreground"
-                : "bg-muted hover:bg-muted/80"
-            }`}
+      {/* Filters */}
+      <div className="flex flex-wrap gap-2">
+        {/* Location Filter */}
+        <div className="flex gap-1">
+          {(["all", "working", "archived", "stale"] as const).map((f) => (
+            <button
+              key={f}
+              onClick={() => setLocationFilter(f)}
+              className={`px-2 py-1 text-xs rounded transition-colors ${
+                locationFilter === f
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-muted hover:bg-muted/80"
+              }`}
+            >
+              {f === "stale" ? "Stale" : f.charAt(0).toUpperCase() + f.slice(1)}
+            </button>
+          ))}
+        </div>
+        {/* Project Filter */}
+        {projects.length > 1 && (
+          <select
+            value={projectFilter}
+            onChange={(e) => setProjectFilter(e.target.value)}
+            className="px-2 py-1 text-xs rounded bg-muted border-none outline-none"
           >
-            {f === "stale" ? "Stale" : f.charAt(0).toUpperCase() + f.slice(1)}
-          </button>
-        ))}
+            {projects.map((proj) => (
+              <option key={proj} value={proj}>
+                {proj === "all" ? "All Projects" : proj}
+              </option>
+            ))}
+          </select>
+        )}
       </div>
 
       {plans.length === 0 ? (
@@ -66,7 +100,9 @@ export function PlansTab() {
           <FileText className="w-8 h-8 mx-auto mb-2 opacity-50" />
           <div className="text-sm">No plans found</div>
           <div className="text-xs mt-1">
-            {filter === "stale" ? "No stale plans (older than 7 days)" : "Plans appear in coderef/working/"}
+            {locationFilter !== "all" || projectFilter !== "all"
+              ? "Try adjusting your filters"
+              : "Plans appear in coderef/working/"}
           </div>
         </div>
       ) : (
@@ -120,7 +156,7 @@ export function PlansTab() {
       )}
     </div>
   );
-}
+});
 
 function StatusBadge({ status }: { status: string }) {
   const colors: Record<string, string> = {

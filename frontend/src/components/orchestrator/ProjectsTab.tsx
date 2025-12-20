@@ -1,11 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, forwardRef, useImperativeHandle } from "react";
 import { api, OrchestratorProject } from "@/lib/api";
 import { FolderOpen, ExternalLink, Check, X, Plus } from "lucide-react";
 import { toast } from "sonner";
 
-export function ProjectsTab() {
+export const ProjectsTab = forwardRef<{ reload: () => void }>(function ProjectsTab(props, ref) {
   const [projects, setProjects] = useState<OrchestratorProject[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -13,10 +13,6 @@ export function ProjectsTab() {
   const [newProjectName, setNewProjectName] = useState("");
   const [newProjectPath, setNewProjectPath] = useState("");
   const [isAdding, setIsAdding] = useState(false);
-
-  useEffect(() => {
-    loadProjects();
-  }, []);
 
   const loadProjects = async () => {
     setLoading(true);
@@ -30,6 +26,15 @@ export function ProjectsTab() {
       setLoading(false);
     }
   };
+
+  // Expose reload method via ref
+  useImperativeHandle(ref, () => ({
+    reload: loadProjects
+  }));
+
+  useEffect(() => {
+    loadProjects();
+  }, []);
 
   const handleBrowse = async () => {
     try {
@@ -208,4 +213,4 @@ export function ProjectsTab() {
       )}
     </div>
   );
-}
+});
