@@ -66,6 +66,16 @@ def get_project_name(path: str) -> str:
     return os.path.basename(path)
 
 
+def format_timestamp(dt: datetime = None) -> str:
+    """
+    Format datetime as human-readable timestamp: '2025-12-20 12:07 AM'
+    If dt is None, uses current time.
+    """
+    if dt is None:
+        dt = datetime.now()
+    return dt.strftime("%Y-%m-%d %I:%M %p")
+
+
 def get_file_age(file_path: str) -> int:
     """
     Get file age in days since last modification.
@@ -392,7 +402,7 @@ async def get_plans(project: Optional[str] = None, location: Optional[str] = Non
                         "project": meta.get("project", project_name),  # Prefer META_DOCUMENTATION.project
                         "location": loc,
                         "status": meta.get("status", "unknown"),
-                        "last_modified": modified.isoformat(),
+                        "last_modified": format_timestamp(modified),
                         "is_stale": is_stale,
                         "workorder_id": workorder_id,  # SCAN-003: Extract workorder_id
                         "_file_path": plan_file,
@@ -417,7 +427,7 @@ async def sync_to_gist():
 
     # Bundle into single JSON
     data = {
-        "timestamp": datetime.now().isoformat(),
+        "timestamp": format_timestamp(),
         "stats": stats,
         "projects": projects_data.get("projects", []),
         "stubs": stubs_data.get("stubs", []),
@@ -626,7 +636,7 @@ async def get_internal_workorders(project: Optional[str] = None):
                     "feature_name": meta.get("feature_name", folder),
                     "project": project_name,
                     "status": meta.get("status", "unknown"),
-                    "last_modified": modified.isoformat(),
+                    "last_modified": format_timestamp(modified),
                     "_file_path": plan_file,
                     "_type": "internal",
                 })
@@ -668,7 +678,7 @@ async def register_internal_workorder(workorder_id: str, feature_name: str, proj
         "feature_name": feature_name,
         "target_project": project,
         "status": "plan_created",
-        "created": datetime.now().strftime("%Y-%m-%d"),
+        "created": format_timestamp(),
         "description": description,
     }
 
@@ -682,7 +692,7 @@ async def register_internal_workorder(workorder_id: str, feature_name: str, proj
         return {"success": False, "error": f"Workorder {workorder_id} already exists"}
 
     data["active_workorders"].append(new_entry)
-    data["last_updated"] = datetime.now().strftime("%Y-%m-%d")
+    data["last_updated"] = format_timestamp()
 
     # Atomic write
     success = atomic_write_json(WORKORDERS_JSON_PATH, data)
